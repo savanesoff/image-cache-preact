@@ -4,6 +4,7 @@ import "./App.css";
 import { BucketProvider } from "./cache/ImageCache";
 import { useBucket } from "./cache/useBucket";
 import { useEffect } from "react";
+import React from "react";
 
 const images = Array.from({ length: 10 }, (_, i) => i + 1987).map(
   (i) => `https://images.alphacoders.com/116/1169181.jpg?${i}`
