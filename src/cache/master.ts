@@ -18,25 +18,89 @@ type CacheConfig = {
 };
 
 const CONFIG: CacheConfig = {
-  RAM: 10000, // in MB
+  RAM: 100, // in MB
   VIDEO: 10000, // in MB
   LOADERS: 8, // parallel loaders
   COMPRESSION_RATIO: 0.18, // 50% compression
   UNITS: "MB", // 1MB
 };
 
-const cache = new Map<string, ImageItem>();
-const buckets = new Set<Bucket>();
-const memory = {
-  ram: 0,
-  video: 0,
-};
-export const Master = {
+type LogLevel = "none" | "verbose" | "info" | "warn" | "error";
+
+const state = {
+  memory: {
+    ram: 0,
+    video: 0,
+  },
   updating: false,
+  cache: new Map<string, ImageItem>(),
+  buckets: new Set<Bucket>(),
+  logLevel: "none" as LogLevel,
+};
+
+export const Master = Object.freeze({
+  log(data: (string | number | boolean)[], styles = "color: white;") {
+    state.logLevel === "verbose" &&
+      console.log(
+        ["%cMaster:", ...data.map((v) => `\t${v}`)].join("\n"),
+        styles
+      );
+  },
+
+  info(data: (string | number | boolean)[], styles = "") {
+    ["info", "verbose"].includes(state.logLevel) &&
+      console.info(
+        ["%cMaster:", ...data.map((v) => `\t${v}`)].join("\n"),
+        styles
+      );
+  },
+
+  warn(data: (string | number | boolean)[]) {
+    ["warn", "info", "verbose"].includes(state.logLevel) &&
+      console.warn("Master:", ...data.map((v) => `\n\t${v}`));
+  },
+
+  error(data: (string | number | boolean)[]) {
+    ["error", "warn", "info", "verbose"].includes(state.logLevel) &&
+      console.error("Master:", ...data.map((v) => `\n\t${v}`));
+  },
+
+  logRam() {
+    this.info(
+      [
+        "RAM: " + state.memory.ram.toFixed(1) + CONFIG.UNITS,
+        "-used: " + state.memory.ram.toFixed(1) + CONFIG.UNITS,
+        "-configured: " + CONFIG.RAM.toFixed(1) + CONFIG.UNITS,
+        "-remained: " +
+          (CONFIG.RAM - state.memory.ram).toFixed(1) +
+          CONFIG.UNITS,
+      ],
+      "color: skyblue;"
+    );
+  },
+
+  logVideo() {
+    this.info(
+      [
+        `VIDEO: ${state.memory.video.toFixed(1)} ${CONFIG.UNITS}`,
+        `-used: ${state.memory.video.toFixed(1)} ${CONFIG.UNITS}`,
+        `-configured: ${CONFIG.VIDEO.toFixed(1)} ${CONFIG.UNITS}`,
+        `-remained: ${(CONFIG.VIDEO - state.memory.video).toFixed(1)} ${
+          CONFIG.UNITS
+        }`,
+      ],
+      "color: orange; "
+    );
+  },
+
+  setLog(level: LogLevel) {
+    state.logLevel = level;
+  },
+
   get(url: string) {
-    const cached = cache.get(url);
+    const cached = state.cache.get(url);
     const image = cached || new ImageItem(url);
-    if (!cached) cache.set(url, image);
+    if (!cached) state.cache.set(url, image);
     return image;
   },
 
@@ -49,81 +113,80 @@ export const Master = {
   },
 
   addBucket(bucket: Bucket) {
-    buckets.add(bucket);
+    state.buckets.add(bucket);
   },
 
   removeBucket(bucket: Bucket) {
-    buckets.delete(bucket);
+    state.buckets.delete(bucket);
   },
 
   onLoaded(image: ImageItem) {
-    memory.ram += image.ram;
-    console.log(
-      "image ram: " + image.ram.toFixed(1) + CONFIG.UNITS,
-      "used ram: " + memory.ram.toFixed(1) + CONFIG.UNITS,
-      "configured ram: " + CONFIG.RAM.toFixed(1) + CONFIG.UNITS,
-      "remained ram: " + (CONFIG.RAM - memory.ram).toFixed(1) + CONFIG.UNITS
-    );
-
+    state.memory.ram += image.ram;
+    this.info([`Image loaded: ${image.ram.toFixed(1)} ${CONFIG.UNITS}`]);
+    this.logRam();
     this.update();
   },
 
   onBlit(image: ImageItem) {
-    memory.video += image.video;
-    console.log(
-      "image video: " + image.video.toFixed(1) + CONFIG.UNITS,
-      "used video: " + memory.video.toFixed(1) + CONFIG.UNITS,
-      "configured video: " + CONFIG.VIDEO.toFixed(1) + CONFIG.UNITS,
-      "remained video: " +
-        (CONFIG.VIDEO - memory.video).toFixed(1) +
-        CONFIG.UNITS
-    );
+    state.memory.video += image.video;
+    this.info([`Image Blit: ${image.video.toFixed(1)} ${CONFIG.UNITS}`]);
+    this.logVideo();
     this.update();
   },
 
   onDelete(image: ImageItem) {
-    memory.ram -= image.ram;
-    memory.video -= image.video;
-    cache.delete(image.URL);
+    state.memory.ram -= image.ram;
+    state.memory.video -= image.video;
+    state.cache.delete(image.URL);
     this.update();
   },
 
   onUnblit(image: ImageItem) {
-    memory.video -= image.video;
-    console.log("unblit", image.video, memory.video);
+    state.memory.video -= image.video;
+    console.log("unblit", image.video, state.memory.video);
     this.update();
   },
 
   shouldUpdate() {
-    // console.log(memory.ram, memory.video);
-    return memory.ram > CONFIG.RAM || memory.video > CONFIG.VIDEO;
+    // console.log(state.memory.ram, state.memory.video);
+    return state.memory.ram > CONFIG.RAM || state.memory.video > CONFIG.VIDEO;
   },
 
   update() {
-    if (this.updating || !this.shouldUpdate()) return;
-    this.updating = true;
+    if (state.updating || !this.shouldUpdate()) return;
+    this.info(
+      [
+        "updating...",
+        `RAM: ${state.memory.ram.toFixed(1)} ${CONFIG.UNITS}`,
+        `VIDEO: ${state.memory.video.toFixed(1)} ${CONFIG.UNITS}`,
+      ],
+      "color: red;"
+    );
+    state.updating = true;
     // delete images
-    const entries = cache.entries();
-    let [_, image]: [string, ImageItem] = entries.next().value;
+    const entries = state.cache.entries();
+    let [, image]: [string, ImageItem] = entries.next().value;
     while (image && this.shouldUpdate()) {
-      if (memory.ram > CONFIG.RAM) {
+      if (state.memory.ram > CONFIG.RAM) {
         // this will delete the image from cache which means video will be freed as well
         image.delete();
-      } else if (memory.video > CONFIG.VIDEO) {
+      } else if (state.memory.video > CONFIG.VIDEO) {
         image.unblit();
       }
-      [_, image] = entries.next().value ?? [];
+      [, image] = entries.next().value ?? [];
     }
-    this.updating = false;
-    console.log(
-      "update finished: \n\tRAM",
-      memory.ram + CONFIG.UNITS,
-      "\tVIDEO",
-      memory.video + CONFIG.UNITS
+    state.updating = false;
+    this.info(
+      [
+        "updated:",
+        `RAM: ${state.memory.ram.toFixed(1)} ${CONFIG.UNITS}`,
+        `VIDEO: ${state.memory.video.toFixed(1)} ${CONFIG.UNITS}`,
+      ],
+      "color: lime;"
     );
 
     if (this.shouldUpdate()) {
       throw "Unable to free memory. Please increase the cache size or reduce the number of images.";
     }
   },
-};
+});
