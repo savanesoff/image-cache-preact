@@ -31,11 +31,7 @@ function App() {
 
 function Test(): JSX.Element {
   const { loaded, rendered, loading } = useBucket();
-  useEffect(() => {
-    console.log("loaded", loaded);
-    console.log("rendered", rendered);
-    console.log("loading", loading);
-  }, [loaded, rendered, loading]);
+
   return (
     <div>
       <div>Loaded: {loaded.toString()}</div>
