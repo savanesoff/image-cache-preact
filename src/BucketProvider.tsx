@@ -1,22 +1,14 @@
-import React, {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useMemo } from "react";
 import { Bucket } from "./Bucket";
-import { useBucket } from "./useBucket";
+import { Master } from "./master";
 
-export type BucketContextType = {
-  [key in keyof typeof Bucket]: (typeof Bucket)[key];
-  //   [key in keyof typeof Bucket.prototype]: (typeof Bucket.prototype)[key];
-  //keys<T>(o: T): (keyof T)[];
+type BucketContextType = {
+  [key in keyof Bucket]: Bucket[key];
 };
 
-type BB = Omit<BucketContextType, "prototype">;
+const master = new Master();
 
-export const BucketContext = createContext<Bucket>(Bucket.prototype);
+export const BucketContext = createContext<BucketContextType>(Bucket.prototype);
 
 export const BucketProvider = ({
   locked = false,
@@ -34,6 +26,7 @@ export const BucketProvider = ({
   const bucket = useMemo(
     () =>
       new Bucket(
+        master,
         {
           locked,
           blit,
