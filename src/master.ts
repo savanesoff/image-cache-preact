@@ -80,6 +80,7 @@ export class Master extends Logger {
 
   private onClear = (image: ImageItem) => {
     this.ram.remove(image.bytes);
+    image.removeAllListeners();
   };
 
   private onBlit = (image: ImageItem) => {

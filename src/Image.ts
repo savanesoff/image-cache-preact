@@ -84,7 +84,6 @@ export class ImageItem extends Logger {
     this.cached.src = "";
     this.unblit();
     this.emit("clear", this);
-    this.removeAllListeners();
   }
 
   blit() {
