@@ -39,19 +39,26 @@ export class ImageItem extends Logger {
     this.buckets.delete(bucket);
   }
 
+  emitSubscribers(type: string) {
+    for (const bucket of this.buckets) {
+      bucket.emit(type, this);
+    }
+    this.emit(type, this);
+  }
+
   /**
    * Called by the network queue when it's time to load this image
    */
   onLoadStart() {
     this.loading = true;
-    this.emit("loadstart", this);
+    this.emitSubscribers("loadstart");
   }
 
   onLoaderProgress(loader: Loader) {
     this.loadProgress = loader.progress;
     this.bytes = loader.bytesTotal;
     this.bytesLoaded = loader.bytesLoaded;
-    this.emit("progress", this);
+    this.emitSubscribers("progress");
   }
 
   assignBlob(blob: Blob) {
@@ -67,7 +74,7 @@ export class ImageItem extends Logger {
     this.cached.onload = null;
     this.cached.onerror = null;
     // image is ready to be used from here on
-    this.emit("loaded", this);
+    this.emitSubscribers("loaded");
   };
 
   onLoadError = () => {
@@ -75,7 +82,7 @@ export class ImageItem extends Logger {
     this.loaded = false;
     this.cached.onload = null;
     this.cached.onerror = null;
-    this.emit("error", this);
+    this.emitSubscribers("error");
   };
 
   clear() {
@@ -83,7 +90,7 @@ export class ImageItem extends Logger {
     this.cached.onerror = null;
     this.cached.src = "";
     this.unblit();
-    this.emit("clear", this);
+    this.emitSubscribers("clear");
   }
 
   blit() {
@@ -99,7 +106,7 @@ export class ImageItem extends Logger {
 
     window.requestAnimationFrame(() => {
       this.rendered = true;
-      this.emit("blit", this);
+      this.emitSubscribers("blit");
     });
   }
 
@@ -126,7 +133,7 @@ export class ImageItem extends Logger {
     if (!this.rendered) return;
     this.rendered = false;
     this.cached.remove();
-    this.emit("unblit", this);
+    this.emitSubscribers("unblit");
   }
 
   canClear() {
