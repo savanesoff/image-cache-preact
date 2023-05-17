@@ -22,6 +22,7 @@ export class Network extends Logger {
    * Adds image to network queue. The image will be loaded when the network queue is processed
    */
   add(image: ImageItem) {
+    if (image.loaded) return;
     // ensure we don't add the same image twice
     if (!this.imageQueue.has(image.url) && !this.processes.has(image.url)) {
       this.imageQueue.set(image.url, image);

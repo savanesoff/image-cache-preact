@@ -39,6 +39,7 @@ export class Master extends Logger {
       },
     });
     this.network = new Network(loaders);
+
     this.ram = new Memory({
       size: ram,
       units: units,
@@ -46,6 +47,7 @@ export class Master extends Logger {
       name: "RAM",
     });
     this.ram.on("overflow", this.update);
+
     this.video = new Memory({
       size: video,
       units: units,
@@ -60,7 +62,6 @@ export class Master extends Logger {
   }
 
   requestLoad(image: ImageItem) {
-    if (image.loaded) return;
     this.network.add(image);
   }
 
