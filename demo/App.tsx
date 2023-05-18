@@ -21,8 +21,8 @@ function App() {
         }}
       >
         <Test title="Panel 1" locked={true} blit={true} load={true} />
-        {/* <Test title="Panel 2" locked={true} blit={true} load={true} />
-        <Test title="Panel 3" locked={true} blit={true} load={true} /> */}
+        <Test title="Panel 2" locked={true} blit={true} load={true} />
+        <Test title="Panel 3" locked={true} blit={true} load={true} />
       </div>
     </>
   );
@@ -41,8 +41,8 @@ function Test({
 }): JSX.Element {
   const images = useMemo(
     () =>
-      Array.from({ length: 12 }, (_, i) => i + Math.random()).map(
-        (i) => `http://localhost:8080/test.jpg?${i}`
+      Array.from({ length: 100 }, (_, i) => i + Math.random()).map(
+        (i) => `http://localhost:8080/xl.jpg?${i}`
       ),
     []
   );
@@ -81,24 +81,22 @@ function ImagePanel({ title }: { title: string }): JSX.Element {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gridGap: "10px",
+          gridTemplateColumns: "repeat(10, 1fr)",
+          gridGap: "2px",
         }}
       >
-        {rendered &&
-          collection.map((image, i) => {
-            return (
-              <CacheImage
-                key={i}
-                image={image}
-                defaultURL={defaultURL}
-                style={{
-                  width: "50px",
-                  height: "50px",
-                }}
-              />
-            );
-          })}
+        {collection.map((image, i) => {
+          return (
+            <CacheImage
+              key={i}
+              show={rendered}
+              image={image}
+              defaultURL={defaultURL}
+              width={30}
+              height={20}
+            />
+          );
+        })}
       </div>
     </div>
   );
