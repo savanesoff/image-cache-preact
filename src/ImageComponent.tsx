@@ -2,11 +2,17 @@ import { useCallback, useEffect, useState } from "react";
 import { ImageItem } from "./Image";
 
 export function CacheImage({
+  width,
+  height,
+  show,
   image,
   defaultURL,
   style,
   ...props
 }: {
+  width: number;
+  height: number;
+  show: boolean;
   image: ImageItem;
   defaultURL: string;
   style?: React.CSSProperties;
@@ -32,5 +38,18 @@ export function CacheImage({
     };
   }, [assignSRC, blitListener, image]);
 
-  return <img src={src} style={style} {...props} />;
+  useEffect(() => {
+    image.width = width;
+    image.height = height;
+  }, [height, image, width]);
+
+  return (
+    <img
+      src={show ? src : defaultURL}
+      style={style}
+      width={width}
+      height={height}
+      {...props}
+    />
+  );
 }

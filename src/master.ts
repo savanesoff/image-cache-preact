@@ -24,7 +24,7 @@ export class Master extends Logger {
   constructor({
     ram = 1,
     video = 2,
-    loaders = 3,
+    loaders = 6,
     units = "GB",
     logLevel = "verbose",
   }: CacheConfig = {}) {
