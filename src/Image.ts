@@ -98,8 +98,8 @@ export class ImageItem extends Logger {
     this.loaded = true;
     this.cached.onload = null;
     this.cached.onerror = null;
-    this.width = this.cached.width;
-    this.height = this.cached.height;
+    // this.width = this.cached.width;
+    // this.height = this.cached.height;
     // image is ready to be used from here on
     this.emitSubscribers("loaded");
   };
@@ -124,10 +124,12 @@ export class ImageItem extends Logger {
     if (this.rendered) return;
     this.cached.style.position = "absolute";
     this.cached.style.top = "0";
-    this.cached.style.left = Math.round(Math.random() * 95) + "%";
+    this.cached.style.left = Math.round(Math.random() * 5) + "%";
     this.cached.style.opacity = "0.001";
     this.cached.style.zIndex = "9999999999";
-    this.cached.width = this.cached.height = 5;
+    this.cached.width = this.width;
+    this.cached.height = this.height;
+    // this.cached.width = this.cached.height = 1;
 
     // window.document.body.appendChild(this.cached);
 

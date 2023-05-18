@@ -7,7 +7,6 @@ const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour: "2-digit",
   minute: "numeric",
   second: "2-digit",
-  // @ts-ignore-next-line
   fractionalSecondDigits: 3,
   hourCycle: "h23",
 };
@@ -31,6 +30,7 @@ export class Bucket extends Logger {
   private readonly master: Master;
   private readonly config: BucketConfig;
   readonly images = new Map<string, ImageItem>();
+  readonly bucket: Bucket;
 
   defaultURL: string;
   rendered = false;
@@ -52,6 +52,7 @@ export class Bucket extends Logger {
       name: `Bucket:${name}`,
       logLevel: "verbose",
     });
+    this.bucket = this;
     this.master = master;
     this.config = { locked, blit, load };
     this.defaultURL = defaultURL;
