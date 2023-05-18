@@ -1,6 +1,30 @@
 import { Bucket } from "./Bucket";
 import { Loader } from "./loader";
 import Logger from "./logger";
+type blitFunc = () => void;
+const queue: blitFunc[] = [];
+let processing = false;
+
+function processQueue() {
+  if (processing) return;
+  processing = true;
+  const cb = queue.shift();
+  if (!cb) {
+    processing = false;
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    cb();
+    processing = false;
+    processQueue();
+  });
+}
+
+function blitQueue(cb: blitFunc) {
+  queue.push(cb);
+  processQueue();
+}
 
 export class ImageItem extends Logger {
   readonly url: string;
@@ -14,7 +38,8 @@ export class ImageItem extends Logger {
   loading = false;
   rendered = false;
   loadProgress = 0;
-  static readonly compression = 1.18;
+  width = 0;
+  height = 0;
 
   constructor(url: string) {
     super({
@@ -73,6 +98,8 @@ export class ImageItem extends Logger {
     this.loaded = true;
     this.cached.onload = null;
     this.cached.onerror = null;
+    this.width = this.cached.width;
+    this.height = this.cached.height;
     // image is ready to be used from here on
     this.emitSubscribers("loaded");
   };
@@ -98,16 +125,23 @@ export class ImageItem extends Logger {
     this.cached.style.position = "absolute";
     this.cached.style.top = "0";
     this.cached.style.left = Math.round(Math.random() * 95) + "%";
-    this.cached.style.opacity = "0.01";
+    this.cached.style.opacity = "0.001";
     this.cached.style.zIndex = "9999999999";
-    this.cached.width = this.cached.height = 1;
+    this.cached.width = this.cached.height = 5;
 
-    window.document.body.appendChild(this.cached);
+    // window.document.body.appendChild(this.cached);
 
-    window.requestAnimationFrame(() => {
+    // this.rendered = true;
+    // this.emitSubscribers("blit");
+
+    const render = () => {
+      window.document.body.appendChild(this.cached);
+
       this.rendered = true;
       this.emitSubscribers("blit");
-    });
+    };
+
+    blitQueue(render.bind(this));
   }
 
   forceRender() {

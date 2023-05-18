@@ -47,11 +47,12 @@ export class Network extends Logger {
   private update() {
     if (this.processes.size >= this.maxProcesses) return;
 
-    const [url, image]: [string, ImageItem] = this.imageQueue
-      .entries()
-      .next().value;
-    if (!url || !image) return;
-    this.processImage(image);
+    const entries = this.imageQueue.entries();
+    for (const [url, image] of entries) {
+      if (this.processes.size >= this.maxProcesses) return;
+      this.processImage(image);
+      this.imageQueue.delete(url);
+    }
   }
 
   private processImage(image: ImageItem) {

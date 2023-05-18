@@ -3,46 +3,66 @@ import defaultImageURL from "./assets/default.png";
 import Logger from "./logger";
 import { Master } from "./master";
 
-export type BucketConfig = {
+const TIME_FORMAT: Intl.DateTimeFormatOptions = {
+  hour: "2-digit",
+  minute: "numeric",
+  second: "2-digit",
+  // @ts-ignore-next-line
+  fractionalSecondDigits: 3,
+  hourCycle: "h23",
+};
+export interface BucketProps {
+  name: string;
+  locked?: boolean;
+  blit?: boolean;
+  load?: boolean;
+  master: Master;
+  urls?: string[];
+  defaultURL?: string;
+}
+
+type BucketConfig = {
   locked: boolean;
   blit: boolean;
   load: boolean;
 };
 
 export class Bucket extends Logger {
-  readonly config: BucketConfig = {
-    locked: false,
-    blit: true,
-    load: true,
-  };
+  private readonly master: Master;
+  private readonly config: BucketConfig;
   readonly images = new Map<string, ImageItem>();
-  readonly master: Master = {} as Master;
-  loadedImages = new Set<ImageItem>();
-  blitImages = new Set<ImageItem>();
+
+  defaultURL: string;
   rendered = false;
   loading = false;
   loaded = false;
-  defaultURL: string;
   loadProgress = 0;
   timeout = 0;
 
-  constructor(
-    master: Master,
-    {
-      config = {},
-      urls = [],
-      defaultURL = defaultImageURL,
-    }: { config?: Partial<BucketConfig>; urls?: string[]; defaultURL?: string }
-  ) {
+  constructor({
+    name,
+    master,
+    urls = [],
+    defaultURL = defaultImageURL,
+    load = true,
+    blit = true,
+    locked = false,
+  }: BucketProps) {
     super({
-      name: "Bucket",
+      name: `Bucket:${name}`,
       logLevel: "verbose",
     });
     this.master = master;
-    this.config = { ...this.config, ...config };
+    this.config = { locked, blit, load };
     this.defaultURL = defaultURL;
     // register bucket with master
     this.master.addBucket(this);
+
+    this.on("loadstart", this.onStartLoading);
+    this.on("progress", this.onLoadProgress);
+    this.on("loaded", this.onLoaded);
+    this.on("blit", this.onBlit);
+
     // add images to bucket if provided
     urls.forEach((url) => this.addImage(url));
   }
@@ -68,57 +88,77 @@ export class Bucket extends Logger {
     return this.config.locked;
   }
 
+  /**
+   * Load all images in this bucket.
+   * This is an explicit call to load images in case the bucket config is set to not load images on creation.
+   */
   load() {
     if (this.loaded || this.loading) return;
-    this.loading = true;
-    this.loaded = false;
-    this.rendered = false;
     for (const [, image] of this.images) {
-      image.load();
+      this.master.requestLoad(image);
     }
 
     this.emit("change");
   }
 
-  onLoading(image: ImageItem) {
+  private onStartLoading = (image: ImageItem) => {
     this.loading = true;
     this.loaded = false;
     this.rendered = false;
     this.emit("change", image);
-  }
+  };
 
-  onImageLoaded(image: ImageItem) {
-    this.loadedImages.add(image);
-    if (this.loadedImages.size === this.images.size) {
-      this.loaded = true;
-      this.loading = false;
-      this.emit("change");
-    } else {
-      this.loading = true;
-      this.loaded = false;
-    }
-  }
-
-  onBlit(image: ImageItem) {
+  private onLoadProgress = (): void => {
+    let progress = 0;
     for (const [, image] of this.images) {
-      this.rendered = !image.rendered ? false : this.rendered;
+      progress += image.loadProgress;
     }
-    if (this.rendered) {
+    this.loadProgress = progress / this.images.size;
+    this.emit("change");
+  };
+
+  private onLoaded = (image: ImageItem) => {
+    if (this.config.blit) {
+      image.blit();
+    }
+
+    for (const [, image] of this.images) {
+      if (!image.loaded) return;
+    }
+    this.loaded = true;
+    this.loading = false;
+    this.loadProgress = 1;
+    this.emit("change");
+    this.log.info([
+      `Loaded ${this.name}`,
+      new Date().toLocaleTimeString("en-US", TIME_FORMAT),
+    ]);
+  };
+
+  private onBlit = () => {
+    let blit = true;
+    for (const [, image] of this.images) {
+      blit = !image.rendered ? false : blit;
+    }
+    if (this.rendered !== blit) {
+      this.rendered = blit;
       this.emit("change");
+      this.log.info([
+        `Blit ${this.name}`,
+        new Date().toLocaleTimeString("en-US", TIME_FORMAT),
+      ]);
+    } else {
+      this.rendered = blit;
     }
-  }
+  };
 
   clear() {
-    for (const [_, image] of this.images) {
+    for (const [, image] of this.images) {
       // remove this bucket from the image
       image.removeBucket(this);
     }
-    this.images.clear();
-  }
-
-  delete() {
-    this.clear();
     this.master.removeBucket(this);
+    this.removeAllListeners();
   }
 
   blit() {
@@ -127,10 +167,16 @@ export class Bucket extends Logger {
     }
   }
 
+  unBlit() {
+    for (const [, image] of this.images) {
+      image.unblit();
+    }
+  }
+
   getRam() {
     let ram = 0;
     for (const [, image] of this.images) {
-      ram += image.ram;
+      ram += image.bytes;
     }
     return ram;
   }
@@ -138,21 +184,12 @@ export class Bucket extends Logger {
   getVideo() {
     let video = 0;
     for (const [, image] of this.images) {
-      video += image.video;
+      video += image.width * image.height * 4;
     }
     return video;
   }
 
   getImages() {
     return Array.from(this.images.values());
-  }
-
-  onProgress(): void {
-    let progress = 0;
-    for (const [, image] of this.images) {
-      progress += image.loadProgress;
-    }
-    this.loadProgress = progress / this.images.size;
-    this.emit("change");
   }
 }
