@@ -42,7 +42,10 @@ export default class Memory extends Logger {
     const ram = this.toUnits(this.bytes);
 
     this.log.info(
-      [`Added: ${this.toUnits(bytes).toFixed} ${this.units}`, this.getStatus()],
+      [
+        `Added: ${this.toUnits(bytes).toFixed(2)} ${this.units}`,
+        this.getStatus(),
+      ],
       this.styles.info
     );
 

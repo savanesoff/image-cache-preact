@@ -1,5 +1,5 @@
 import { createContext, useMemo } from "react";
-import { Bucket } from "./Bucket";
+import { Bucket, BucketProps } from "./Bucket";
 import { Master } from "./master";
 
 type BucketContextType = {
@@ -10,31 +10,29 @@ const master = new Master();
 
 export const BucketContext = createContext<BucketContextType>(Bucket.prototype);
 
+interface BucketProviderProps extends Omit<BucketProps, "master"> {
+  children: JSX.Element;
+}
+
 export const BucketProvider = ({
+  name,
   locked = false,
   blit = false,
   load = true,
   urls = [],
   children,
-}: {
-  children: JSX.Element;
-  locked?: boolean;
-  blit?: boolean;
-  load?: boolean;
-  urls?: string[];
-}) => {
+}: BucketProviderProps) => {
   const bucket = useMemo(
     () =>
-      new Bucket(
+      new Bucket({
+        name,
         master,
-        {
-          locked,
-          blit,
-          load,
-        },
-        urls
-      ),
-    [locked, blit, load, urls]
+        locked,
+        blit,
+        load,
+        urls,
+      }),
+    [name, locked, blit, load, urls]
   );
 
   return (

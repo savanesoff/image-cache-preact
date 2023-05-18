@@ -15,12 +15,10 @@ export class Loader extends Logger {
   constructor(url: string) {
     super({
       name: "Loader",
-      logLevel: "none",
+      logLevel: "info",
     });
     this.url = url;
     this.xmlHTTP = new XMLHttpRequest();
-    this.xmlHTTP.responseType = "arraybuffer";
-    this.setHeaders();
     // assign event handlers
     this.xmlHTTP.onload = this.onLoaded;
     this.xmlHTTP.onloadstart = this.onStart;
@@ -37,6 +35,8 @@ export class Loader extends Logger {
   load() {
     this.loading = true;
     this.xmlHTTP.open("GET", this.url, true);
+    this.xmlHTTP.responseType = "arraybuffer";
+    this.setHeaders();
     this.xmlHTTP.send();
   }
 
@@ -53,19 +53,21 @@ export class Loader extends Logger {
     // xmlHTTP.setRequestHeader("Access-Control-Allow-Origin", "*");
   }
 
-  private onLoaded() {
+  private onLoaded = () => {
     this.blob = new Blob([this.xmlHTTP.response]);
     this.bytesTotal = this.blob.size;
     this.loaded = true;
     this.loading = false;
     this.progress = 1;
+    this.log.info(["Loaded", this.url]);
     this.emit("load", this);
-  }
+  };
 
   private onProgress = (event: ProgressEvent<EventTarget>) => {
     this.bytesTotal = event.total;
     this.bytesLoaded = event.loaded;
     this.progress = event.loaded / event.total;
+    this.log.verbose(["Progress", this.url, this.progress]);
     this.emit("progress", this);
   };
 

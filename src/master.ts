@@ -24,9 +24,9 @@ export class Master extends Logger {
   constructor({
     ram = 1,
     video = 2,
-    loaders = 8,
+    loaders = 3,
     units = "GB",
-    logLevel = "none",
+    logLevel = "verbose",
   }: CacheConfig = {}) {
     super({
       name: "Master",
@@ -85,11 +85,11 @@ export class Master extends Logger {
   };
 
   private onBlit = (image: ImageItem) => {
-    this.video.add(image.bytes * ImageItem.compression);
+    this.video.add(image.width * image.height * 4);
   };
 
   private onUnblit = (image: ImageItem) => {
-    this.video.remove(image.bytes * ImageItem.compression);
+    this.video.remove(image.width * image.height * 4);
   };
 
   private delete(url: string) {
