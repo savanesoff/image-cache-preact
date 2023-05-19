@@ -1,4 +1,4 @@
-import { CacheImage } from "./Image";
+import { CacheImage } from "./CacheImage";
 import defaultImageURL from "./assets/default.png";
 import Logger from "./logger";
 import { Master } from "./master";

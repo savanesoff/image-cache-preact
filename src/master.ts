@@ -1,5 +1,5 @@
 import { Bucket } from "./Bucket";
-import { CacheImage } from "./Image";
+import { CacheImage } from "./CacheImage";
 import Logger, { LogLevel } from "./logger";
 import { default as Memory } from "./memory";
 import { Network } from "./network";
