@@ -12,6 +12,7 @@ export default class Memory extends Logger {
   private bytes = 0;
   private readonly units: UnitsType;
   private readonly size: number;
+  private count = 0;
 
   constructor({
     size = 1,
@@ -34,16 +35,21 @@ export default class Memory extends Logger {
   getStatus(): string {
     const ram = this.toUnits(this.bytes);
     const percent = Math.round((ram / this.size) * 100);
-    return `Used: ${percent}% (${ram.toFixed(2)}/${this.size} ${this.units})`;
+    return `Used: ${percent}% (${ram.toFixed(3)}/${this.size} ${
+      this.units
+    }), Count: ${this.count}, Average: ${(ram / this.count).toFixed(3)} ${
+      this.units
+    }`;
   }
 
   add(bytes: number) {
+    this.count++;
     this.bytes += bytes;
     const ram = this.toUnits(this.bytes);
 
     this.log.info(
       [
-        `Added: ${this.toUnits(bytes).toFixed(2)} ${this.units}`,
+        `Added: ${this.toUnits(bytes).toFixed(3)} ${this.units}`,
         this.getStatus(),
       ],
       this.styles.info
@@ -60,10 +66,11 @@ export default class Memory extends Logger {
   }
 
   remove(bytes: number) {
+    this.count--;
     this.bytes -= bytes;
     this.log.info(
       [
-        `Removed: ${this.toUnits(bytes).toFixed(2)} ${this.units}`,
+        `Removed: ${this.toUnits(bytes).toFixed(3)} ${this.units}`,
         this.getStatus(),
       ],
       this.styles.info
