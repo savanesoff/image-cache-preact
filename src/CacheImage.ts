@@ -108,15 +108,14 @@ export class CacheImage extends Logger {
     this.cached.width = this.width;
     this.cached.height = this.height;
 
-    const render = () => {
-      window.document.body.appendChild(this.cached);
-
-      this.rendered = true;
-      this.emitSubscribers("blit");
-    };
-
-    CacheImage.blitQueue.add(render.bind(this));
+    CacheImage.blitQueue.add(this.render);
   }
+
+  private render = () => {
+    window.document.body.appendChild(this.cached);
+    this.rendered = true;
+    this.emitSubscribers("blit");
+  };
 
   forceRender() {
     const imgCanvas = document.createElement("canvas");
