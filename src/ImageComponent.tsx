@@ -34,13 +34,12 @@ export function ImageComponent({
       image.on("blit", () => assignSRC());
     }
     return () => {
-      image.removeListener("blit", assignSRC);
+      image.off("blit", assignSRC);
     };
   }, [assignSRC, blitListener, image]);
 
   useEffect(() => {
-    image.width = width;
-    image.height = height;
+    image.setSize({ width, height });
   }, [height, image, width]);
 
   return (

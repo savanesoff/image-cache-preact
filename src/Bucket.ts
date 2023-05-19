@@ -185,7 +185,7 @@ export class Bucket extends Logger {
   getVideo() {
     let video = 0;
     for (const [, image] of this.images) {
-      video += image.width * image.height * 4;
+      video += image.sizeRender.width * image.sizeRender.height * 4;
     }
     return video;
   }
