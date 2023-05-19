@@ -56,7 +56,7 @@ export default class Logger extends EventEmitter {
     data: DataType[]
   ) {
     console[type](
-      [`%c${this.name}:`, data.map((v) => `\t${v}`)].join("\n"),
+      [`%c${this.name}:`, ...data.map((v) => `\t${v}`)].join("\n"),
       styles
     );
   }
