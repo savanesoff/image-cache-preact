@@ -1,4 +1,4 @@
-import { CacheImage } from "./Image";
+import { CacheImage } from "./CacheImage";
 import { Loader } from "./loader";
 import Logger from "./logger";
 

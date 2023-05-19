@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { CacheImage } from "./Image";
+import { CacheImage } from "./CacheImage";
 
 export function ImageComponent({
   width,
