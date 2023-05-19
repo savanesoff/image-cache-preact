@@ -8,7 +8,7 @@ export default class BlitQueue extends Logger {
   constructor() {
     super({
       name: "BlitQueue",
-      logLevel: "verbose",
+      logLevel: "error",
     });
   }
 
