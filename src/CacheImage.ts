@@ -16,8 +16,8 @@ export class CacheImage extends Logger {
   loading = false;
   rendered = false;
   loadProgress = 0;
-  width = 0;
-  height = 0;
+  size = { width: 0, height: 0 };
+  sizeRender = { width: 0, height: 0 };
 
   constructor(url: string) {
     super({
@@ -40,6 +40,11 @@ export class CacheImage extends Logger {
    */
   removeBucket(bucket: Bucket) {
     this.buckets.delete(bucket);
+  }
+
+  setSize({ width, height }: { width: number; height: number }) {
+    this.unblit();
+    this.sizeRender = { width, height };
   }
 
   emitSubscribers(type: string) {
@@ -76,8 +81,7 @@ export class CacheImage extends Logger {
     this.loaded = true;
     this.cached.onload = null;
     this.cached.onerror = null;
-    // this.width = this.cached.width;
-    // this.height = this.cached.height;
+    this.size = { width: this.cached.width, height: this.cached.height };
     // image is ready to be used from here on
     this.emitSubscribers("loaded");
   };
@@ -100,13 +104,17 @@ export class CacheImage extends Logger {
 
   blit() {
     if (this.rendered) return;
+    if (!this.sizeRender.width || !this.sizeRender.height) {
+      this.log.error(["Cannot blit image without size"]);
+      return;
+    }
     this.cached.style.position = "absolute";
     this.cached.style.top = "0";
     this.cached.style.left = Math.round(Math.random() * 5) + "%";
     this.cached.style.opacity = "0.001";
     this.cached.style.zIndex = "9999999999";
-    this.cached.width = this.width;
-    this.cached.height = this.height;
+    this.cached.width = this.sizeRender.width;
+    this.cached.height = this.sizeRender.height;
 
     CacheImage.blitQueue.add(this.render);
   }
@@ -116,25 +124,6 @@ export class CacheImage extends Logger {
     this.rendered = true;
     this.emitSubscribers("blit");
   };
-
-  forceRender() {
-    const imgCanvas = document.createElement("canvas");
-    document.body.appendChild(imgCanvas);
-    const imgContext = imgCanvas.getContext("2d");
-
-    // Make sure canvas is as big as the picture
-    imgCanvas.width = this.cached.width;
-    imgCanvas.height = this.cached.height;
-
-    // Draw image into canvas element
-    imgContext?.drawImage(
-      this.cached,
-      0,
-      0,
-      this.cached.width,
-      this.cached.height
-    );
-  }
 
   unblit() {
     if (!this.rendered) return;

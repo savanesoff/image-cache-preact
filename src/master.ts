@@ -22,8 +22,8 @@ export class Master extends Logger {
   readonly network: Network;
 
   constructor({
-    ram = 1,
-    video = 2,
+    ram = 2,
+    video = 1,
     loaders = 6,
     units = "GB",
     logLevel = "verbose",
@@ -43,7 +43,7 @@ export class Master extends Logger {
     this.ram = new Memory({
       size: ram,
       units: units,
-      logLevel,
+      logLevel: "verbose",
       name: "RAM",
     });
     this.ram.on("overflow", this.update);
@@ -85,11 +85,11 @@ export class Master extends Logger {
   };
 
   private onBlit = (image: CacheImage) => {
-    this.video.add(image.width * image.height * 4);
+    this.video.add(image.sizeRender.width * image.sizeRender.height * 4);
   };
 
   private onUnblit = (image: CacheImage) => {
-    this.video.remove(image.width * image.height * 4);
+    this.video.remove(image.sizeRender.width * image.sizeRender.height * 4);
   };
 
   private delete(url: string) {
