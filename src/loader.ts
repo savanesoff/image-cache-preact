@@ -15,7 +15,7 @@ export class Loader extends Logger {
   constructor(url: string) {
     super({
       name: "Loader",
-      logLevel: "info",
+      logLevel: "error",
     });
     this.url = url;
     this.xmlHTTP = new XMLHttpRequest();
