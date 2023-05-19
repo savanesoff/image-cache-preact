@@ -26,7 +26,7 @@ function blitQueue(cb: blitFunc) {
   processQueue();
 }
 
-export class ImageItem extends Logger {
+export class CacheImage extends Logger {
   readonly url: string;
   // reference to buckets this image is associated with
   readonly buckets = new Set<Bucket>();
