@@ -1,32 +1,10 @@
 import { Bucket } from "./Bucket";
+import BlitQueue from "./blit-queue";
 import { Loader } from "./loader";
 import Logger from "./logger";
-type blitFunc = () => void;
-const queue: blitFunc[] = [];
-let processing = false;
-
-function processQueue() {
-  if (processing) return;
-  processing = true;
-  const cb = queue.shift();
-  if (!cb) {
-    processing = false;
-    return;
-  }
-
-  window.requestAnimationFrame(() => {
-    cb();
-    processing = false;
-    processQueue();
-  });
-}
-
-function blitQueue(cb: blitFunc) {
-  queue.push(cb);
-  processQueue();
-}
 
 export class CacheImage extends Logger {
+  static readonly blitQueue = new BlitQueue();
   readonly url: string;
   // reference to buckets this image is associated with
   readonly buckets = new Set<Bucket>();
@@ -129,12 +107,6 @@ export class CacheImage extends Logger {
     this.cached.style.zIndex = "9999999999";
     this.cached.width = this.width;
     this.cached.height = this.height;
-    // this.cached.width = this.cached.height = 1;
-
-    // window.document.body.appendChild(this.cached);
-
-    // this.rendered = true;
-    // this.emitSubscribers("blit");
 
     const render = () => {
       window.document.body.appendChild(this.cached);
@@ -143,7 +115,7 @@ export class CacheImage extends Logger {
       this.emitSubscribers("blit");
     };
 
-    blitQueue(render.bind(this));
+    CacheImage.blitQueue.add(render.bind(this));
   }
 
   forceRender() {
