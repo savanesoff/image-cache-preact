@@ -1,10 +1,10 @@
-import { ImageItem } from "./Image";
+import { CacheImage } from "./Image";
 import { Loader } from "./loader";
 import Logger from "./logger";
 
 export class Network extends Logger {
-  private processes = new Map<string, { image: ImageItem; loader: Loader }>();
-  private imageQueue = new Map<string, ImageItem>();
+  private processes = new Map<string, { image: CacheImage; loader: Loader }>();
+  private imageQueue = new Map<string, CacheImage>();
   private maxProcesses = 16;
   loadedCount = 0;
   canceledCount = 0;
@@ -21,7 +21,7 @@ export class Network extends Logger {
   /**
    * Adds image to network queue. The image will be loaded when the network queue is processed
    */
-  add(image: ImageItem) {
+  add(image: CacheImage) {
     if (image.loaded) return;
     // ensure we don't add the same image twice
     if (!this.imageQueue.has(image.url) && !this.processes.has(image.url)) {
@@ -31,7 +31,7 @@ export class Network extends Logger {
     this.update();
   }
 
-  remove(image: ImageItem) {
+  remove(image: CacheImage) {
     const queuedImage = this.imageQueue.get(image.url);
     if (queuedImage) {
       this.imageQueue.delete(image.url);
@@ -55,7 +55,7 @@ export class Network extends Logger {
     }
   }
 
-  private processImage(image: ImageItem) {
+  private processImage(image: CacheImage) {
     const loader = new Loader(image.url);
     const onDone = () => {
       loader.removeAllListeners();

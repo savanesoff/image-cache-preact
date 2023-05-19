@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { ImageItem } from "./Image";
+import { CacheImage } from "./Image";
 
-export function CacheImage({
+export function ImageComponent({
   width,
   height,
   show,
@@ -13,7 +13,7 @@ export function CacheImage({
   width: number;
   height: number;
   show: boolean;
-  image: ImageItem;
+  image: CacheImage;
   defaultURL: string;
   style?: React.CSSProperties;
   props?: React.DetailedHTMLProps<

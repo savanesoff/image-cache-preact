@@ -1,6 +1,6 @@
 import devtoolsFPS from "devtools-fps";
 import { useEffect, useMemo } from "react";
-import { BucketProvider, CacheImage, useBucket } from "./../src/";
+import { BucketProvider, ImageComponent, useBucket } from "./../src/";
 import "./App.css";
 
 devtoolsFPS.config({
@@ -87,7 +87,7 @@ function ImagePanel({ title }: { title: string }): JSX.Element {
       >
         {collection.map((image, i) => {
           return (
-            <CacheImage
+            <ImageComponent
               key={i}
               show={rendered}
               image={image}

@@ -1,4 +1,4 @@
-import { ImageItem } from "./Image";
+import { CacheImage } from "./Image";
 import defaultImageURL from "./assets/default.png";
 import Logger from "./logger";
 import { Master } from "./master";
@@ -29,7 +29,7 @@ type BucketConfig = {
 export class Bucket extends Logger {
   private readonly master: Master;
   private readonly config: BucketConfig;
-  readonly images = new Map<string, ImageItem>();
+  readonly images = new Map<string, CacheImage>();
   readonly bucket: Bucket;
 
   defaultURL: string;
@@ -102,7 +102,7 @@ export class Bucket extends Logger {
     this.emit("change");
   }
 
-  private onStartLoading = (image: ImageItem) => {
+  private onStartLoading = (image: CacheImage) => {
     this.loading = true;
     this.loaded = false;
     this.rendered = false;
@@ -118,7 +118,7 @@ export class Bucket extends Logger {
     this.emit("change");
   };
 
-  private onLoaded = (image: ImageItem) => {
+  private onLoaded = (image: CacheImage) => {
     if (this.config.blit) {
       image.blit();
     }
