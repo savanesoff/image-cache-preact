@@ -13,7 +13,7 @@ export class Network extends Logger {
   constructor(loaders?: number) {
     super({
       name: "Network",
-      logLevel: "verbose",
+      logLevel: "none",
     });
     this.maxProcesses = loaders ?? this.maxProcesses;
   }
