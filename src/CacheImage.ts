@@ -113,6 +113,7 @@ export class CacheImage extends Logger {
     this.cached.style.left = Math.round(Math.random() * 5) + "%";
     this.cached.style.opacity = "0.001";
     this.cached.style.zIndex = "9999999999";
+    this.cached.style.pointerEvents = "none";
     this.cached.width = this.sizeRender.width;
     this.cached.height = this.sizeRender.height;
 
