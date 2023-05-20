@@ -50,9 +50,19 @@ export class Network extends Logger {
     const entries = this.imageQueue.entries();
     for (const [url, image] of entries) {
       if (this.processes.size >= this.maxProcesses) return;
+      if (!this.canLoad()) {
+        this.log.warn(["Unable to load data!", "Memory overflow!"]);
+        return;
+      }
       this.processImage(image);
       this.imageQueue.delete(url);
     }
+  }
+
+  private canLoad() {
+    const memory = { overflow: false };
+    this.emit("check-memory", memory);
+    return !memory.overflow;
   }
 
   private processImage(image: CacheImage) {
