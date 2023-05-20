@@ -8,7 +8,7 @@ export default class BlitQueue extends Logger {
   constructor() {
     super({
       name: "BlitQueue",
-      logLevel: "error",
+      logLevel: "none",
     });
   }
 
@@ -21,10 +21,13 @@ export default class BlitQueue extends Logger {
       return;
     }
 
+    this.log.verbose([`processing: ${this.queue.length}`]);
     window.requestAnimationFrame(() => {
       cb();
       this.scheduled = false;
       this.processQueue();
+
+      this.log.verbose([`processed`]);
     });
   }
 
