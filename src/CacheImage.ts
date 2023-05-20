@@ -133,13 +133,13 @@ export class CacheImage extends Logger {
     this.emitSubscribers("unblit");
   }
 
-  canClear() {
+  isLocked() {
     for (const bucket of this.buckets) {
       if (bucket.isLocked()) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   src(): string | undefined {
