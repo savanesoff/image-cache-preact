@@ -39,7 +39,7 @@ export class Master extends Logger {
       },
     });
     this.network = new Network(loaders);
-
+    this.network.on("check-memory", this.onSetRamStatus);
     this.ram = new Memory({
       size: ram,
       units: units,
@@ -64,6 +64,10 @@ export class Master extends Logger {
   requestLoad(image: CacheImage) {
     this.network.add(image);
   }
+
+  private onSetRamStatus = (memory: { overflow: boolean }) => {
+    memory.overflow = this.ram.isOverflow();
+  };
 
   private createImage(url: string): CacheImage {
     const image = new CacheImage(url);
