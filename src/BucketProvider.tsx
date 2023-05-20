@@ -10,18 +10,18 @@ const master = new Master();
 
 export const BucketContext = createContext<BucketContextType>(Bucket.prototype);
 
-interface BucketProviderProps extends Omit<BucketProps, "master"> {
+interface ImageBucketProps extends Omit<BucketProps, "master"> {
   children: JSX.Element;
 }
 
-export const BucketProvider = ({
+export const ImageBucket = ({
   name,
   locked = false,
   blit = false,
   load = true,
   urls = [],
   children,
-}: BucketProviderProps) => {
+}: ImageBucketProps) => {
   const bucket = useMemo(
     () =>
       new Bucket({
