@@ -153,14 +153,14 @@ export class Bucket extends Logger {
     }
   };
 
-  clear() {
+  clear = () => {
     for (const [, image] of this.images) {
       // remove this bucket from the image
       image.removeBucket(this);
     }
     this.master.removeBucket(this);
     this.removeAllListeners();
-  }
+  };
 
   blit() {
     for (const [, image] of this.images) {
