@@ -26,7 +26,7 @@ export class Master extends Logger {
     video = 1,
     loaders = 6,
     units = "GB",
-    logLevel = "verbose",
+    logLevel = "error",
   }: CacheConfig = {}) {
     super({
       name: "Master",
@@ -43,7 +43,7 @@ export class Master extends Logger {
     this.ram = new Memory({
       size: ram,
       units: units,
-      logLevel: "verbose",
+      logLevel,
       name: "RAM",
     });
     this.ram.on("overflow", this.update);
@@ -51,7 +51,7 @@ export class Master extends Logger {
     this.video = new Memory({
       size: video,
       units: units,
-      logLevel,
+      logLevel: "verbose",
       name: "VIDEO",
     });
     this.video.on("overflow", this.update);
