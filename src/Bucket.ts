@@ -28,7 +28,7 @@ type BucketConfig = {
 
 export class Bucket extends Logger {
   private readonly master: Master;
-  private readonly config: BucketConfig;
+  readonly config: BucketConfig;
   readonly images = new Map<string, CacheImage>();
   readonly bucket: Bucket;
 

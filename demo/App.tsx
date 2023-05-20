@@ -164,8 +164,16 @@ function ImagePanel({
   name: string;
   onDelete: (name: string) => void;
 }): JSX.Element {
-  const { loaded, rendered, loading, images, defaultURL, loadProgress, clear } =
-    useBucket();
+  const {
+    loaded,
+    rendered,
+    loading,
+    images,
+    defaultURL,
+    loadProgress,
+    clear,
+    config,
+  } = useBucket();
 
   const [imageWidth, setImageWidth] = useState(0);
 
@@ -199,18 +207,29 @@ function ImagePanel({
       }}
     >
       <p>{name}</p>
-      <div>Loaded: {loaded.toString()}</div>
-      <div>Loading: {loading.toString()}</div>
-      <div>Rendered: {rendered.toString()}</div>
-      <div>Progress: {Math.round(loadProgress * 100)} %</div>
-      <button
-        onClick={() => onDelete(name)}
+      <div
         style={{
-          alignContent: "center",
+          display: "grid",
+          gridTemplateColumns: `repeat(2, 1fr)`,
         }}
       >
-        Delete
-      </button>
+        <div>Locked: {config.locked.toString()}</div>
+        <div>Blit: {config.blit.toString()}</div>
+        <div>Load: {config.load.toString()}</div>
+        <div>Loaded: {loaded.toString()}</div>
+        <div>Loading: {loading.toString()}</div>
+        <div>Rendered: {rendered.toString()}</div>
+        <div>Loaded: {loaded.toString()}</div>
+        <div>Progress: {Math.round(loadProgress * 100)} %</div>
+        <button
+          onClick={() => onDelete(name)}
+          style={{
+            alignContent: "center",
+          }}
+        >
+          Delete
+        </button>
+      </div>
       <div
         style={{
           display: "grid",
