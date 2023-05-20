@@ -152,7 +152,10 @@ export class Master extends Logger {
     );
 
     if (this.inOverflow()) {
-      throw "Unable to free memory. Please increase the cache size or reduce the number of images or unlock your buckets.";
+      this.log.error([
+        "Unable to free memory!",
+        "Please increase the cache size or reduce the number of images or unlock your buckets.",
+      ]);
     }
   };
 }
