@@ -98,7 +98,7 @@ export class Master extends Logger {
 
   private delete(url: string) {
     const image = this.cache.get(url);
-    if (!image || !image.canClear()) return;
+    if (!image || image.isLocked()) return;
     this.network.remove(image);
     image.clear();
     this.cache.delete(url);
@@ -136,7 +136,7 @@ export class Master extends Logger {
       if (this.ram.isOverflow()) {
         // this will delete the image from cache which means video will be freed as well
         this.delete(image.url);
-      } else if (this.video.isOverflow()) {
+      } else if (this.video.isOverflow() && !image.isLocked()) {
         image.unblit();
       }
     }
