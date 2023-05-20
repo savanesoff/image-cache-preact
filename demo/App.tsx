@@ -14,15 +14,35 @@ function App() {
   const [load, setLoad] = useState(true);
   const [locked, setLocked] = useState(true);
   const [count, setCount] = useState(3);
+  const [id, setID] = useState(1);
 
-  const [buckets, setBuckets] = useState([{ blit, load, locked, count }]);
+  const [buckets, setBuckets] = useState([
+    { blit, load, locked, count, name: "Bucket: " + id },
+  ]);
 
   return (
     <>
       <div>
-        <div>
+        <div
+          style={{
+            gridGap: "10px",
+            padding: "10px",
+            color: "white",
+            backgroundColor: "gray",
+          }}
+        >
           <legend>New Bucket settings</legend>
-          <fieldset>
+          <fieldset
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignContent: "stretch",
+              justifyContent: "start",
+              gridGap: "10px",
+              border: "none",
+              backgroundColor: "black",
+            }}
+          >
             <label htmlFor="blit">Blit</label>
             <input
               type="checkbox"
@@ -63,9 +83,13 @@ function App() {
               }}
             />
             <button
-              onClick={() =>
-                setBuckets([...buckets, { blit, load, locked, count }])
-              }
+              onClick={() => {
+                setID(id + 1);
+                setBuckets([
+                  ...buckets,
+                  { blit, load, locked, count, name: `Bucket: ${id + 1}` },
+                ]);
+              }}
             >
               Add Bucket
             </button>
@@ -86,9 +110,8 @@ function App() {
             <Bucket
               key={i}
               {...bucket}
-              title={`Bucket ${i + 1}`}
-              onDelete={() => {
-                setBuckets(buckets.filter((_, j) => j !== i));
+              onDelete={(name) => {
+                setBuckets(buckets.filter((bucket) => bucket.name !== name));
               }}
             />
           ))}
@@ -99,19 +122,19 @@ function App() {
 }
 
 function Bucket({
-  title,
+  name,
   locked = true,
   blit = true,
   load = true,
   count = 3,
   onDelete,
 }: {
-  title: string;
+  name: string;
   locked?: boolean;
   blit?: boolean;
   load?: boolean;
   count?: number;
-  onDelete: () => void;
+  onDelete: (name: string) => void;
 }): JSX.Element {
   const urls = useMemo(
     () =>
@@ -123,23 +146,23 @@ function Bucket({
 
   return (
     <ImageBucket
-      name={title}
+      name={name}
       locked={locked}
       blit={blit}
       load={load}
       urls={urls}
     >
-      <ImagePanel title={title} onDelete={onDelete} />
+      <ImagePanel name={name} onDelete={onDelete} />
     </ImageBucket>
   );
 }
 
 function ImagePanel({
-  title,
+  name,
   onDelete,
 }: {
-  title: string;
-  onDelete: () => void;
+  name: string;
+  onDelete: (name: string) => void;
 }): JSX.Element {
   const { loaded, rendered, loading, images, defaultURL, loadProgress, clear } =
     useBucket();
@@ -175,13 +198,13 @@ function ImagePanel({
         padding: "6px",
       }}
     >
-      <p>{title}</p>
+      <p>{name}</p>
       <div>Loaded: {loaded.toString()}</div>
       <div>Loading: {loading.toString()}</div>
       <div>Rendered: {rendered.toString()}</div>
       <div>Progress: {Math.round(loadProgress * 100)} %</div>
       <button
-        onClick={onDelete}
+        onClick={() => onDelete(name)}
         style={{
           alignContent: "center",
         }}
