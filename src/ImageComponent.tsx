@@ -32,9 +32,11 @@ export function ImageComponent({
     if (!blitListener) {
       setBlitListener(true);
       image.on("blit", () => assignSRC());
+      image.on("unblit", () => assignSRC());
     }
     return () => {
       image.off("blit", assignSRC);
+      image.off("unblit", assignSRC);
     };
   }, [assignSRC, blitListener, image]);
 
