@@ -15,9 +15,9 @@ interface LoggerProps {
   styles?: Styles;
 }
 
-export default class Logger extends EventEmitter {
-  protected level: LogLevel = "none";
-  protected name = "Logger";
+export class Logger extends EventEmitter {
+  level: LogLevel = "none";
+  name = "Logger";
   readonly styles: Styles = {
     log: "color: white;",
     info: "color: skyblue;",
