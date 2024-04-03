@@ -1,5 +1,5 @@
 import { Logger, LogLevel } from "@/logger";
-import { UNITS, UnitsType } from "./units";
+import { UNITS, UnitsType } from "../units";
 
 type Events = "overflow" | "available" | "clear";
 interface MemoryProps {
@@ -8,7 +8,7 @@ interface MemoryProps {
   /** Units of memory used with size */
   units?: UnitsType;
   logLevel?: LogLevel;
-  name: string;
+  name?: string;
 }
 
 /**
@@ -26,7 +26,7 @@ export class Memory extends Logger {
     size = 1,
     units = "GB",
     logLevel = "verbose",
-    name,
+    name = "Memory",
   }: MemoryProps) {
     super({
       name,
@@ -45,13 +45,18 @@ export class Memory extends Logger {
    * @returns Returns a string with the status of the memory object
    */
   getStatus(): string {
-    const consumed = this.toUnits(this.bytes);
-    const percent = Math.round((consumed / this.size) * 100);
+    const { percent, consumed } = this.getState();
     return `Used: ${percent}% (${consumed.toFixed(3)}/${this.size} ${
       this.units
     }), Count: ${this.count}, Average: ${(consumed / this.count).toFixed(3)} ${
       this.units
     }`;
+  }
+
+  getState() {
+    const consumed = this.toUnits(this.bytes);
+    const percent = Math.round((consumed / this.size) * 100);
+    return { percent, consumed, size: this.size, units: this.units };
   }
 
   /**
