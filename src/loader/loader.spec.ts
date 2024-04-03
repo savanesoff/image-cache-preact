@@ -22,7 +22,7 @@ afterEach(() => {
 
 describe("Loader", () => {
   it("should create an instance", () => {
-    expect(new Loader({ url: "blah" })).toBeTruthy();
+    expect(new Loader({ url: "blah", retry: 0 })).toBeTruthy();
   });
 
   describe("load()", () => {
@@ -76,7 +76,7 @@ describe("Loader", () => {
     let loader: Loader;
     const loadStartEventSpy = vi.fn();
     beforeEach(() => {
-      loader = new Loader({ url: "blah" });
+      loader = new Loader({ url: "blah", retry: 0 });
       loader.load();
       loader.on("loadstart", loadStartEventSpy);
       // induce loadstart event
@@ -101,7 +101,7 @@ describe("Loader", () => {
     let loader: Loader;
     const progressEventSpy = vi.fn();
     beforeEach(() => {
-      loader = new Loader({ url: "blah" });
+      loader = new Loader({ url: "blah", retry: 0 });
       loader.load();
       loader.on("progress", progressEventSpy);
       // induce progress event
@@ -169,7 +169,7 @@ describe("Loader", () => {
     let loader: Loader;
     const errorEventSpy = vi.fn();
     beforeEach(() => {
-      loader = new Loader({ url: "blah" });
+      loader = new Loader({ url: "blah", retry: 0 });
       loader.load();
       loader.on("error", errorEventSpy);
       // induce error event
@@ -241,7 +241,7 @@ describe("Loader", () => {
     let loader: Loader;
     const timeoutEventSpy = vi.fn();
     beforeEach(() => {
-      loader = new Loader({ url: "blah" });
+      loader = new Loader({ url: "blah", retry: 0 });
       loader.load();
       loader.on("timeout", timeoutEventSpy);
       // induce timeout event
@@ -270,6 +270,54 @@ describe("Loader", () => {
 
     it("should set static timeout count", () => {
       expect(Loader.timeout).toBe(1);
+    });
+  });
+
+  describe("retry on error", () => {
+    let loader: Loader;
+    const retryEventSpy = vi.fn();
+    beforeEach(() => {
+      loader = new Loader({ url: "blah", retry: 1 });
+      loader.load();
+      loader.on("retry", retryEventSpy);
+      // induce error event
+      loader.xhr?.onerror?.(new ProgressEvent("error"));
+    });
+
+    it("should retry loading", () => {
+      expect(loader.retries).toBe(1);
+    });
+
+    it('should emit "retry" event', () => {
+      expect(retryEventSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should call load() again", () => {
+      expect(XHR.open).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("retry on timeout", () => {
+    let loader: Loader;
+    const retryEventSpy = vi.fn();
+    beforeEach(() => {
+      loader = new Loader({ url: "blah", retry: 1 });
+      loader.load();
+      loader.on("retry", retryEventSpy);
+      // induce timeout event
+      loader.xhr?.ontimeout?.(new ProgressEvent("timeout"));
+    });
+
+    it("should retry loading", () => {
+      expect(loader.retries).toBe(1);
+    });
+
+    it('should emit "retry" event', () => {
+      expect(retryEventSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should call load() again", () => {
+      expect(XHR.open).toHaveBeenCalledTimes(2);
     });
   });
 });

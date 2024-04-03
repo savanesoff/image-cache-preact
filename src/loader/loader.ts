@@ -8,11 +8,13 @@ type Events =
   | "loadend"
   | "abort"
   | "timeout"
-  | "error";
+  | "error"
+  | "retry";
 
 export type Resource = {
   url: string;
   mimeType?: MIMEType;
+  retry?: number;
 };
 
 /**
@@ -36,19 +38,22 @@ export class Loader extends Logger {
   pending = false;
   blob: Blob = {} as Blob;
   mimeType: MIMEType = "image/jpeg";
+  retry = 3;
+  retries = 0;
 
   /**
    * Constructs a new Loader instance.
    * @param url - The URL of the resource to load.
    * @param mimeType - The MIME type of the resource. Defaults to "image/jpeg".
    */
-  constructor({ url, mimeType = "image/jpeg" }: Resource) {
+  constructor({ url, mimeType = "image/jpeg", retry }: Resource) {
     super({
       name: "Loader",
       logLevel: "error",
     });
     this.url = url;
     this.mimeType = mimeType;
+    this.retry = retry ?? this.retry;
     this.xhr = new XMLHttpRequest();
     // assign event handlers
     this.xhr.onload = this.onLoaded;
@@ -125,7 +130,20 @@ export class Loader extends Logger {
     this.emit("abort");
   };
 
+  private retryLoad() {
+    if (this.retries < this.retry) {
+      this.retries++;
+      this.load();
+      this.emit("retry");
+      return true;
+    }
+    return false;
+  }
+
   private onTimeout = () => {
+    if (this.retryLoad()) {
+      return;
+    }
     this.loading = false;
     this.loaded = false;
     this.timeout = true;
@@ -135,6 +153,9 @@ export class Loader extends Logger {
   };
 
   private onError = () => {
+    if (this.retryLoad()) {
+      return;
+    }
     this.loading = false;
     this.loaded = false;
     this.errored = true;
