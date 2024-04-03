@@ -2,7 +2,7 @@ import { Logger } from "@/logger";
 
 type MIMEType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
-type events =
+type Events =
   | "loadstart"
   | "progress"
   | "loadend"
@@ -143,12 +143,12 @@ export class Loader extends Logger {
     this.emit("error");
   };
 
-  on(event: events, listener: () => void): this {
+  on(event: Events, listener: () => void): this {
     super.on(event, listener);
     return this;
   }
 
-  emit(event: events): boolean {
+  emit(event: Events): boolean {
     return super.emit(event, this);
   }
 }
