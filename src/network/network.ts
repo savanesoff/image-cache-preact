@@ -1,7 +1,7 @@
 import { Loader, Resource } from "@/loader";
 import { Logger } from "@/logger";
 
-type events =
+type Events =
   | "loadstart"
   | "progress"
   | "loadend"
@@ -12,6 +12,10 @@ type events =
   | "pause"
   | "resume";
 
+type NetworkProps = {
+  /** Number of loaders in parallel */
+  loaders?: number;
+};
 export class Network extends Logger {
   readonly loaders = new Map<string, Loader>();
   readonly queue = new Map<string, Resource>();
@@ -21,7 +25,7 @@ export class Network extends Logger {
   /**
    * Represents a network object.
    */
-  constructor(loaders?: number) {
+  constructor({ loaders }: NetworkProps = {}) {
     super({
       name: "Network",
       logLevel: "none",
@@ -138,12 +142,12 @@ export class Network extends Logger {
     loader.load();
   }
 
-  on(event: events, listener: () => void): this {
+  on(event: Events, listener: () => void): this {
     super.on(event, listener);
     return this;
   }
 
-  emit(event: events, loader?: Loader): boolean {
+  emit(event: Events, loader?: Loader): boolean {
     return super.emit(event, this, loader);
   }
 }
