@@ -14,6 +14,10 @@ const XHR = {
 
 afterEach(() => {
   vi.resetAllMocks();
+  Loader.timeout = 0; // reset static timeout count
+  Loader.aborted = 0; // reset static aborted count
+  Loader.errored = 0; // reset static errored count
+  Loader.loaded = 0; // reset static loaded count
 });
 
 describe("Loader", () => {
@@ -74,7 +78,7 @@ describe("Loader", () => {
     beforeEach(() => {
       loader = new Loader({ url: "blah" });
       loader.load();
-      loader.on("loadStart", loadStartEventSpy);
+      loader.on("loadstart", loadStartEventSpy);
       // induce loadstart event
       loader.xhr?.onloadstart?.(new ProgressEvent("loadstart"));
       loader.on("error", () => null); // to prevent error thrown on no event listener
@@ -130,7 +134,7 @@ describe("Loader", () => {
     beforeEach(() => {
       loader = new Loader({ url: "blah" });
       loader.load();
-      loader.on("loadEnd", loadEndEventSpy);
+      loader.on("loadend", loadEndEventSpy);
       // induce load end event
       loader.xhr?.onload?.(new ProgressEvent("load"));
       loader.on("error", () => null); // to prevent error thrown on no event listener
@@ -154,6 +158,10 @@ describe("Loader", () => {
 
     it('should emit "loadEnd" event', () => {
       expect(loadEndEventSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should set static loaded count", () => {
+      expect(Loader.loaded).toBe(1);
     });
   });
 
@@ -187,6 +195,10 @@ describe("Loader", () => {
     it("should have timeout: false", () => {
       expect(loader.timeout).toBe(false);
     });
+
+    it("should set static error count", () => {
+      expect(Loader.errored).toBe(1);
+    });
   });
 
   describe("abort", () => {
@@ -219,6 +231,10 @@ describe("Loader", () => {
     it("should have timeout: false", () => {
       expect(loader.timeout).toBe(false);
     });
+
+    it("should set static aborted count", () => {
+      expect(Loader.aborted).toBe(1);
+    });
   });
 
   describe("timeout", () => {
@@ -250,6 +266,10 @@ describe("Loader", () => {
 
     it("should have aborted: false", () => {
       expect(loader.aborted).toBe(false);
+    });
+
+    it("should set static timeout count", () => {
+      expect(Loader.timeout).toBe(1);
     });
   });
 });

@@ -1,12 +1,28 @@
-import Logger from "../logger";
+import { Logger } from "@/logger";
 
 type MIMEType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
-interface LoaderProps {
+
+type events =
+  | "loadstart"
+  | "progress"
+  | "loadend"
+  | "abort"
+  | "timeout"
+  | "error";
+
+export type Resource = {
   url: string;
   mimeType?: MIMEType;
-}
+};
 
+/**
+ * Represents a loader for loading resources via XMLHttpRequest.
+ */
 export class Loader extends Logger {
+  static loaded = 0;
+  static errored = 0;
+  static aborted = 0;
+  static timeout = 0;
   readonly url: string;
   readonly xhr: XMLHttpRequest;
   bytesTotal = 0;
@@ -20,8 +36,13 @@ export class Loader extends Logger {
   pending = false;
   blob: Blob = {} as Blob;
   mimeType: MIMEType = "image/jpeg";
-  // TODO implement retry on error, timeout
-  constructor({ url, mimeType: mimeType = "image/jpeg" }: LoaderProps) {
+
+  /**
+   * Constructs a new Loader instance.
+   * @param url - The URL of the resource to load.
+   * @param mimeType - The MIME type of the resource. Defaults to "image/jpeg".
+   */
+  constructor({ url, mimeType = "image/jpeg" }: Resource) {
     super({
       name: "Loader",
       logLevel: "error",
@@ -38,12 +59,15 @@ export class Loader extends Logger {
     this.xhr.ontimeout = this.onTimeout;
   }
 
+  /**
+   * Aborts the loading process.
+   */
   abort() {
     this.xhr.abort();
   }
 
   /**
-   * Starts loading the resource
+   * Starts loading the resource.
    */
   load() {
     this.pending = true;
@@ -72,8 +96,9 @@ export class Loader extends Logger {
     this.loaded = true;
     this.loading = false;
     this.progress = 1;
+    Loader.loaded++;
     this.log.verbose(["Loaded", this.url]);
-    this.emit("loadEnd", this);
+    this.emit("loadend");
   };
 
   private onProgress = (event: ProgressEvent<EventTarget>) => {
@@ -81,37 +106,49 @@ export class Loader extends Logger {
     this.bytesLoaded = event.loaded;
     this.progress = event.loaded / event.total;
     this.log.verbose(["Progress", this.url, this.progress]);
-    this.emit("progress", this);
+    this.emit("progress");
   };
 
   private onLoadStart = () => {
     this.loading = true;
     this.pending = false;
     this.log.verbose(["Start", this.url]);
-    this.emit("loadStart", this);
+    this.emit("loadstart");
   };
 
   private onAborted = () => {
     this.aborted = true;
     this.loading = false;
     this.loaded = false;
+    Loader.aborted++;
     this.log.verbose(["Aborted", this.url]);
-    this.emit("abort", this);
+    this.emit("abort");
   };
 
   private onTimeout = () => {
     this.loading = false;
     this.loaded = false;
     this.timeout = true;
+    Loader.timeout++;
     this.log.error(["Timeout", this.url]);
-    this.emit("timeout", this);
+    this.emit("timeout");
   };
 
-  private onError = (event: ProgressEvent<EventTarget>) => {
+  private onError = () => {
     this.loading = false;
     this.loaded = false;
     this.errored = true;
-    this.log.error(["Error", this.url, event]);
-    this.emit("error", this, event);
+    Loader.errored++;
+    this.log.error(["Error", this.url]);
+    this.emit("error");
   };
+
+  on(event: events, listener: (loader: Loader, event?: Event) => void): this {
+    super.on(event, listener);
+    return this;
+  }
+
+  emit(event: events): boolean {
+    return super.emit(event, this);
+  }
 }
