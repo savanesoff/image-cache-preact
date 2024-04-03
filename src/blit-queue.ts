@@ -1,4 +1,4 @@
-import Logger from "./logger";
+import { Logger } from "@/Logger";
 
 type BlitCB = () => void;
 

@@ -1,8 +1,8 @@
 import { Bucket } from "./Bucket";
 import { CacheImage } from "./CacheImage";
-import Logger, { LogLevel } from "./logger";
+import { LogLevel, Logger } from "@/logger";
 import { default as Memory } from "./memory";
-import { Network } from "./network";
+import { Network } from "@/network";
 import { UnitsType } from "./units";
 
 interface CacheConfig {

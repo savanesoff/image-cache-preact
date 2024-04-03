@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config"; 
+import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -6,7 +6,10 @@ export default defineConfig({
     globals: true,
     environmentMatchGlobs: [
       // all tests in tests/dom will run in jsdom
-      ["src/**", "jsdom"],  
-    ]
+      ["src/**", "jsdom"],
+    ],
+    alias: {
+      "@": "/src",
+    },
   },
 });

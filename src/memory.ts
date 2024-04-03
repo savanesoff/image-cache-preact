@@ -1,4 +1,4 @@
-import Logger, { LogLevel } from "./logger";
+import Logger, { LogLevel } from "./logger/logger";
 import { UNITS, UnitsType } from "./units";
 
 interface MemoryProps {

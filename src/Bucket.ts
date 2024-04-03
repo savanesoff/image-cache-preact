@@ -1,6 +1,6 @@
 import { CacheImage } from "./CacheImage";
 import defaultImageURL from "./assets/default.png";
-import Logger from "./logger";
+import { Logger } from "@/logger";
 import { Master } from "./master";
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
