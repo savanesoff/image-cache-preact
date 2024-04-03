@@ -143,7 +143,7 @@ export class Loader extends Logger {
     this.emit("error");
   };
 
-  on(event: events, listener: (loader: Loader, event?: Event) => void): this {
+  on(event: events, listener: () => void): this {
     super.on(event, listener);
     return this;
   }
