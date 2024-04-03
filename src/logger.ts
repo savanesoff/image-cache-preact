@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 
 export type LogLevel = "none" | "verbose" | "info" | "warn" | "error";
-type DataType = string | number | boolean;
+type DataType = unknown;
 type ConsoleType = "log" | "info" | "error" | "warn";
 type Styles = {
   log?: string;

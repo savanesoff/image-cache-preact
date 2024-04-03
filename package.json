@@ -1,13 +1,14 @@
 {
-  "name": "react-cache",
-  "private": true,
+  "name": "react-blit-cache",
+  "private": false,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest --watch"
   },
   "dependencies": {
     "events": "^3.3.0",
@@ -26,7 +27,9 @@
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
+    "jsdom": "^24.0.0",
     "typescript": "^5.0.2",
-    "vite": "^4.3.0"
+    "vite": "^5.2.8",
+    "vitest": "^1.4.0"
   }
 }

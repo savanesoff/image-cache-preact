@@ -139,7 +139,7 @@ function Bucket({
   const urls = useMemo(
     () =>
       Array.from({ length: count }, (_, i) => i + Math.random()).map(
-        (i) => `http://localhost:8080/test.jpg?${i}`
+        (i) => `http://localhost:8080/test-4k.jpg?${i}`
       ),
     [count]
   );

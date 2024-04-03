@@ -1,5 +1,5 @@
 import { CacheImage } from "./CacheImage";
-import { Loader } from "./loader";
+import { Loader } from "./Loader/loader";
 import Logger from "./logger";
 
 export class Network extends Logger {

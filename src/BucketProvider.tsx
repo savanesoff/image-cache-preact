@@ -1,6 +1,6 @@
 import { createContext, useMemo } from "react";
-import { Bucket, BucketProps } from "./Bucket";
 import { Master } from "./master";
+import { Bucket, BucketProps } from "./Bucket";
 
 type BucketContextType = {
   [key in keyof Bucket]: Bucket[key];

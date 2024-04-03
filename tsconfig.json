@@ -17,7 +17,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["vite/client", "vitest/globals",  "vitest/jsdom"],
   },
   "include": ["src", "demo"],
   "references": [{ "path": "./tsconfig.node.json" }]

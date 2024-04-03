@@ -1,6 +1,6 @@
 import { Bucket } from "./Bucket";
 import BlitQueue from "./blit-queue";
-import { Loader } from "./loader";
+import { Loader } from "./Loader/loader";
 import Logger from "./logger";
 
 export class CacheImage extends Logger {
