@@ -1,7 +1,7 @@
 import { Bucket } from "./Bucket";
 import { CacheImage } from "./CacheImage";
 import { LogLevel, Logger } from "@/logger";
-import { default as Memory } from "./memory/memory";
+import { Memory } from "@/memory";
 import { Network } from "@/network";
 import { UnitsType } from "./units";
 
@@ -38,8 +38,8 @@ export class Master extends Logger {
         log: "color: skyblue;",
       },
     });
-    this.network = new Network(loaders);
-    this.network.on("check-memory", this.onSetRamStatus);
+    this.network = new Network({ loaders });
+    // this.network.on("check-memory", this.onSetRamStatus);
     this.ram = new Memory({
       size: ram,
       units: units,
@@ -51,7 +51,7 @@ export class Master extends Logger {
     this.video = new Memory({
       size: video,
       units: units,
-      logLevel: "verbose",
+      logLevel,
       name: "VIDEO",
     });
     this.video.on("overflow", this.update);
@@ -80,20 +80,22 @@ export class Master extends Logger {
   }
 
   private onLoaded = (image: CacheImage) => {
-    this.ram.add(image.bytes);
+    this.ram.addBytes(image.bytes);
   };
 
   private onClear = (image: CacheImage) => {
-    this.ram.remove(image.bytes);
+    this.ram.removeBytes(image.bytes);
     image.removeAllListeners();
   };
 
   private onBlit = (image: CacheImage) => {
-    this.video.add(image.sizeRender.width * image.sizeRender.height * 4);
+    this.video.addBytes(image.sizeRender.width * image.sizeRender.height * 4);
   };
 
   private onUnblit = (image: CacheImage) => {
-    this.video.remove(image.sizeRender.width * image.sizeRender.height * 4);
+    this.video.removeBytes(
+      image.sizeRender.width * image.sizeRender.height * 4
+    );
   };
 
   private delete(url: string) {
