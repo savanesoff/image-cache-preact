@@ -1,8 +1,7 @@
 import { Logger } from "@/logger";
 
 export type MIMEType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
-
-type Events =
+export type Events =
   | "loadstart"
   | "progress"
   | "loadend"
@@ -10,6 +9,13 @@ type Events =
   | "timeout"
   | "error"
   | "retry";
+
+export type Event = {
+  event: Events;
+  target: Loader;
+};
+
+export type EventHandler = (event: Event) => void;
 
 export type Resource = {
   url: string;
@@ -59,9 +65,9 @@ export class Loader extends Logger {
     this.xhr.onload = this.onLoaded;
     this.xhr.onloadstart = this.onLoadStart;
     this.xhr.onprogress = this.onProgress;
-    this.xhr.onerror = this.onError;
-    this.xhr.onabort = this.onAborted;
-    this.xhr.ontimeout = this.onTimeout;
+    this.xhr.onerror = this.onLoadError;
+    this.xhr.onabort = this.onLoadAborted;
+    this.xhr.ontimeout = this.onLoadTimeout;
   }
 
   /**
@@ -121,7 +127,7 @@ export class Loader extends Logger {
     this.emit("loadstart");
   };
 
-  private onAborted = () => {
+  private onLoadAborted = () => {
     this.aborted = true;
     this.loading = false;
     this.loaded = false;
@@ -140,7 +146,7 @@ export class Loader extends Logger {
     return false;
   }
 
-  private onTimeout = () => {
+  private onLoadTimeout = () => {
     if (this.retryLoad()) {
       return;
     }
@@ -152,7 +158,7 @@ export class Loader extends Logger {
     this.emit("timeout");
   };
 
-  private onError = () => {
+  private onLoadError = () => {
     if (this.retryLoad()) {
       return;
     }
@@ -164,12 +170,12 @@ export class Loader extends Logger {
     this.emit("error");
   };
 
-  on(event: Events, listener: () => void): this {
-    super.on(event, listener);
+  on(event: Events, handler: EventHandler): this {
+    super.on(event, handler);
     return this;
   }
 
   emit(event: Events): boolean {
-    return super.emit(event, this);
+    return super.emit(event, { event, target: this });
   }
 }

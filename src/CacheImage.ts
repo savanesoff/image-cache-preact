@@ -1,97 +1,79 @@
 import { Bucket } from "./Bucket";
 import BlitQueue from "./blit-queue";
-import { Loader } from "@/loader";
-import { Logger } from "@/logger";
+import {
+  EventHandler as LoaderEventHandler,
+  Loader,
+  Events as LoaderEvents,
+  MIMEType,
+} from "./loader";
+type Events = LoaderEvents | "size" | "blit" | "unblit" | "clear";
 
-export class CacheImage extends Logger {
+type Event<T extends Events> = {
+  event: T;
+  target: T extends LoaderEvents ? Loader : CacheImage;
+};
+type EventHandler<T extends Events> = (event: Event<T>) => void;
+
+type ImageSize = {
+  width: number;
+  height: number;
+};
+
+type CacheImageOptions = {
+  url: string;
+  mimeType?: MIMEType;
+  retry: number;
+  renderSize: ImageSize;
+};
+
+export class CacheImage extends Loader {
   static readonly blitQueue = new BlitQueue();
-  readonly url: string;
   // reference to buckets this image is associated with
   readonly buckets = new Set<Bucket>();
   readonly cached: HTMLImageElement;
-  bytes = 0;
-  bytesLoaded = 0;
   requested = false;
-  loaded = false;
-  loading = false;
   rendered = false;
-  loadProgress = 0;
-  size = { width: 0, height: 0 };
-  sizeRender = { width: 0, height: 0 };
+  size: ImageSize = { width: 0, height: 0 };
+  renderSize: ImageSize = { width: 0, height: 0 };
 
-  constructor(url: string) {
+  constructor({
+    url,
+    mimeType = "image/jpeg",
+    retry,
+    renderSize,
+  }: CacheImageOptions) {
     super({
-      name: "ImageItem",
-      logLevel: "verbose",
+      url,
+      mimeType,
+      retry,
     });
-    this.url = url;
+    this.renderSize = renderSize;
     this.cached = new Image();
+    this.on("loadend", this.onDataLoaded);
   }
 
-  /**
-   * Keep of Buckets this image is associated with
-   */
-  addBucket(bucket: Bucket) {
-    this.buckets.add(bucket);
-  }
-
-  /**
-   * Remove a Bucket from this image
-   */
-  removeBucket(bucket: Bucket) {
-    this.buckets.delete(bucket);
-  }
-
-  setSize({ width, height }: { width: number; height: number }) {
+  setRenderSize({ width, height }: ImageSize) {
     this.unblit();
-    this.sizeRender = { width, height };
+    this.renderSize = { width, height };
   }
 
-  emitSubscribers(type: string) {
-    for (const bucket of this.buckets) {
-      bucket.emit(type, this);
-    }
-    this.emit(type, this);
-  }
-
-  /**
-   * Called by the network queue when it's time to load this image
-   */
-  onLoadStart() {
-    this.loading = true;
-    this.emitSubscribers("loadstart");
-  }
-
-  onLoaderProgress(loader: Loader) {
-    this.loadProgress = loader.progress;
-    this.bytes = loader.bytesTotal;
-    this.bytesLoaded = loader.bytesLoaded;
-    this.emitSubscribers("progress");
-  }
-
-  assignBlob(blob: Blob) {
+  onDataLoaded() {
     this.cached.onload = this.onBlobAssigned;
-    this.cached.onerror = this.onLoadError;
-    this.bytes = this.bytesLoaded = blob.size;
-    this.cached.src = window.URL.createObjectURL(blob);
+    this.cached.onerror = this.onBlobError;
+    this.cached.src = URL.createObjectURL(this.blob);
   }
 
   private onBlobAssigned = () => {
-    this.loading = false;
-    this.loaded = true;
     this.cached.onload = null;
     this.cached.onerror = null;
     this.size = { width: this.cached.width, height: this.cached.height };
-    // image is ready to be used from here on
-    this.emitSubscribers("loaded");
+    this.emit("size");
   };
 
-  onLoadError = () => {
-    this.loading = false;
-    this.loaded = false;
+  private onBlobError = () => {
     this.cached.onload = null;
     this.cached.onerror = null;
-    this.emitSubscribers("error");
+    this.emit("error");
   };
 
   clear() {
@@ -99,39 +81,38 @@ export class CacheImage extends Logger {
     this.cached.onerror = null;
     this.cached.src = "";
     this.unblit();
-    this.emitSubscribers("clear");
+    this.emit("clear");
   }
 
   blit() {
     if (this.rendered) return;
-    if (!this.sizeRender.width || !this.sizeRender.height) {
+    if (!this.renderSize.width || !this.renderSize.height) {
       this.log.error(["Cannot blit image without size"]);
       return;
     }
+    CacheImage.blitQueue.add(this.render);
+  }
+
+  unblit() {
+    if (!this.rendered) return;
+    this.rendered = false;
+    this.cached.remove();
+    this.emit("unblit");
+  }
+
+  render = () => {
     this.cached.style.position = "absolute";
     this.cached.style.top = "0";
     this.cached.style.left = Math.round(Math.random() * 5) + "%";
     this.cached.style.opacity = "0.001";
     this.cached.style.zIndex = "9999999999";
     this.cached.style.pointerEvents = "none";
-    this.cached.width = this.sizeRender.width;
-    this.cached.height = this.sizeRender.height;
-
-    CacheImage.blitQueue.add(this.render);
-  }
-
-  private render = () => {
+    this.cached.width = this.renderSize.width;
+    this.cached.height = this.renderSize.height;
     window.document.body.appendChild(this.cached);
     this.rendered = true;
-    this.emitSubscribers("blit");
+    this.emit("blit");
   };
-
-  unblit() {
-    if (!this.rendered) return;
-    this.rendered = false;
-    this.cached.remove();
-    this.emitSubscribers("unblit");
-  }
 
   isLocked() {
     for (const bucket of this.buckets) {
@@ -146,5 +127,14 @@ export class CacheImage extends Logger {
     if (this.rendered) {
       return this.cached.src;
     }
+  }
+
+  on<T extends Events>(event: T, handler: EventHandler<T>): this {
+    super.on(event as LoaderEvents, handler as LoaderEventHandler);
+    return this;
+  }
+
+  emit(event: Events): boolean {
+    return super.emit(event as LoaderEvents);
   }
 }
