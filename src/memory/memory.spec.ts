@@ -1,55 +1,269 @@
 import { Memory } from "./memory";
+import { UNITS } from "@/units";
 
 describe("Memory", () => {
-  let memory: Memory;
+  describe("initial state", () => {
+    let memory: Memory;
+    let state: ReturnType<typeof Memory.prototype.getState>;
+    const size = 10;
+    const units = "BYTE";
 
-  beforeEach(() => {
-    memory = new Memory({ size: 1, units: "GB" });
+    beforeEach(() => {
+      memory = new Memory({ size, units });
+      state = memory.getState();
+    });
+
+    afterEach(() => {
+      // memory.clear();
+    });
+
+    it("should have correct size", () => {
+      expect(state.size).toBe(size);
+    });
+
+    it("should have correct units", () => {
+      expect(state.units).toBe(units);
+    });
+
+    it("should have correct bytes size", () => {
+      expect(state.sizeBytes).toBe(size * UNITS[units]);
+    });
+
+    it("should have correct count", () => {
+      expect(state.count).toBe(0);
+    });
   });
 
-  afterEach(() => {
-    memory.clear();
+  describe("initial free space", () => {
+    let memory: Memory;
+    let freeSpace: ReturnType<typeof Memory.prototype.getFreeSpace>;
+    const size = 10;
+    const units = "GB";
+
+    beforeEach(() => {
+      memory = new Memory({ size, units });
+      freeSpace = memory.getFreeSpace();
+    });
+
+    afterEach(() => {
+      // memory.clear();
+    });
+
+    it("should have correct bytes", () => {
+      expect(freeSpace.bytes).toBe(size * UNITS[units]);
+    });
+
+    it("should have correct units", () => {
+      expect(freeSpace.units).toBe(size);
+    });
+
+    it("should have correct percentage", () => {
+      expect(freeSpace.prs).toBe(100);
+    });
   });
 
-  it("should add bytes to the memory object", () => {
-    memory.add(100);
-    expect(memory.getState()).toContain("Used: 10.000%");
-    expect(memory.getState()).toContain("Count: 1");
+  describe("initial used space", () => {
+    let memory: Memory;
+    let usedSpace: ReturnType<typeof Memory.prototype.getUsedSpace>;
+    const size = 10;
+    const units = "MB";
+
+    beforeEach(() => {
+      memory = new Memory({ size, units });
+      usedSpace = memory.getUsedSpace();
+    });
+
+    afterEach(() => {
+      // memory.clear();
+    });
+
+    it("should have correct bytes", () => {
+      expect(usedSpace.bytes).toBe(0);
+    });
+
+    it("should have correct units", () => {
+      expect(usedSpace.units).toBe(0);
+    });
+
+    it("should have correct percentage", () => {
+      expect(usedSpace.prs).toBe(0);
+    });
   });
 
-  it("should remove bytes from the memory object", () => {
-    memory.add(100);
-    memory.remove(50);
-    expect(memory.getStatus()).toContain("Used: 5.000%");
-    expect(memory.getStatus()).toContain("Count: 0");
+  describe("initial average", () => {
+    let memory: Memory;
+    let average: ReturnType<typeof Memory.prototype.getAverage>;
+    const size = 10;
+    const units = "KB";
+
+    beforeEach(() => {
+      memory = new Memory({ size, units });
+      average = memory.getAverage();
+    });
+
+    afterEach(() => {
+      // memory.clear();
+    });
+
+    it("should have correct bytes", () => {
+      expect(average.bytes).toBe(0);
+    });
+
+    it("should have correct units", () => {
+      expect(average.units).toBe(0);
+    });
+
+    it("should have correct percentage", () => {
+      expect(average.prs).toBe(0);
+    });
   });
 
-  it("should clear the memory object", () => {
-    memory.add(100);
-    memory.clear();
-    expect(memory.getStatus()).toContain("Used: 0.000%");
-    expect(memory.getStatus()).toContain("Count: 0");
+  describe("addBytes()", () => {
+    let memory: Memory;
+    const size = 100;
+    const addBytes = 5;
+    const units = "GB";
+
+    beforeEach(() => {
+      memory = new Memory({ size, units });
+    });
+
+    afterEach(() => {
+      // memory.clear();
+    });
+
+    it("should return remaining bytes", () => {
+      const remainingBytes = memory.addBytes(addBytes);
+      expect(remainingBytes).toBe(size * UNITS[units] - addBytes);
+    });
+
+    it("should return negative value if overflow", () => {
+      memory.addBytes(size * UNITS[units]);
+      const remainingBytes = memory.addBytes(addBytes);
+      expect(remainingBytes).toBe(-addBytes);
+    });
+
+    it("should add bytes", () => {
+      memory.addBytes(addBytes);
+      expect(memory.getUsedSpace().bytes).toBe(addBytes);
+    });
+
+    it("should have correct free space", () => {
+      memory.addBytes(addBytes);
+      const freeSpace = memory.getFreeSpace();
+      expect(freeSpace.bytes).toBe(size * UNITS[units] - addBytes);
+      expect(freeSpace.units).toBe(freeSpace.bytes / UNITS[units]);
+      expect(freeSpace.prs).toBe(
+        100 - (addBytes / (size * UNITS[units])) * 100
+      );
+    });
+
+    it("should have correct used space", () => {
+      memory.addBytes(addBytes);
+      const usedSpace = memory.getUsedSpace();
+      expect(usedSpace.bytes).toBe(addBytes);
+      expect(usedSpace.units).toBe(addBytes / UNITS[units]);
+      expect(usedSpace.prs).toBe((addBytes / (size * UNITS[units])) * 100);
+    });
+
+    it("should have correct average", () => {
+      memory.addBytes(addBytes);
+      const average = memory.getAverage();
+      expect(average.bytes).toBe(addBytes);
+      expect(average.units).toBe(addBytes / UNITS[units]);
+      expect(average.prs).toBe((addBytes / (size * UNITS[units])) * 100);
+    });
+
+    it("should not overflow", () => {
+      const remainingBytes = memory.addBytes(size * UNITS[units]);
+      expect(remainingBytes).toBe(0);
+    });
+
+    it("should not add if overflow", () => {
+      const max = size * UNITS[units];
+      memory.addBytes(max);
+      const overflowBytes = memory.addBytes(addBytes);
+      expect(memory.getUsedSpace().bytes).toBe(max);
+      expect(memory.getFreeSpace().bytes).toBe(0);
+      expect(memory.getState().count).toBe(1);
+      expect(overflowBytes).toBe(-addBytes);
+    });
+
+    it("should emit overflow event", () => {
+      const spy = vi.fn();
+      memory.on("overflow", spy);
+      memory.addBytes(size * UNITS[units]);
+      const overflowBytes = memory.addBytes(123 * UNITS[units]);
+      expect(spy).toHaveBeenCalledWith(memory, -overflowBytes);
+    });
+
+    it("should not call overflow event if not overflow", () => {
+      const spy = vi.fn();
+      memory.on("overflow", spy);
+      memory.addBytes(addBytes);
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 
-  it("should emit overflow event when memory is overflowed", () => {
-    const overflowListener = vi.fn();
-    memory.on("overflow", overflowListener);
-    memory.add(2000);
-    expect(overflowListener).toHaveBeenCalled();
+  describe("clear()", () => {
+    let memory: Memory;
+    const size = 10;
+    const units = "MB";
+
+    beforeEach(() => {
+      memory = new Memory({ size, units });
+    });
+
+    it("should clear memory", () => {
+      memory.addBytes(5);
+      memory.clear();
+      expect(memory.getState().count).toBe(0);
+      expect(memory.getUsedSpace().bytes).toBe(0);
+      expect(memory.getFreeSpace().bytes).toBe(size * UNITS[units]);
+    });
+
+    it("should emit clear event", () => {
+      const spy = vi.fn();
+      memory.on("clear", spy);
+      memory.clear();
+      expect(spy).toHaveBeenCalledWith(memory, undefined);
+    });
   });
 
-  it("should emit available event when memory is not overflowed", () => {
-    const availableListener = vi.fn();
-    memory.on("available", availableListener);
-    memory.add(500);
-    memory.remove(200);
-    expect(availableListener).toHaveBeenCalled();
-  });
+  describe("addUnits()", () => {
+    let memory: Memory;
+    const size = 10;
+    const units = "KB";
 
-  it("should emit clear event when memory is cleared", () => {
-    const clearListener = vi.fn();
-    memory.on("clear", clearListener);
-    memory.clear();
-    expect(clearListener).toHaveBeenCalled();
+    beforeEach(() => {
+      memory = new Memory({ size, units });
+    });
+
+    afterEach(() => {
+      // memory.clear();
+    });
+
+    it("should add units", () => {
+      memory.addUnits(1);
+      expect(memory.getUsedSpace().units).toBe(1);
+    });
+
+    it("should add bytes", () => {
+      memory.addUnits(1);
+      expect(memory.getUsedSpace().bytes).toBe(UNITS[units]);
+    });
+
+    it("should return negative value if overflow", () => {
+      const remainingUnits = memory.addUnits(size + 1);
+      expect(remainingUnits).toBe(-1);
+    });
+
+    it("should set correct free space", () => {
+      memory.addUnits(1);
+      const freeSpace = memory.getFreeSpace();
+      expect(freeSpace.bytes).toBe(size * UNITS[units] - UNITS[units]);
+      expect(freeSpace.units).toBe(size - 1);
+      expect(freeSpace.prs).toBe(90);
+    });
   });
 });

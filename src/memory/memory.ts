@@ -1,7 +1,7 @@
 import { Logger, LogLevel } from "@/logger";
 import { UNITS, UnitsType } from "../units";
 
-type Events = "overflow" | "available" | "clear";
+type Events = "overflow" | "clear";
 interface MemoryProps {
   /** Size of memory in <units> */
   size?: number;
@@ -18,8 +18,8 @@ interface MemoryProps {
  */
 export class Memory extends Logger {
   private bytes = 0;
-  private readonly units: UnitsType;
-  private readonly size: number;
+  readonly units: UnitsType;
+  readonly size: number;
   private count = 0;
 
   constructor({
@@ -45,26 +45,74 @@ export class Memory extends Logger {
    * @returns Returns a string with the status of the memory object
    */
   getStatus(): string {
-    const { percent, consumed } = this.getState();
-    return `Used: ${percent}% (${consumed.toFixed(3)}/${this.size} ${
-      this.units
-    }), Count: ${this.count}, Average: ${(consumed / this.count).toFixed(3)} ${
-      this.units
-    }`;
+    return JSON.stringify(
+      {
+        state: this.getState(),
+        free: this.getFreeSpace(),
+        used: this.getUsedSpace(),
+      },
+      null,
+      2
+    );
+  }
+
+  getFreeSpace() {
+    const unitUsed = this.toUnits(this.bytes);
+    const prsUsed = (unitUsed / this.size) * 100;
+    return {
+      bytes: this.getBytesSpace(),
+      units: this.size - unitUsed,
+      prs: 100 - prsUsed,
+    };
+  }
+
+  getUsedSpace() {
+    const unitUsed = this.toUnits(this.bytes);
+    const prsUsed = (unitUsed / this.size) * 100;
+    return {
+      bytes: this.bytes,
+      units: unitUsed,
+      prs: prsUsed,
+    };
+  }
+
+  getAverage() {
+    const unitUsed = this.toUnits(this.bytes);
+    const prsUsed = (unitUsed / this.size) * 100;
+    const isZero = unitUsed === 0 || this.count === 0;
+    return {
+      bytes: !isZero ? this.bytes / this.count : 0,
+      units: !isZero ? unitUsed / this.count : 0,
+      prs: !isZero ? prsUsed / this.count : 0,
+    };
   }
 
   getState() {
-    const consumed = this.toUnits(this.bytes);
-    const percent = Math.round((consumed / this.size) * 100);
-    return { percent, consumed, size: this.size, units: this.units };
+    return {
+      count: this.count,
+      size: this.size,
+      units: this.units,
+      sizeBytes: this.size * UNITS[this.units],
+    };
   }
 
   /**
    * Adds bytes to the memory object and logs the status
-   * Emits overflow event if the memory object is overflowed
+   * If adding bytes will overflow the memory object, not new bytes will be added.
    * @param bytes - The number of bytes to add to the memory object
+   * @returns Returns the remaining bytes. If negative, the memory object is overflowed
    */
-  add(bytes: number) {
+  addBytes(bytes: number): number {
+    const remainingBytes = this.getBytesSpace(bytes);
+    if (remainingBytes < 0) {
+      this.log.warn(
+        [`Cannot add, will overflow!`, this.getStatus()],
+        this.styles.error
+      );
+      this.emit("overflow", -remainingBytes);
+      return remainingBytes;
+    }
+
     this.count++;
     this.bytes += bytes;
 
@@ -75,19 +123,27 @@ export class Memory extends Logger {
       ],
       this.styles.info
     );
-
-    if (this.isOverflow()) {
-      this.log.error([`Overflow!`, this.getStatus()], this.styles.error);
-      this.emit("overflow");
-    }
+    return remainingBytes;
   }
 
   /**
-   * Checks if the memory object is overflowed
-   * @returns Returns true if the memory object is overflowed
+   * Adds bytes in units to the memory object
+   * @param units
+   * @returns  Returns the remaining units. If negative, the memory object is overflowed
    */
-  isOverflow(): boolean {
-    return this.toUnits(this.bytes) > this.size;
+  addUnits(units: number): number {
+    const remainingBytes = this.addBytes(units * UNITS[this.units]);
+    return remainingBytes != 0 ? remainingBytes / UNITS[this.units] : 0;
+  }
+
+  /**
+   * Calculates the remaining space in the memory object
+   * @param withBytes  - The number of bytes to add to the memory object
+   * @returns Returns the remaining bytes. If negative, the memory object is overflowed
+   */
+  getBytesSpace(withBytes = 0): number {
+    const remaining = this.size * UNITS[this.units] - (this.bytes + withBytes);
+    return remaining;
   }
 
   /**
@@ -95,7 +151,7 @@ export class Memory extends Logger {
    * Emits available event if the memory object is not overflowed
    * @param bytes - The number of bytes to remove from the memory object
    */
-  remove(bytes: number) {
+  removeBytes(bytes: number): number {
     this.count--;
     this.bytes -= bytes;
     this.log.info(
@@ -106,9 +162,7 @@ export class Memory extends Logger {
       this.styles.info
     );
 
-    if (!this.isOverflow()) {
-      this.emit("available");
-    }
+    return this.getBytesSpace();
   }
 
   /**
@@ -134,7 +188,7 @@ export class Memory extends Logger {
     return this;
   }
 
-  emit(event: Events): boolean {
-    return super.emit(event, this);
+  emit(event: Events, value?: unknown): boolean {
+    return super.emit(event, this, value);
   }
 }
