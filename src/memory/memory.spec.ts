@@ -13,10 +13,6 @@ describe("Memory", () => {
       state = memory.getState();
     });
 
-    afterEach(() => {
-      // memory.clear();
-    });
-
     it("should have correct size", () => {
       expect(state.size).toBe(size);
     });
@@ -45,10 +41,6 @@ describe("Memory", () => {
       freeSpace = memory.getFreeSpace();
     });
 
-    afterEach(() => {
-      // memory.clear();
-    });
-
     it("should have correct bytes", () => {
       expect(freeSpace.bytes).toBe(size * UNITS[units]);
     });
@@ -71,10 +63,6 @@ describe("Memory", () => {
     beforeEach(() => {
       memory = new Memory({ size, units });
       usedSpace = memory.getUsedSpace();
-    });
-
-    afterEach(() => {
-      // memory.clear();
     });
 
     it("should have correct bytes", () => {
@@ -101,10 +89,6 @@ describe("Memory", () => {
       average = memory.getAverage();
     });
 
-    afterEach(() => {
-      // memory.clear();
-    });
-
     it("should have correct bytes", () => {
       expect(average.bytes).toBe(0);
     });
@@ -126,10 +110,6 @@ describe("Memory", () => {
 
     beforeEach(() => {
       memory = new Memory({ size, units });
-    });
-
-    afterEach(() => {
-      // memory.clear();
     });
 
     it("should return remaining bytes", () => {
@@ -237,10 +217,6 @@ describe("Memory", () => {
 
     beforeEach(() => {
       memory = new Memory({ size, units });
-    });
-
-    afterEach(() => {
-      // memory.clear();
     });
 
     it("should add units", () => {

@@ -1,6 +1,6 @@
 import { Logger } from "@/logger";
 
-type MIMEType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+export type MIMEType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
 type Events =
   | "loadstart"
@@ -133,8 +133,8 @@ export class Loader extends Logger {
   private retryLoad() {
     if (this.retries < this.retry) {
       this.retries++;
-      this.load();
       this.emit("retry");
+      this.load();
       return true;
     }
     return false;

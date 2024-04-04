@@ -1,5 +1,6 @@
 import { Loader, Resource } from "@/loader";
 import { Logger } from "@/logger";
+import { i } from "vitest/dist/reporters-P7C2ytIv.js";
 
 type Events =
   | "loadstart"
@@ -135,8 +136,6 @@ export class Network extends Logger {
     loader.on("loadend", () => {
       this.emit("loadend", loader);
       onDone();
-      // image.assignBlob(loader.blob);
-      // this.emit("load", image);
     });
     this.loaders.set(resource.url, loader);
     loader.load();
