@@ -1,6 +1,5 @@
 import { Loader, Event as LoaderEvent, Events as LoaderEvents } from "@/loader";
 import { Logger } from "@/logger";
-import { c } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
 
 type Events = LoaderEvents | "pause" | "resume";
 
@@ -107,7 +106,7 @@ export class Network extends Logger {
     }
   }
 
-  private onLoaderEvent({ event, target: loader }: LoaderEvent) {
+  private onLoaderEvent = ({ event, target: loader }: LoaderEvent) => {
     switch (event) {
       case "loadend":
       case "abort":
@@ -121,7 +120,7 @@ export class Network extends Logger {
       default:
         this.emit(event, loader);
     }
-  }
+  };
   /**
    * Processes image
    */
