@@ -7,7 +7,7 @@ type CB = () => void;
  */
 export class FrameQueue extends Logger {
   private scheduled = false;
-  private readonly queue: CB[] = [];
+  readonly queue: CB[] = [];
   constructor() {
     super({
       name: "BlitQueue",
@@ -23,13 +23,16 @@ export class FrameQueue extends Logger {
       this.scheduled = false;
       return;
     }
-
     this.log.verbose([`processing: ${this.queue.length}`]);
-    window.requestAnimationFrame(() => {
+    try {
       cb();
+    } catch (e) {
+      this.log.error([`Error processing callback: ${e}`]);
+    }
+
+    window.requestAnimationFrame(() => {
       this.scheduled = false;
       this.processQueue();
-
       this.log.verbose([`processed`]);
     });
   }

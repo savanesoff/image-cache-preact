@@ -1,5 +1,5 @@
 import { FrameQueue } from "./frame-queue";
-
+vi.useFakeTimers();
 describe("FrameQueue", () => {
   let blitQueue: FrameQueue;
 
@@ -7,16 +7,23 @@ describe("FrameQueue", () => {
     blitQueue = new FrameQueue();
   });
 
-  it("should add callbacks to the queue", () => {
+  it("should be defined", () => {
+    expect(blitQueue).toBeDefined();
+  });
+
+  it("should not have first cb in queue", () => {
+    blitQueue.add(vi.fn());
+    expect(blitQueue.queue).toHaveLength(0);
+  });
+  it("should process first callback immediately", () => {
     const cb1 = vi.fn();
-    const cb2 = vi.fn();
-
     blitQueue.add(cb1);
-    blitQueue.add(cb2);
-
-    expect(blitQueue["queue"]).toHaveLength(2);
-    expect(blitQueue["queue"][0]).toBe(cb1);
-    expect(blitQueue["queue"][1]).toBe(cb2);
+    expect(cb1).toHaveBeenCalledTimes(1);
+  });
+  it("should add next callbacks to the queue", () => {
+    blitQueue.add(vi.fn());
+    blitQueue.add(vi.fn());
+    expect(blitQueue.queue).toHaveLength(1);
   });
 
   it("should process the queue in the correct order", () => {
@@ -34,5 +41,13 @@ describe("FrameQueue", () => {
 
     expect(cb1).toHaveBeenCalledTimes(1);
     expect(cb2).toHaveBeenCalledTimes(1);
+  });
+
+  it("should clear queue after processing", () => {
+    blitQueue.add(vi.fn());
+    blitQueue.add(vi.fn());
+    vi.runAllTimers();
+
+    expect(blitQueue.queue).toHaveLength(0);
   });
 });
