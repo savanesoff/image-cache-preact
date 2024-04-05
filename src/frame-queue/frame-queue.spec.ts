@@ -1,4 +1,4 @@
-import { FrameQueue } from "./blit";
+import { FrameQueue } from "./frame-queue";
 
 describe("FrameQueue", () => {
   let blitQueue: FrameQueue;
