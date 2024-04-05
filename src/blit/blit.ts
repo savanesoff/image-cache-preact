@@ -2,7 +2,7 @@ import { Logger } from "@/logger";
 
 type BlitCB = () => void;
 
-export default class BlitQueue extends Logger {
+export default class Blit extends Logger {
   private scheduled = false;
   private readonly queue: BlitCB[] = [];
   constructor() {

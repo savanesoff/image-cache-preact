@@ -1,4 +1,4 @@
-import BlitQueue from "./blit-queue";
+import BlitQueue from "./blit";
 
 describe("BlitQueue", () => {
   let blitQueue: BlitQueue;
