@@ -1,10 +1,10 @@
-import BlitQueue from "./blit";
+import { FrameQueue } from "./blit";
 
-describe("BlitQueue", () => {
-  let blitQueue: BlitQueue;
+describe("FrameQueue", () => {
+  let blitQueue: FrameQueue;
 
   beforeEach(() => {
-    blitQueue = new BlitQueue();
+    blitQueue = new FrameQueue();
   });
 
   it("should add callbacks to the queue", () => {

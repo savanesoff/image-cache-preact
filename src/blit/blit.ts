@@ -1,10 +1,13 @@
 import { Logger } from "@/logger";
 
-type BlitCB = () => void;
+type CB = () => void;
 
-export default class Blit extends Logger {
+/**
+ * FrameQueue is a queue that processes callbacks in the next animation frame.
+ */
+export class FrameQueue extends Logger {
   private scheduled = false;
-  private readonly queue: BlitCB[] = [];
+  private readonly queue: CB[] = [];
   constructor() {
     super({
       name: "BlitQueue",
@@ -31,7 +34,7 @@ export default class Blit extends Logger {
     });
   }
 
-  add(cb: BlitCB) {
+  add(cb: CB) {
     this.queue.push(cb);
     this.processQueue();
     this.log.verbose(["added to queue"]);
