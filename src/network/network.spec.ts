@@ -1,4 +1,4 @@
-import { Loader, MIMEType } from "@/loader";
+import { Loader } from "@/loader";
 import { Network } from "./network";
 import "@/__mocks__/xhr";
 const createResource = (): Loader => {
