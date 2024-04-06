@@ -25,28 +25,35 @@ import {
   Events as LoaderEvents,
   LoaderProps,
 } from "../loader";
+
 type Events =
   | LoaderEvents
   | "size"
   | "clear"
   | "request-load"
   | "request-render"
-  | "clear-size";
+  | "clear-size"
+  | "size-rendered";
 
 type Event<T extends Events> = {
   event: T;
   target: T extends LoaderEvents ? Loader : Img;
-};
+} & (T extends "size" ? { with: number; height: number } : unknown) &
+  (T extends "request-render" | "size-rendered" | "clear-size" | "render-clear"
+    ? { request: RenderRequest }
+    : unknown);
+
 type EventHandler<T extends Events> = (event: Event<T>) => void;
 
-type Size = {
+export type Size = {
   width: number;
   height: number;
 };
 
-type ImgProps = LoaderProps;
+export type ImgProps = LoaderProps;
 
-type RenderState = {
+export type RenderRequest = {
+  key: string;
   size: Size;
   bytes: number;
   rendered: boolean;
@@ -60,7 +67,7 @@ export class Img extends Loader {
   /** Image element that helps us hold on to blob url data in ram */
   readonly element: HTMLImageElement;
   /** Tracks render data for each image size */
-  readonly renderState = new Map<string, RenderState>();
+  readonly renderRequests = new Map<string, RenderRequest>();
 
   gotSize = false;
   loadRequested = false;
@@ -92,10 +99,13 @@ export class Img extends Loader {
     this.element.onerror = null;
     // not really needed to have size separate from image props, but image can be cleared to free memory
     this.gotSize = true;
+
     this.emit("size", {
       with: this.element.width,
       height: this.element.height,
     });
+    // request render for all sizes
+    this.processRenderRequests();
   };
 
   private onBlobError = () => {
@@ -110,7 +120,7 @@ export class Img extends Loader {
     this.element.src = "";
     this.gotSize = false;
     URL.revokeObjectURL(this.element.src);
-    for (const [, state] of this.renderState) {
+    for (const [, state] of this.renderRequests) {
       this.clearSize(state.size);
     }
     this.emit("clear");
@@ -144,68 +154,84 @@ export class Img extends Loader {
     return false;
   }
 
-  /**
-   * Requesting src triggers the loading of the image data into the cache
-   */
-  renderSize({
-    size,
-    bucket,
-  }: {
-    size: Size;
-    bucket: Bucket;
-  }): HTMLImageElement | null {
-    const key = `${size.width}x${size.height}`;
-    let state = this.renderState.get(key);
+  processRenderRequests() {
+    if (!this.gotSize) {
+      return;
+    }
+    // go over all renderRequests and request render
+    for (const [, request] of this.renderRequests) {
+      if (!request.requested) {
+        // request render of size - handled by master
+        // once image is rendered at size
+        this.emit("request-render", { request });
+      }
+      request.requested = true;
+      // always do this for all buckets, since new bucket can be added
+      for (const bucket of request.buckets) {
+        // let bucket track its video pool
+        bucket.emit("render-requested", { request });
+      }
+    }
+  }
 
-    if (!state) {
-      state = {
+  // called by master
+  onSizeRendered(request: RenderRequest) {
+    request.rendered = true;
+    for (const bucket of request.buckets) {
+      bucket.emit("render-ready", { request });
+    }
+    // this is the final event and should be emitted only once per size
+    // listen to this event to render the image at the size requested
+    this.emit("size-rendered", { request });
+  }
+
+  /**
+   * Request render of image size
+   * This kicks off the process of rendering the image at the requested size
+   * The process is asynchronous and will emit a "size-rendered" event when the image is rendered
+   * Adds the request to the renderRequests map and requests load if not already requested
+   */
+  requestSize({ size, bucket }: { size: Size; bucket: Bucket }): void {
+    const key = `${size.width}x${size.height}`;
+    let request = this.renderRequests.get(key);
+    // for each unique size, we only need to request once
+    if (!request) {
+      request = {
+        key,
         size,
         bytes: this.getBytesVideo(size),
         rendered: false,
         requested: false,
         buckets: new Set(),
       };
-      this.renderState.set(key, state);
+      this.renderRequests.set(key, request);
     }
-    // general load
+    // add request bucket as same size can be requested by multiple buckets
+    request.buckets.add(bucket);
+    // general load request only once
     if (!this.loadRequested) {
       this.loadRequested = true;
       this.emit("request-load"); // for master to handler
-      return null;
+    } else {
+      // always request render
+      this.processRenderRequests();
     }
-
-    if (!this.gotSize) {
-      return null;
-    }
-
-    if (!state.requested) {
-      state.requested = true;
-      state.buckets.add(bucket);
-      bucket.addSize({ size: key, image: this });
-      this.emit("request-render", state);
-      return null;
-    }
-
-    if (!state.rendered) {
-      return null;
-    }
-
-    return this.element;
   }
 
   clearSize(size: Size) {
     const key = `${size.width}x${size.height}`;
-    const state = this.renderState.get(key);
-    if (!state) {
+    const request = this.renderRequests.get(key);
+    if (!request) {
       return;
     }
 
-    state.rendered = false;
-    state.requested = false;
-    for (const bucket of state.buckets) {
-      bucket.clearSize({ size: key, image: this });
+    request.rendered = false;
+    request.requested = false;
+    for (const bucket of request.buckets) {
+      bucket.emit("render-clear", { request });
     }
-    this.emit("clear-size", { key, size });
+    this.renderRequests.delete(key);
+    this.emit("clear-size", { request });
   }
 
   on<T extends Events>(event: T, handler: EventHandler<T>): this {
