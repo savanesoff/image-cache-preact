@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,7 +10,13 @@ export default defineConfig({
       ["src/**", "jsdom"],
     ],
     alias: {
-      "@": "/src",
+      // @ts-expect-error - __dirname is not defined
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  resolve: {
+    alias: {
+      "@": "./src",
     },
   },
 });
