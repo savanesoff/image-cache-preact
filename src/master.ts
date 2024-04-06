@@ -1,5 +1,5 @@
 import { Bucket } from "./Bucket";
-import { CacheImage } from "./CacheImage";
+import { Img } from "@/image";
 import { LogLevel, Logger } from "@/logger";
 import { Memory } from "@/memory";
 import { Network } from "@/network";
@@ -17,7 +17,7 @@ export class Master extends Logger {
   private ram: Memory;
   private video: Memory;
   private updating = false;
-  private cache = new Map<string, CacheImage>();
+  private cache = new Map<string, Img>();
   private buckets = new Set<Bucket>();
   readonly network: Network;
 
@@ -57,11 +57,11 @@ export class Master extends Logger {
     this.video.on("overflow", this.update);
   }
 
-  getImage(url: string): CacheImage {
+  getImage(url: string): Img {
     return this.cache.get(url) || this.createImage(url);
   }
 
-  requestLoad(image: CacheImage) {
+  requestLoad(image: Img) {
     this.network.add(image);
   }
 
@@ -69,8 +69,8 @@ export class Master extends Logger {
     memory.overflow = this.ram.isOverflow();
   };
 
-  private createImage(url: string): CacheImage {
-    const image = new CacheImage(url);
+  private createImage(url: string): Img {
+    const image = new Img(url);
     this.cache.set(url, image);
     image.on("loaded", this.onLoaded);
     image.on("blit", this.onBlit);
@@ -79,20 +79,20 @@ export class Master extends Logger {
     return image;
   }
 
-  private onLoaded = (image: CacheImage) => {
+  private onLoaded = (image: Img) => {
     this.ram.addBytes(image.bytes);
   };
 
-  private onClear = (image: CacheImage) => {
+  private onClear = (image: Img) => {
     this.ram.removeBytes(image.bytes);
     image.removeAllListeners();
   };
 
-  private onBlit = (image: CacheImage) => {
+  private onBlit = (image: Img) => {
     this.video.addBytes(image.sizeRender.width * image.sizeRender.height * 4);
   };
 
-  private onUnblit = (image: CacheImage) => {
+  private onUnblit = (image: Img) => {
     this.video.removeBytes(
       image.sizeRender.width * image.sizeRender.height * 4
     );

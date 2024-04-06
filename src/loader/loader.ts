@@ -17,7 +17,7 @@ export type Event = {
 
 export type EventHandler = (event: Event) => void;
 
-export type Resource = {
+export type LoaderProps = {
   url: string;
   mimeType?: MIMEType;
   retry?: number;
@@ -52,7 +52,7 @@ export class Loader extends Logger {
    * @param url - The URL of the resource to load.
    * @param mimeType - The MIME type of the resource. Defaults to "image/jpeg".
    */
-  constructor({ url, mimeType = "image/jpeg", retry }: Resource) {
+  constructor({ url, mimeType = "image/jpeg", retry }: LoaderProps) {
     super({
       name: "Loader",
       logLevel: "error",
@@ -175,7 +175,7 @@ export class Loader extends Logger {
     return this;
   }
 
-  emit(event: Events): boolean {
-    return super.emit(event, { event, target: this });
+  emit(event: Events, data?: Record<string, unknown>): boolean {
+    return super.emit(event, { ...data, event, target: this });
   }
 }

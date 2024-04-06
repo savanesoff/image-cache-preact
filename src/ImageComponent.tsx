@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { CacheImage } from "./CacheImage";
+import { Img } from "@/image";
 
 export function ImageComponent({
   width,
@@ -13,7 +13,7 @@ export function ImageComponent({
   width: number;
   height: number;
   show: boolean;
-  image: CacheImage;
+  image: Img;
   defaultURL: string;
   style?: React.CSSProperties;
   props?: React.DetailedHTMLProps<
