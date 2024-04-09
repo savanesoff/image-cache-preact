@@ -23,6 +23,7 @@ const loaderEvent: LoaderEvents[] = [
   "timeout",
   "loadend",
 ];
+
 export class Network extends Logger {
   readonly inFlight = new Map<string, Loader>();
   readonly queue = new Map<string, Loader>();
