@@ -1,7 +1,7 @@
 import { Img, Size } from "@/image";
 import defaultImageURL from "./assets/default.png";
 import { Logger } from "@/logger";
-import { Master } from "./master";
+import { Master } from "../master";
 import { Event as ImageEvent } from "@/image";
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {

@@ -1,5 +1,5 @@
 import { Img, RenderRequest } from "./image";
-import { Bucket } from "../Bucket";
+import { Bucket } from "../bucket/bucket";
 
 vi.useFakeTimers();
 const createBucket = (): Bucket => {
