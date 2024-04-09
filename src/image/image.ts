@@ -33,17 +33,28 @@ type Events =
   | "request-load"
   | "request-render"
   | "clear-size"
-  | "size-rendered";
+  | "size-rendered"
+  | "request-render-size"
+  | "clear-size-bucket"
+  | "check-lock";
 
-type Event<T extends Events> = {
+export type Event<T extends Events> = {
   event: T;
   target: T extends LoaderEvents ? Loader : Img;
 } & (T extends "size" ? { with: number; height: number } : unknown) &
-  (T extends "request-render" | "size-rendered" | "clear-size" | "render-clear"
+  (T extends "request-render" | "size-rendered" | "clear-size"
     ? { request: RenderRequest }
-    : unknown);
+    : unknown) &
+  (T extends "request-render-size" | "clear-size-bucket"
+    ? { request: RenderRequest; bucket: Bucket }
+    : unknown) &
+  (T extends "check-lock" ? { state: LockState } : unknown);
 
-type EventHandler<T extends Events> = (event: Event<T>) => void;
+export type LockState = {
+  locked: number;
+};
+
+export type EventHandler<T extends Events> = (event: Event<T>) => void;
 
 export type Size = {
   width: number;
@@ -62,8 +73,6 @@ export type RenderRequest = {
 };
 
 export class Img extends Loader {
-  // reference to buckets this image is associated with
-  readonly buckets = new Set<Bucket>();
   /** Image element that helps us hold on to blob url data in ram */
   readonly element: HTMLImageElement;
   /** Tracks render data for each image size */
@@ -71,10 +80,16 @@ export class Img extends Loader {
 
   gotSize = false;
   loadRequested = false;
+  decoded = false;
 
-  constructor({ mimeType = "image/jpeg", ...props }: ImgProps) {
+  constructor({
+    headers = {
+      "Content-Type": "image/jpeg",
+    },
+    ...props
+  }: ImgProps) {
     super({
-      mimeType,
+      headers,
       ...props,
     });
     this.element = new Image(); // need to get actual size of image
@@ -86,6 +101,9 @@ export class Img extends Loader {
    * Creates a blob URL for the image data to get its size
    */
   onDataLoaded() {
+    if (!this.blob) {
+      throw new Error("No blob data found");
+    }
     this.element.onload = this.onBlobAssigned;
     this.element.onerror = this.onBlobError;
     this.element.src = URL.createObjectURL(this.blob);
@@ -126,6 +144,44 @@ export class Img extends Loader {
     this.emit("clear");
   }
 
+  /*
+   * Memory Usage Summary:
+   *
+   * When an image is loaded as a Blob, the data represents the image file as it is stored on disk,
+   * which is typically compressed (for formats like JPEG, PNG, etc.).
+   * This Blob data is stored in the browser's memory, not in the JavaScript heap.
+   * Blobs are a browser feature and are managed by the browser, not by the JavaScript engine.
+   *
+   * When the browser renders an image, it needs to decode (uncompress) the image data into a bitmap that can be drawn to the screen.
+   * This decoded image data is also stored in the browser's memory. It's not stored in the JavaScript heap
+   * because it's not directly accessible from JavaScript. The decoded image data is managed by the browser's rendering engine.
+   *
+   * The getBytesRam method in this code calculates the total memory used by the image,
+   * including both the compressed Blob data and the uncompressed bitmap data (if the image has been decoded).
+   *
+   * The getBytesVideo method calculates the size of the uncompressed bitmap data based on the image dimensions
+   * and assuming 4 bytes per pixel (which is typical for an RGBA image).
+   *
+   * These calculations assume that the entire image is decoded into a bitmap as soon as it's rendered,
+   * which might not always be the case depending on the browser's image decoding strategy.
+   * They also don't account for any additional memory that might be used by the browser to manage the image data.
+   *
+   * So, while these methods can give a rough estimate of the memory usage, they won't give an exact number.
+   * For more precise memory profiling, you would need to use browser-specific tools or APIs.
+   */
+  getBytesRam() {
+    // add together compressed size and uncompressed size
+    return (
+      this.bytes +
+      (this.decoded
+        ? this.getBytesVideo({
+            width: this.element.width,
+            height: this.element.height,
+          })
+        : 0)
+    );
+  }
+
   /**
    * Returns the size of the image in bytes as a 4 channel RGBA image
    */
@@ -134,24 +190,15 @@ export class Img extends Loader {
     return size.width * size.height * 4;
   }
 
-  addBucket(bucket: Bucket) {
-    this.buckets.add(bucket);
-  }
-
-  removeBucket(bucket: Bucket) {
-    this.buckets.delete(bucket);
-  }
-
   /**
    * Returns true if the image is locked by any bucket
    */
   isLocked() {
-    for (const bucket of this.buckets) {
-      if (bucket.isLocked()) {
-        return true;
-      }
-    }
-    return false;
+    // we'll send out a call for locked status
+    // any bucket/master/component can respond and by setting lock count
+    const lock = { count: 0 };
+    this.emit("check-lock", { lock });
+    return lock.count > 0;
   }
 
   processRenderRequests() {
@@ -161,16 +208,10 @@ export class Img extends Loader {
     // go over all renderRequests and request render
     for (const [, request] of this.renderRequests) {
       if (!request.requested) {
-        // request render of size - handled by master
-        // once image is rendered at size
+        // request render of size - handled by master to render image
         this.emit("request-render", { request });
       }
       request.requested = true;
-      // always do this for all buckets, since new bucket can be added
-      for (const bucket of request.buckets) {
-        // let bucket track its video pool
-        bucket.emit("render-requested", { request });
-      }
     }
   }
 
@@ -178,11 +219,23 @@ export class Img extends Loader {
   onSizeRendered(request: RenderRequest) {
     request.rendered = true;
     for (const bucket of request.buckets) {
-      bucket.emit("render-ready", { request });
+      // let bucket track its video pool
+      this.emit("request-render-size", { request, bucket });
     }
+    // decoding happens only once. Every other size uses the same decoded bitmap in memory
+    this.decoded = true;
     // this is the final event and should be emitted only once per size
     // listen to this event to render the image at the size requested
     this.emit("size-rendered", { request });
+  }
+
+  requestLoad() {
+    if (this.loadRequested) {
+      this.processRenderRequests();
+      return;
+    }
+    this.loadRequested = true;
+    this.emit("request-load"); // for
   }
 
   /**
@@ -208,14 +261,8 @@ export class Img extends Loader {
     }
     // add request bucket as same size can be requested by multiple buckets
     request.buckets.add(bucket);
-    // general load request only once
-    if (!this.loadRequested) {
-      this.loadRequested = true;
-      this.emit("request-load"); // for master to handler
-    } else {
-      // always request render
-      this.processRenderRequests();
-    }
+    // general load request
+    this.requestLoad();
   }
 
   clearSize(size: Size) {
@@ -227,10 +274,14 @@ export class Img extends Loader {
 
     request.rendered = false;
     request.requested = false;
+
     for (const bucket of request.buckets) {
-      bucket.emit("render-clear", { request });
+      // for buckets at specific size
+      this.emit("clear-size-bucket", { request, bucket });
     }
+
     this.renderRequests.delete(key);
+    // general event
     this.emit("clear-size", { request });
   }
 
