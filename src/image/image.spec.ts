@@ -218,15 +218,6 @@ describe("Img", () => {
       expect(image.renderRequests.size).toBe(0);
     });
 
-    it("should call bucket render-clear event", () => {
-      for (const request of image.renderRequests.values()) {
-        for (const bucket of request.buckets) {
-          expect(bucket.clearSize).toHaveBeenCalledTimes(1);
-          expect(bucket.clearSize).toHaveBeenCalledWith({ request });
-        }
-      }
-    });
-
     it("should emit clear-size event", () => {
       expect(clearEventSpy).toHaveBeenCalledTimes(1);
     });
