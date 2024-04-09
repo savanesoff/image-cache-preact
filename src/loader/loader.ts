@@ -10,6 +10,12 @@ export type Events =
   | "error"
   | "retry";
 
+type Headers = {
+  "Content-Type": string;
+  "Cache-Control"?: string;
+  Expires?: string;
+};
+
 export type Event = {
   event: Events;
   target: Loader;
@@ -19,7 +25,7 @@ export type EventHandler = (event: Event) => void;
 
 export type LoaderProps = {
   url: string;
-  mimeType?: MIMEType;
+  headers?: Headers | null;
   retry?: number;
 };
 
@@ -33,7 +39,7 @@ export class Loader extends Logger {
   static timeout = 0;
   readonly url: string;
   readonly xhr: XMLHttpRequest;
-  bytesTotal = 0;
+  bytes = 0;
   bytesLoaded = 0;
   timeout = false;
   loaded = false;
@@ -42,8 +48,8 @@ export class Loader extends Logger {
   progress = 0; // 0-1
   aborted = false;
   pending = false;
-  blob: Blob = {} as Blob;
-  mimeType: MIMEType = "image/jpeg";
+  blob: Blob | null = null;
+  headers: Headers | null;
   retry = 3;
   retries = 0;
 
@@ -52,13 +58,13 @@ export class Loader extends Logger {
    * @param url - The URL of the resource to load.
    * @param mimeType - The MIME type of the resource. Defaults to "image/jpeg".
    */
-  constructor({ url, mimeType = "image/jpeg", retry }: LoaderProps) {
+  constructor({ url, headers = null, retry }: LoaderProps) {
     super({
       name: "Loader",
       logLevel: "error",
     });
     this.url = url;
-    this.mimeType = mimeType;
+    this.headers = headers;
     this.retry = retry ?? this.retry;
     this.xhr = new XMLHttpRequest();
     // assign event handlers
@@ -89,21 +95,18 @@ export class Loader extends Logger {
   }
 
   private setHeaders() {
-    this.xhr.setRequestHeader("Content-Type", this.mimeType);
-    // xhr.setRequestHeader("Cache-Control", "max-age=0");
-    // xhr.setRequestHeader("Cache-Control", "no-cache");
-    // xhr.setRequestHeader("Cache-Control", "no-store");
-    // xhr.setRequestHeader("Cache-Control", "must-revalidate");
-    // xhr.setRequestHeader("Cache-Control", "proxy-revalidate");
-    // xhr.setRequestHeader("Pragma", "no-cache");
-    // xhr.setRequestHeader("Expires", "0");
-    // set CORS to anonymous to avoid CORS error
-    // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+    if (!this.headers) {
+      return;
+    }
+    const headers = Object.entries(this.headers) as [keyof Headers, string][];
+    headers.forEach(([key, value]) => {
+      this.xhr.setRequestHeader(key, value);
+    });
   }
 
   private onLoaded = () => {
     this.blob = new Blob([this.xhr.response]);
-    this.bytesTotal = this.blob.size;
+    this.bytes = this.blob.size;
     this.loaded = true;
     this.loading = false;
     this.progress = 1;
@@ -113,7 +116,7 @@ export class Loader extends Logger {
   };
 
   private onProgress = (event: ProgressEvent<EventTarget>) => {
-    this.bytesTotal = event.total;
+    this.bytes = event.total;
     this.bytesLoaded = event.loaded;
     this.progress = event.loaded / event.total;
     this.log.verbose(["Progress", this.url, this.progress]);
