@@ -4,8 +4,6 @@ import { Bucket } from "@/bucket";
 vi.useFakeTimers();
 const createBucket = (): Bucket => {
   return {
-    clearSize: vi.fn(),
-    addSize: vi.fn(),
     emit: vi.fn(),
   } as unknown as Bucket;
 };
