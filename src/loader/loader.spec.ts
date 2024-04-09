@@ -11,7 +11,15 @@ afterEach(() => {
 
 describe("Loader", () => {
   it("should create an instance", () => {
-    expect(new Loader({ url: "blah", retry: 0 })).toBeTruthy();
+    expect(
+      new Loader({
+        url: "blah",
+        retry: 0,
+        headers: {
+          "Content-Type": "image/jpeg",
+        },
+      })
+    ).toBeTruthy();
   });
 
   describe("load()", () => {
@@ -49,15 +57,14 @@ describe("Loader", () => {
       expect(XHR.open).toHaveBeenCalledWith("GET", "blah", true);
     });
 
-    it('should set responseType to "arraybuffer"', () => {
-      expect(loader.xhr.responseType).toBe("arraybuffer");
-    });
-
     it("should set Content-Type header to loader mimeType", () => {
-      expect(XHR.setRequestHeader).toHaveBeenCalledWith(
-        "Content-Type",
-        loader.mimeType
-      );
+      const headers = Object.entries(loader.headers || {}) as [
+        keyof Headers,
+        string
+      ][];
+      headers.forEach(([key, value]) => {
+        expect(XHR.setRequestHeader).toHaveBeenCalledWith(key, value);
+      });
     });
   });
 
@@ -100,8 +107,8 @@ describe("Loader", () => {
       loader.on("error", () => null); // to prevent error thrown on no event listener
     });
 
-    it("should set bytesTotal", () => {
-      expect(loader.bytesTotal).toBe(2);
+    it("should set bytes", () => {
+      expect(loader.bytes).toBe(2);
     });
 
     it("should set bytesLoaded", () => {

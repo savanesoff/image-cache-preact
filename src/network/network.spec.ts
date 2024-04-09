@@ -5,7 +5,9 @@ const createResource = (): Loader => {
   return new Loader({
     url: Math.random().toString(36).substring(7),
     retry: 0,
-    mimeType: "image/jpeg",
+    headers: {
+      "Content-Type": "image/jpeg",
+    },
   });
 };
 

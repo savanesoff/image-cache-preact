@@ -18,13 +18,13 @@
  * When the same image is used again, the browser can skip the loading and decoding steps and directly use the cached bitmap.
  */
 
-import { Bucket } from "../Bucket";
+import { Bucket } from "@/bucket";
 import {
   EventHandler as LoaderEventHandler,
   Loader,
   Events as LoaderEvents,
   LoaderProps,
-} from "../loader";
+} from "@/loader";
 
 type Events =
   | LoaderEvents
@@ -32,21 +32,16 @@ type Events =
   | "clear"
   | "request-load"
   | "request-render"
-  | "clear-size"
   | "size-rendered"
-  | "request-render-size"
-  | "clear-size-bucket"
+  | "size-cleared"
   | "check-lock";
 
 export type Event<T extends Events> = {
   event: T;
   target: T extends LoaderEvents ? Loader : Img;
 } & (T extends "size" ? { with: number; height: number } : unknown) &
-  (T extends "request-render" | "size-rendered" | "clear-size"
+  (T extends "request-render" | "size-rendered" | "size-cleared"
     ? { request: RenderRequest }
-    : unknown) &
-  (T extends "request-render-size" | "clear-size-bucket"
-    ? { request: RenderRequest; bucket: Bucket }
     : unknown) &
   (T extends "check-lock" ? { state: LockState } : unknown);
 
@@ -218,10 +213,6 @@ export class Img extends Loader {
   // called by master
   onSizeRendered(request: RenderRequest) {
     request.rendered = true;
-    for (const bucket of request.buckets) {
-      // let bucket track its video pool
-      this.emit("request-render-size", { request, bucket });
-    }
     // decoding happens only once. Every other size uses the same decoded bitmap in memory
     this.decoded = true;
     // this is the final event and should be emitted only once per size
@@ -275,14 +266,9 @@ export class Img extends Loader {
     request.rendered = false;
     request.requested = false;
 
-    for (const bucket of request.buckets) {
-      // for buckets at specific size
-      this.emit("clear-size-bucket", { request, bucket });
-    }
-
     this.renderRequests.delete(key);
     // general event
-    this.emit("clear-size", { request });
+    this.emit("size-cleared", { request });
   }
 
   on<T extends Events>(event: T, handler: EventHandler<T>): this {

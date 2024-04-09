@@ -90,8 +90,8 @@ export class Bucket extends Logger {
     image.on("progress", this.onImageProgress);
     image.on("size", this.onImageLoadend);
     image.on("check-lock", this.onImageLockCheck);
-    image.on("request-render-size", this.onRequestRenderSize);
-    image.on("clear-size-bucket", this.onImageClearSizeBucket);
+    image.on("size-rendered", this.onImageSizeRendered);
+    image.on("size-cleared", this.onImageSizeCleared);
     if (this.load) {
       image.requestLoad();
     }
@@ -103,16 +103,19 @@ export class Bucket extends Logger {
     image.off("progress", this.onImageProgress);
     image.off("size", this.onImageLoadend);
     image.off("check-lock", this.onImageLockCheck);
-    image.off("request-render-size", this.onRequestRenderSize);
-    image.off("clear-size-bucket", this.onImageClearSizeBucket);
+    image.off("size-rendered", this.onImageSizeRendered);
+    image.off("size-cleared", this.onImageSizeCleared);
   }
   /**
    * Store image size requests
    * @param event
    * @returns
    */
-  private onRequestRenderSize(event: ImageEvent<"request-render-size">) {
-    if (event.bucket !== this) return;
+  private onImageSizeRendered(event: ImageEvent<"size-rendered">) {
+    // this this bucket isn't part of the request, return
+    if (!event.request.buckets.has(this)) {
+      return;
+    }
     const { request } = event;
     if (!this.sizeRequests.has(request.key)) {
       this.sizeRequests.set(request.key, {
@@ -127,8 +130,11 @@ export class Bucket extends Logger {
    * Clear the size from the bucket
    * @param event
    */
-  private onImageClearSizeBucket = (event: ImageEvent<"clear-size-bucket">) => {
-    if (event.bucket !== this) return;
+  private onImageSizeCleared = (event: ImageEvent<"size-cleared">) => {
+    // this this bucket isn't part of the request, return
+    if (!event.request.buckets.has(this)) {
+      return;
+    }
     const { request } = event;
     const sizeMap = this.sizeRequests.get(request.key);
     if (!sizeMap) return;

@@ -1,5 +1,5 @@
 import { Img, RenderRequest } from "./image";
-import { Bucket } from "../bucket/bucket";
+import { Bucket } from "@/bucket";
 
 vi.useFakeTimers();
 const createBucket = (): Bucket => {
@@ -154,17 +154,6 @@ describe("Img", () => {
         request: expect.anything(),
       });
     });
-
-    it("should emit render-requested event on image load cb", () => {
-      for (const request of image.renderRequests.values()) {
-        for (const bucket of request.buckets) {
-          expect(bucket.emit).toHaveBeenCalledTimes(1);
-          expect(bucket.emit).toHaveBeenCalledWith("render-requested", {
-            request,
-          });
-        }
-      }
-    });
   });
 
   describe("request render", () => {
@@ -216,19 +205,6 @@ describe("Img", () => {
         expect(bucket.emit).not.toHaveBeenCalled();
       }
     });
-
-    it("should emit render-requested event if image loaded", () => {
-      image.emit("loadend");
-      image.element.onload?.(new Event("load"));
-      for (const request of image.renderRequests.values()) {
-        for (const bucket of request.buckets) {
-          expect(bucket.emit).toHaveBeenCalledTimes(1);
-          expect(bucket.emit).toHaveBeenCalledWith("render-requested", {
-            request,
-          });
-        }
-      }
-    });
   });
 
   describe("ClearSize()", () => {
@@ -236,7 +212,7 @@ describe("Img", () => {
     beforeEach(() => {
       clearEventSpy = vi.fn();
       image.renderRequests.set(...createRequest(size));
-      image.on("clear-size", clearEventSpy);
+      image.on("size-cleared", clearEventSpy);
       image.clearSize({ width: size, height: size });
     });
 
@@ -272,15 +248,6 @@ describe("Img", () => {
     it("should set request.rendered to true", () => {
       for (const request of image.renderRequests.values()) {
         expect(request.rendered).toBe(true);
-      }
-    });
-
-    it("should emit render-ready bucket event", () => {
-      for (const request of image.renderRequests.values()) {
-        for (const bucket of request.buckets) {
-          expect(bucket.emit).toHaveBeenCalledTimes(1);
-          expect(bucket.emit).toHaveBeenCalledWith("render-ready", { request });
-        }
       }
     });
 
