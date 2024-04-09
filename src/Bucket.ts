@@ -1,7 +1,8 @@
-import { Img } from "@/image";
+import { Img, Size } from "@/image";
 import defaultImageURL from "./assets/default.png";
 import { Logger } from "@/logger";
 import { Master } from "./master";
+import { Event as ImageEvent } from "@/image";
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour: "2-digit",
@@ -10,27 +11,29 @@ const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   fractionalSecondDigits: 3,
   hourCycle: "h23",
 };
+
+type Events = "loading" | "progress" | "loaded";
+
+type Event = {
+  event: Events;
+  target: Bucket;
+};
+type EventHandler = (event: Event) => void;
+
 export interface BucketProps {
   name: string;
-  locked?: boolean;
+  lock?: boolean;
   blit?: boolean;
   load?: boolean;
   master: Master;
   urls?: string[];
   defaultURL?: string;
+  size?: Size;
 }
 
-type BucketConfig = {
-  locked: boolean;
-  blit: boolean;
-  load: boolean;
-};
-
 export class Bucket extends Logger {
-  private readonly master: Master;
-  readonly config: BucketConfig;
-  readonly images = new Map<string, Img>();
-  readonly bucket: Bucket;
+  readonly images = new Set<Img>();
+  readonly videoMemory = new Map<string, Set<Img>>();
 
   defaultURL: string;
   rendered = false;
@@ -38,34 +41,27 @@ export class Bucket extends Logger {
   loaded = false;
   loadProgress = 0;
   timeout = 0;
+  size: Size | null;
+  locked: boolean;
+  load: boolean;
+  /** Data representing all image requests at specific size  */
+  sizeRequests = new Map<string, { size: Size; images: Set<Img> }>();
 
   constructor({
     name,
-    master,
-    urls = [],
     defaultURL = defaultImageURL,
-    load = true,
-    blit = true,
-    locked = false,
+    load = false,
+    lock = false,
+    size,
   }: BucketProps) {
     super({
       name: `Bucket:${name}`,
       logLevel: "verbose",
     });
-    this.bucket = this;
-    this.master = master;
-    this.config = { locked, blit, load };
+    this.size = size || null;
+    this.locked = lock;
+    this.load = load;
     this.defaultURL = defaultURL;
-    // register bucket with master
-    this.master.addBucket(this);
-
-    this.on("loadstart", this.onStartLoading);
-    this.on("progress", this.onLoadProgress);
-    this.on("loaded", this.onLoaded);
-    this.on("blit", this.onBlit);
-
-    // add images to bucket if provided
-    urls.forEach((url) => this.addImage(url));
   }
 
   clearSize({ size, image }: { size: string; image: Img }) {
@@ -76,129 +72,175 @@ export class Bucket extends Logger {
     this.log.info(["addSize", size, image]);
   }
 
-  addImage(url: string) {
-    const image = this.master.getImage(url);
-    this.images.set(url, image);
-    image.addBucket(this);
-    if (this.config.load) {
-      this.master.requestLoad(image);
-    }
-  }
-
   unlock() {
-    this.config.locked = false;
+    this.locked = false;
   }
 
   lock() {
-    this.config.locked = true;
+    this.locked = true;
   }
 
   isLocked() {
-    return this.config.locked;
+    return this.locked;
+  }
+
+  addImage(image: Img) {
+    this.images.add(image);
+    image.on("loadstart", this.onImageLoadStart);
+    image.on("progress", this.onImageProgress);
+    image.on("size", this.onImageLoadend);
+    image.on("check-lock", this.onImageLockCheck);
+    image.on("request-render-size", this.onRequestRenderSize);
+    image.on("clear-size-bucket", this.onImageClearSizeBucket);
+    if (this.load) {
+      image.requestLoad();
+    }
+  }
+
+  removeImage(image: Img) {
+    this.images.delete(image);
+    image.off("loadstart", this.onImageLoadStart);
+    image.off("progress", this.onImageProgress);
+    image.off("size", this.onImageLoadend);
+    image.off("check-lock", this.onImageLockCheck);
+    image.off("request-render-size", this.onRequestRenderSize);
+    image.off("clear-size-bucket", this.onImageClearSizeBucket);
+  }
+  /**
+   * Store image size requests
+   * @param event
+   * @returns
+   */
+  private onRequestRenderSize(event: ImageEvent<"request-render-size">) {
+    if (event.bucket !== this) return;
+    const { request } = event;
+    if (!this.sizeRequests.has(request.key)) {
+      this.sizeRequests.set(request.key, {
+        size: request.size,
+        images: new Set(),
+      });
+    }
+    this.sizeRequests.get(request.key)?.images.add(event.target);
   }
 
   /**
-   * Load all images in this bucket.
-   * This is an explicit call to load images in case the bucket config is set to not load images on creation.
+   * Clear the size from the bucket
+   * @param event
    */
-  load() {
-    if (this.loaded || this.loading) return;
-    for (const [, image] of this.images) {
-      this.master.requestLoad(image);
+  private onImageClearSizeBucket = (event: ImageEvent<"clear-size-bucket">) => {
+    if (event.bucket !== this) return;
+    const { request } = event;
+    const sizeMap = this.sizeRequests.get(request.key);
+    if (!sizeMap) return;
+    sizeMap.images.delete(event.target);
+    if (sizeMap.images.size === 0) {
+      this.sizeRequests.delete(request.key);
     }
+  };
 
-    this.emit("change");
+  /**
+   * Calculate the video memory used by the bucket
+   * This is expensive and should be used sparingly
+   * @returns
+   */
+  getBytesVideo() {
+    let bytes = 0;
+    for (const [, { size, images }] of this.sizeRequests) {
+      for (const image of images) {
+        bytes += image.getBytesVideo(size);
+      }
+    }
+    return bytes;
   }
 
-  private onStartLoading = (image: Img) => {
+  /**
+   * Calculate the ram used by the bucket
+   * @returns
+   */
+  getBytesRam() {
+    let bytes = 0;
+    for (const image of this.images) {
+      bytes += image.getBytesRam();
+    }
+    return bytes;
+  }
+
+  /**
+   * Increment the lock count on state
+   * @param event
+   */
+  private onImageLockCheck = (event: ImageEvent<"check-lock">) => {
+    event.state.locked += this.locked && this.images.has(event.target) ? 1 : 0;
+  };
+
+  /**
+   * Any image load event will reset the loading state
+   * @param event
+   */
+  private onImageLoadStart = (event: ImageEvent<"loadstart">) => {
     this.loading = true;
     this.loaded = false;
     this.rendered = false;
-    this.emit("change", image);
+    this.emit("loading", event);
   };
 
-  private onLoadProgress = (): void => {
+  /**
+   * This is expensive and should not be used this way
+   * Instead, a getter should be used to calculate the current progress
+   * @param event
+   */
+  private onImageProgress = (event: ImageEvent<"progress">): void => {
     let progress = 0;
-    for (const [, image] of this.images) {
-      progress += image.loadProgress;
+    for (const image of this.images) {
+      progress += image.progress;
     }
     this.loadProgress = progress / this.images.size;
-    this.emit("change");
+    this.emit("progress", event);
   };
 
-  private onLoaded = (image: Img) => {
-    if (this.config.blit) {
-      image.blit();
-    }
-
-    for (const [, image] of this.images) {
+  /**
+   * When all images are loaded, emit the loaded event
+   *
+   * @param event
+   * @returns
+   */
+  private onImageLoadend = (event: ImageEvent<"size">) => {
+    for (const image of this.images) {
       if (!image.loaded) return;
     }
     this.loaded = true;
     this.loading = false;
     this.loadProgress = 1;
-    this.emit("change");
+    this.emit("loaded", event);
     this.log.info([
       `Loaded ${this.name}`,
       new Date().toLocaleTimeString("en-US", TIME_FORMAT),
     ]);
   };
 
-  private onBlit = () => {
-    let blit = true;
-    for (const [, image] of this.images) {
-      blit = !image.rendered ? false : blit;
-    }
-    if (this.rendered !== blit) {
-      this.rendered = blit;
-      this.emit("change");
-      this.log.info([
-        `Blit ${this.name}`,
-        new Date().toLocaleTimeString("en-US", TIME_FORMAT),
-      ]);
-    } else {
-      this.rendered = blit;
-    }
-  };
-
+  /**
+   * Clear all images from the bucket
+   * This will also remove all event listeners
+   */
   clear = () => {
-    for (const [, image] of this.images) {
-      // remove this bucket from the image
-      image.removeBucket(this);
-    }
-    this.master.removeBucket(this);
+    this.images.forEach(this.removeImage);
     this.removeAllListeners();
   };
 
-  blit() {
-    for (const [, image] of this.images) {
-      image.blit();
-    }
-  }
-
-  unBlit() {
-    for (const [, image] of this.images) {
-      image.unblit();
-    }
-  }
-
-  getRam() {
-    let ram = 0;
-    for (const [, image] of this.images) {
-      ram += image.bytes;
-    }
-    return ram;
-  }
-
-  getVideo() {
-    let video = 0;
-    for (const [, image] of this.images) {
-      video += image.sizeRender.width * image.sizeRender.height * 4;
-    }
-    return video;
-  }
-
   getImages() {
-    return Array.from(this.images.values());
+    return [...this.images];
+  }
+
+  on(event: Events, handler: EventHandler): this {
+    super.on(event, handler);
+    return this;
+  }
+
+  emit(event: Events, data: Record<string, unknown> = {}): boolean {
+    return super.emit(event, {
+      ...data,
+      event,
+      target: this,
+    });
   }
 }
