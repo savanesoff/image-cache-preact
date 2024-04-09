@@ -252,8 +252,13 @@ export class Img extends Loader {
     }
     // add request bucket as same size can be requested by multiple buckets
     request.buckets.add(bucket);
-    // general load request
-    this.requestLoad();
+
+    if (request.rendered) {
+      this.emit("size-rendered", { request });
+    } else {
+      // general load request
+      this.requestLoad();
+    }
   }
 
   clearSize(size: Size) {
