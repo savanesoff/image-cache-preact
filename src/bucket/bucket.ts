@@ -1,7 +1,6 @@
 import { Img, Size } from "@/image";
-import defaultImageURL from "./assets/default.png";
+import defaultImageURL from "@/assets/default.png";
 import { Logger } from "@/logger";
-import { Master } from "../master";
 import { Event as ImageEvent } from "@/image";
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
@@ -25,7 +24,6 @@ export interface BucketProps {
   lock?: boolean;
   blit?: boolean;
   load?: boolean;
-  master: Master;
   urls?: string[];
   defaultURL?: string;
   size?: Size;
@@ -64,24 +62,8 @@ export class Bucket extends Logger {
     this.defaultURL = defaultURL;
   }
 
-  clearSize({ size, image }: { size: string; image: Img }) {
-    this.log.info(["clearSize", size, image]);
-  }
-
-  addSize({ size, image }: { size: string; image: Img }) {
-    this.log.info(["addSize", size, image]);
-  }
-
-  unlock() {
-    this.locked = false;
-  }
-
-  lock() {
-    this.locked = true;
-  }
-
-  isLocked() {
-    return this.locked;
+  addImages(images: Img[]) {
+    images.forEach((image) => this.addImage(image));
   }
 
   addImage(image: Img) {
@@ -111,11 +93,12 @@ export class Bucket extends Logger {
    * @param event
    * @returns
    */
-  private onImageSizeRendered(event: ImageEvent<"size-rendered">) {
+  onImageSizeRendered(event: ImageEvent<"size-rendered">) {
     // this this bucket isn't part of the request, return
     if (!event.request.buckets.has(this)) {
       return;
     }
+
     const { request } = event;
     if (!this.sizeRequests.has(request.key)) {
       this.sizeRequests.set(request.key, {
@@ -130,7 +113,7 @@ export class Bucket extends Logger {
    * Clear the size from the bucket
    * @param event
    */
-  private onImageSizeCleared = (event: ImageEvent<"size-cleared">) => {
+  onImageSizeCleared = (event: ImageEvent<"size-cleared">) => {
     // this this bucket isn't part of the request, return
     if (!event.request.buckets.has(this)) {
       return;
