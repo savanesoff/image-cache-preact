@@ -1,9 +1,9 @@
-import { Bucket } from "./Bucket";
+import { Bucket } from "../bucket/bucket";
 import { Img } from "@/image";
 import { LogLevel, Logger } from "@/logger";
 import { Memory } from "@/memory";
 import { Network } from "@/network";
-import { UnitsType } from "./units";
+import { UnitsType } from "../units";
 
 interface CacheConfig {
   ram?: number;
@@ -71,7 +71,7 @@ export class Master extends Logger {
 
   private createImage(url: string): Img {
     const image = new Img(url);
-    this.cache.set(url, image);
+    this.cache.set(url, image); // TODO blob is network data, once we get image size any render of size will consume raw width/height data for ram
     image.on("loaded", this.onLoaded);
     image.on("blit", this.onBlit);
     image.on("unblit", this.onUnblit);
