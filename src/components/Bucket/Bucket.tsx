@@ -7,28 +7,19 @@ export type BucketContext = {
 };
 export const Context = createContext<BucketContext | null>(null);
 
-export type ProviderProps = BucketProps & {
+export type ProviderProps = Pick<BucketProps, "name" | "lock"> & {
   children: ReactNode;
 };
 
-export function BucketProvider({
-  name,
-  load,
-  lock,
-  render,
-  children,
-}: ProviderProps) {
+export function BucketProvider({ children, ...props }: ProviderProps) {
   const { controller } = useController();
   const bucket = useMemo(
     () =>
       new Bucket({
-        name,
-        load,
-        lock,
-        render,
         controller,
+        ...props,
       }),
-    [name, load, lock, render, controller]
+    [props, controller]
   );
 
   useEffect(() => {

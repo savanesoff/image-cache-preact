@@ -25,12 +25,8 @@ export class FrameQueue extends Logger {
       return;
     }
     this.log.verbose([`processing: ${this.queue.size}`]);
-    try {
-      cb();
-      this.queue.delete(cb);
-    } catch (e) {
-      this.log.error([`Error processing callback: ${e}`]);
-    }
+    cb();
+    this.queue.delete(cb);
 
     window.requestAnimationFrame(() => {
       this.scheduled = false;

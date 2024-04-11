@@ -11,7 +11,7 @@ export type Events = "rendered" | "clear";
 
 export type Event<T extends Events> = {
   type: T;
-  request: RenderRequest;
+  target: RenderRequest;
 };
 
 export type EventHandler<T extends Events> = (event: Event<T>) => void;
@@ -43,10 +43,10 @@ export class RenderRequest extends Logger {
     }
   }
 
-  request() {
+  request = () => {
     // request render
     this.bucket.controller.renderRequest(this, this.onRendered);
-  }
+  };
 
   onRendered = () => {
     this.rendered = true;

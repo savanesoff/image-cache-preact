@@ -48,10 +48,6 @@ export type EventHandler<T extends Events> = (event: Event<T>) => void;
 export interface BucketProps {
   name: string;
   lock?: boolean;
-  blit?: boolean;
-  load?: boolean;
-  urls?: string[];
-  render?: boolean;
   controller: Controller;
 }
 
@@ -67,24 +63,14 @@ export class Bucket extends Logger {
   timeout = 0;
   controller: Controller;
   locked: boolean;
-  load: boolean;
-  render: boolean;
 
-  constructor({
-    name,
-    load = false,
-    lock = false,
-    controller,
-    render = false,
-  }: BucketProps) {
+  constructor({ name, lock = false, controller }: BucketProps) {
     super({
       name: `Bucket:${name}`,
       logLevel: "verbose",
     });
-    this.render = render;
     this.controller = controller;
     this.locked = lock;
-    this.load = load;
   }
 
   registerRequest(request: RenderRequest) {
@@ -137,7 +123,7 @@ export class Bucket extends Logger {
       this.rendered = !request.rendered ? false : this.rendered;
     }
 
-    this.emit("render", { request: event.request, rendered: this.rendered });
+    this.emit("render", { request: event.target, rendered: this.rendered });
 
     if (this.rendered) {
       this.log.info([

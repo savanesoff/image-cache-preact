@@ -40,7 +40,7 @@ export const ImageProvider = ({
 
   useEffect(() => {
     request.on("rendered", (event) => {
-      setImage(event.request.image);
+      setImage(event.target.image);
     });
     return () => request.clear();
   }, [request]);

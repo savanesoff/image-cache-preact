@@ -105,8 +105,7 @@ export class Img extends Loader {
     this.gotSize = true;
 
     this.emit("size", {
-      with: this.element.width,
-      height: this.element.height,
+      size: { with: this.element.width, height: this.element.height },
     });
   };
 
@@ -131,7 +130,7 @@ export class Img extends Loader {
 
   #onRendered = (event: RenderRequestEvent<"rendered">) => {
     this.decoded = true;
-    this.emit("render-request-rendered", { request: event.request });
+    this.emit("render-request-rendered", { request: event.target });
   };
 
   registerRequest(request: RenderRequest) {
