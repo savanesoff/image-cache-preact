@@ -94,6 +94,10 @@ export class Loader extends Logger {
     this.xhr.send();
   }
 
+  isLoading() {
+    return this.pending || this.loading;
+  }
+
   private setHeaders() {
     if (!this.headers) {
       return;

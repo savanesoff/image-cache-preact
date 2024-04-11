@@ -124,19 +124,15 @@ export class Memory extends Logger {
 
   /**
    * Adds bytes to the memory object and logs the status.
-   * If adding bytes will overflow the memory object, no new bytes will be added.
+   * If adding bytes will overflow the memory object, emits an "overflow" event.
    * @param bytes - The number of bytes to add to the memory object.
    * @returns The remaining bytes. If negative, the memory object is overflowed.
    */
   addBytes(bytes: number): number {
     const remainingBytes = this.getBytesSpace(bytes);
     if (remainingBytes < 0) {
-      this.log.warn(
-        [`Cannot add, will overflow!`, this.getStatus()],
-        this.styles.error
-      );
+      this.log.warn([`Overflow!`, this.getStatus()], this.styles.error);
       this.emit("overflow", -remainingBytes);
-      return remainingBytes;
     }
 
     this.count++;

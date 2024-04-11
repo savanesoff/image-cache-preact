@@ -1,6 +1,6 @@
 import devtoolsFPS from "devtools-fps";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ImageBucket, ImageComponent, useBucket } from "./../src/";
+import { ImageBucket, ImageComponent, Img, useBucket } from "./../src/";
 import "./App.css";
 
 devtoolsFPS.config({

@@ -9,11 +9,11 @@ type Styles = {
   warn?: string;
   error?: string;
 };
-interface LoggerProps {
+export type LoggerProps = {
   logLevel?: LogLevel;
   name?: string;
   styles?: Styles;
-}
+};
 
 export class Logger extends EventEmitter {
   level: LogLevel = "none";

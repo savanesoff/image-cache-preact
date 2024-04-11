@@ -1,7 +1,11 @@
-import { Img, Size } from "@/image";
-import defaultImageURL from "@/assets/default.png";
+import { Img } from "@/image";
 import { Logger } from "@/logger";
 import { Event as ImageEvent } from "@/image";
+import { Controller } from "@/controller";
+import {
+  RenderRequest,
+  Event as RenderRequestEvent,
+} from "@/image/render-request";
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour: "2-digit",
@@ -11,13 +15,35 @@ const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hourCycle: "h23",
 };
 
-type Events = "loading" | "progress" | "loaded";
+export type Events =
+  | "progress"
+  | "loadend"
+  | "error"
+  | "render"
+  | "clear"
+  | "loading";
 
-type Event = {
-  event: Events;
-  target: Bucket;
+export type ProgressEvent = {
+  progress: number;
 };
-type EventHandler = (event: Event) => void;
+export type ErrorEvent = {
+  error: Error;
+};
+export type LoadEvent = {
+  loaded: boolean;
+};
+export type RenderEvent = {
+  rendered: boolean;
+};
+export type Event<T extends Events> = {
+  event: T;
+  target: Bucket;
+} & (T extends "progress" ? ProgressEvent : unknown) &
+  (T extends "error" ? ErrorEvent : unknown) &
+  (T extends "loadend" ? LoadEvent : unknown) &
+  (T extends "render" ? RenderEvent : unknown);
+
+export type EventHandler<T extends Events> = (event: Event<T>) => void;
 
 export interface BucketProps {
   name: string;
@@ -25,106 +51,157 @@ export interface BucketProps {
   blit?: boolean;
   load?: boolean;
   urls?: string[];
-  defaultURL?: string;
-  size?: Size;
+  render?: boolean;
+  controller: Controller;
 }
 
 export class Bucket extends Logger {
   readonly images = new Set<Img>();
+  readonly requests = new Set<RenderRequest>();
   readonly videoMemory = new Map<string, Set<Img>>();
 
-  defaultURL: string;
   rendered = false;
   loading = false;
   loaded = false;
   loadProgress = 0;
   timeout = 0;
-  size: Size | null;
+  controller: Controller;
   locked: boolean;
   load: boolean;
-  /** Data representing all image requests at specific size  */
-  sizeRequests = new Map<string, { size: Size; images: Set<Img> }>();
+  render: boolean;
 
   constructor({
     name,
-    defaultURL = defaultImageURL,
     load = false,
     lock = false,
-    size,
+    controller,
+    render = false,
   }: BucketProps) {
     super({
       name: `Bucket:${name}`,
       logLevel: "verbose",
     });
-    this.size = size || null;
+    this.render = render;
+    this.controller = controller;
     this.locked = lock;
     this.load = load;
-    this.defaultURL = defaultURL;
   }
 
-  addImages(images: Img[]) {
-    images.forEach((image) => this.addImage(image));
+  registerRequest(request: RenderRequest) {
+    this.requests.add(request);
+    request.on("rendered", this.#onRequestRendered);
+    this.#addImage(request.image);
   }
 
-  addImage(image: Img) {
+  unregisterRequest(request: RenderRequest) {
+    this.requests.delete(request);
+    request.off("rendered", this.#onRequestRendered);
+    this.#removeImage(request.image);
+  }
+
+  #addImage(image: Img) {
     this.images.add(image);
-    image.on("loadstart", this.onImageLoadStart);
-    image.on("progress", this.onImageProgress);
-    image.on("size", this.onImageLoadend);
-    image.on("check-lock", this.onImageLockCheck);
-    image.on("size-rendered", this.onImageSizeRendered);
-    image.on("size-cleared", this.onImageSizeCleared);
-    if (this.load) {
-      image.requestLoad();
-    }
+    image.on("loadstart", this.#onImageLoadStart);
+    image.on("progress", this.#onImageProgress);
+    image.on("size", this.#onImageLoadend);
+    image.on("error", this.#onImageError);
   }
 
-  removeImage(image: Img) {
+  #removeImage(image: Img) {
+    if (this.isImageUsed(image)) return;
     this.images.delete(image);
-    image.off("loadstart", this.onImageLoadStart);
-    image.off("progress", this.onImageProgress);
-    image.off("size", this.onImageLoadend);
-    image.off("check-lock", this.onImageLockCheck);
-    image.off("size-rendered", this.onImageSizeRendered);
-    image.off("size-cleared", this.onImageSizeCleared);
+    image.off("loadstart", this.#onImageLoadStart);
+    image.off("progress", this.#onImageProgress);
+    image.off("size", this.#onImageLoadend);
+    image.off("error", this.#onImageError);
   }
+
+  isImageUsed(image: Img) {
+    for (const request of this.requests) {
+      if (request.image === image) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Store image size requests
    * @param event
    * @returns
    */
-  onImageSizeRendered(event: ImageEvent<"size-rendered">) {
-    // this this bucket isn't part of the request, return
-    if (!event.request.buckets.has(this)) {
-      return;
+  #onRequestRendered = (event: RenderRequestEvent<"rendered">) => {
+    this.rendered = true;
+    // emit the render event only if all requests are rendered
+    for (const request of this.requests) {
+      this.rendered = !request.rendered ? false : this.rendered;
     }
 
-    const { request } = event;
-    if (!this.sizeRequests.has(request.key)) {
-      this.sizeRequests.set(request.key, {
-        size: request.size,
-        images: new Set(),
-      });
+    this.emit("render", { request: event.request, rendered: this.rendered });
+
+    if (this.rendered) {
+      this.log.info([
+        `Rendered ${this.name}`,
+        new Date().toLocaleTimeString("en-US", TIME_FORMAT),
+      ]);
     }
-    this.sizeRequests.get(request.key)?.images.add(event.target);
-  }
+  };
 
   /**
-   * Clear the size from the bucket
+   * Any image load event will reset the loading state
    * @param event
    */
-  onImageSizeCleared = (event: ImageEvent<"size-cleared">) => {
-    // this this bucket isn't part of the request, return
-    if (!event.request.buckets.has(this)) {
-      return;
+  #onImageLoadStart = (event: ImageEvent<"loadstart">) => {
+    this.loading = true;
+    this.loaded = false;
+    this.rendered = false;
+    this.emit("loading", event);
+  };
+
+  /**
+   * This is expensive and should not be used this way
+   * Instead, a getter should be used to calculate the current progress
+   * @param event
+   */
+  #onImageProgress = (event: ImageEvent<"progress">): void => {
+    this.loaded = false;
+    this.loading = true;
+    let progress = 0;
+    for (const image of this.images) {
+      progress += image.progress;
     }
-    const { request } = event;
-    const sizeMap = this.sizeRequests.get(request.key);
-    if (!sizeMap) return;
-    sizeMap.images.delete(event.target);
-    if (sizeMap.images.size === 0) {
-      this.sizeRequests.delete(request.key);
+    this.loadProgress = progress / this.images.size;
+    this.emit("progress", event);
+  };
+
+  /**
+   * When all images are loaded, emit the loaded event
+   *
+   * @param event
+   * @returns
+   */
+  #onImageLoadend = () => {
+    this.loaded = true;
+    for (const image of this.images) {
+      this.loaded = !image.gotSize ? false : this.loaded;
     }
+    this.loading = !this.loaded;
+    this.loadProgress = 1;
+    if (this.loaded) {
+      this.emit("loadend");
+      this.log.info([
+        `Loaded ${this.name}`,
+        new Date().toLocaleTimeString("en-US", TIME_FORMAT),
+      ]);
+    }
+  };
+
+  /**
+   * When an image errors, emit the error event
+   * @param event
+   */
+  #onImageError = (event: ImageEvent<"error">) => {
+    this.emit("error", event);
   };
 
   /**
@@ -133,13 +210,13 @@ export class Bucket extends Logger {
    * @returns
    */
   getBytesVideo() {
-    let bytes = 0;
-    for (const [, { size, images }] of this.sizeRequests) {
-      for (const image of images) {
-        bytes += image.getBytesVideo(size);
-      }
+    let requested = 0;
+    let used = 0;
+    for (const request of this.requests) {
+      requested += request.bytesVideo;
+      used += request.rendered ? request.bytesVideo : 0;
     }
-    return bytes;
+    return { requested, used };
   }
 
   /**
@@ -155,64 +232,15 @@ export class Bucket extends Logger {
   }
 
   /**
-   * Increment the lock count on state
-   * @param event
-   */
-  private onImageLockCheck = (event: ImageEvent<"check-lock">) => {
-    event.state.locked += this.locked && this.images.has(event.target) ? 1 : 0;
-  };
-
-  /**
-   * Any image load event will reset the loading state
-   * @param event
-   */
-  private onImageLoadStart = (event: ImageEvent<"loadstart">) => {
-    this.loading = true;
-    this.loaded = false;
-    this.rendered = false;
-    this.emit("loading", event);
-  };
-
-  /**
-   * This is expensive and should not be used this way
-   * Instead, a getter should be used to calculate the current progress
-   * @param event
-   */
-  private onImageProgress = (event: ImageEvent<"progress">): void => {
-    let progress = 0;
-    for (const image of this.images) {
-      progress += image.progress;
-    }
-    this.loadProgress = progress / this.images.size;
-    this.emit("progress", event);
-  };
-
-  /**
-   * When all images are loaded, emit the loaded event
-   *
-   * @param event
-   * @returns
-   */
-  private onImageLoadend = (event: ImageEvent<"size">) => {
-    for (const image of this.images) {
-      if (!image.loaded) return;
-    }
-    this.loaded = true;
-    this.loading = false;
-    this.loadProgress = 1;
-    this.emit("loaded", event);
-    this.log.info([
-      `Loaded ${this.name}`,
-      new Date().toLocaleTimeString("en-US", TIME_FORMAT),
-    ]);
-  };
-
-  /**
    * Clear all images from the bucket
    * This will also remove all event listeners
    */
   clear = () => {
-    this.images.forEach(this.removeImage);
+    for (const request of this.requests) {
+      request.clear();
+    }
+
+    this.emit("clear");
     this.removeAllListeners();
   };
 
@@ -220,15 +248,20 @@ export class Bucket extends Logger {
     return [...this.images];
   }
 
-  on(event: Events, handler: EventHandler): this {
+  on<T extends Events>(event: T, handler: EventHandler<T>): this {
     super.on(event, handler);
     return this;
   }
 
-  emit(event: Events, data: Record<string, unknown> = {}): boolean {
-    return super.emit(event, {
+  off<T extends Events>(event: T, handler: EventHandler<T>): this {
+    super.off(event, handler);
+    return this;
+  }
+
+  emit(type: Events, data: Record<string, unknown> = {}): boolean {
+    return super.emit(type, {
       ...data,
-      event,
+      type,
       target: this,
     });
   }

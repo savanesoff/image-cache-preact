@@ -1,17 +1,18 @@
-import { Logger } from "@/logger";
+import { Logger, LoggerProps } from "@/logger";
 
 type CB = () => void;
 
+export type FrameQueueProps = LoggerProps;
 /**
  * FrameQueue is a queue that processes callbacks in the next animation frame.
  */
 export class FrameQueue extends Logger {
   private scheduled = false;
   readonly queue = new Set<CB>();
-  constructor() {
+  constructor({ name = "Frame queue", logLevel = "verbose" }: FrameQueueProps) {
     super({
-      name: "BlitQueue",
-      logLevel: "none",
+      name,
+      logLevel,
     });
   }
 
