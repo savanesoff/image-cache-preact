@@ -1,5 +1,5 @@
 import { BucketProvider, ProviderProps } from "@/components/Bucket";
-import { PosterPage, PosterPageProps } from "./PosterPage";
+import { PosterPage, PosterPageProps } from "./components/PosterPage";
 
 export type PosterBucketProps = Exclude<ProviderProps, "children"> &
   PosterPageProps;
