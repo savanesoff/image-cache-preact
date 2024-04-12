@@ -13,7 +13,8 @@
   "dependencies": {
     "events": "^3.3.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.2.2"
   },
   "devDependencies": {
     "@types/events": "^3.0.0",
@@ -23,12 +24,19 @@
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "@vitejs/plugin-react-swc": "^3.0.0",
+    "autoprefixer": "^10.4.19",
+    "clsx": "^2.1.0",
     "devtools-fps": "^2.0.2",
     "eslint": "^8.38.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
     "jsdom": "^24.0.0",
     "path": "^0.12.7",
+    "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.13",
+    "tailwindcss": "^3.4.3",
     "typescript": "^5.0.2",
     "vite": "^5.2.8",
     "vite-tsconfig-paths": "^4.3.2",
