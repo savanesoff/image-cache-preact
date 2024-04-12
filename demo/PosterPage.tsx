@@ -9,38 +9,24 @@ export type PosterPageProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export const PosterPage = ({ urls, ...props }: PosterPageProps) => {
-  const [rendered, setRendered] = useState(false);
-  const onProgress = useCallback((event: BucketEvent<"progress">) => {
-    console.log("Bucket event onProgress", event);
+  const [show, setShow] = useState(false);
+  const onRendered = useCallback(() => {
+    setShow(true);
   }, []);
 
-  const onError = useCallback((event: BucketEvent<"error">) => {
-    console.log("Bucket event onError", event);
-  }, []);
-
-  const onLoadend = useCallback((event: BucketEvent<"loadend">) => {
-    console.log("Bucket event onLoadend", event);
-  }, []);
-
-  const onRender = useCallback((event: BucketEvent<"render">) => {
-    console.log("Bucket event onRender", event);
-    setRendered(event.rendered);
-  }, []);
-
-  const { bucket } = useBucket({ onProgress, onError, onLoadend, onRender });
+  useBucket({ onRendered });
 
   return (
     <div {...props}>
       <div>Posters View</div>
-      <div>loaded: {bucket.loaded}</div>
-      <div>loading: {bucket.loading}</div>
-      <div>rendered: {bucket.rendered}</div>
+      <LoadStatus />
+      <Progress />
       <div
         style={{
           display: "flex",
           flexWrap: "wrap",
           gap: "10px",
-          opacity: rendered ? 1 : 0,
+          opacity: show ? 1 : 0,
         }}
       >
         {urls.map((url, index) => (
@@ -50,5 +36,40 @@ export const PosterPage = ({ urls, ...props }: PosterPageProps) => {
         ))}
       </div>
     </div>
+  );
+};
+
+const Progress = () => {
+  const [progress, setProgress] = useState(0);
+  const onProgress = useCallback((event: BucketEvent<"progress">) => {
+    setProgress(event.progress);
+  }, []);
+  useBucket({ onProgress });
+  return <div>Progress: {progress}</div>;
+};
+
+const LoadStatus = () => {
+  const [loadStatus, setLoadStatus] = useState<"loading" | "loaded">("loading");
+  const [error, setError] = useState<Error | null>(null);
+  const [rendered, setRendered] = useState<"Yes" | "No">("No");
+  const onError = useCallback((event: BucketEvent<"error">) => {
+    setError(event.error);
+  }, []);
+
+  const onProgress = useCallback((event: BucketEvent<"progress">) => {
+    setLoadStatus(event.progress < 1 ? "loading" : "loaded");
+  }, []);
+
+  const onRendered = useCallback(() => {
+    setRendered("Yes");
+  }, []);
+
+  useBucket({ onProgress, onError, onRendered });
+  return (
+    <>
+      {error ? <div>Error: {error.message}</div> : null}
+      <div>Status: {loadStatus}</div>
+      <div>Rendered: {rendered}</div>
+    </>
   );
 };

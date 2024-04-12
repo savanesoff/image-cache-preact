@@ -19,7 +19,7 @@ export type Events =
   | "progress"
   | "loadend"
   | "error"
-  | "render"
+  | "rendered"
   | "clear"
   | "loading";
 
@@ -35,13 +35,14 @@ export type LoadEvent = {
 export type RenderEvent = {
   rendered: boolean;
 };
+
 export type Event<T extends Events> = {
-  event: T;
+  type: T;
   target: Bucket;
 } & (T extends "progress" ? ProgressEvent : unknown) &
   (T extends "error" ? ErrorEvent : unknown) &
   (T extends "loadend" ? LoadEvent : unknown) &
-  (T extends "render" ? RenderEvent : unknown);
+  (T extends "rendered" ? RenderEvent : unknown);
 
 export type EventHandler<T extends Events> = (event: Event<T>) => void;
 
@@ -123,13 +124,14 @@ export class Bucket extends Logger {
       this.rendered = !request.rendered ? false : this.rendered;
     }
 
-    this.emit("render", { request: event.target, rendered: this.rendered });
+    this.log.verbose([
+      `Request Rendered ${this.name}`,
+      new Date().toLocaleTimeString("en-US", TIME_FORMAT),
+      event.target,
+    ]);
 
     if (this.rendered) {
-      this.log.info([
-        `Rendered ${this.name}`,
-        new Date().toLocaleTimeString("en-US", TIME_FORMAT),
-      ]);
+      this.emit("rendered", { rendered: this.rendered });
     }
   };
 
@@ -141,7 +143,7 @@ export class Bucket extends Logger {
     this.loading = true;
     this.loaded = false;
     this.rendered = false;
-    this.emit("loading", event);
+    this.emit("loading", { image: event.target });
   };
 
   /**
@@ -156,8 +158,13 @@ export class Bucket extends Logger {
     for (const image of this.images) {
       progress += image.progress;
     }
-    this.loadProgress = progress / this.images.size;
-    this.emit("progress", event);
+    this.loadProgress = parseFloat((progress / this.images.size).toFixed(2));
+    this.emit("progress", { progress: this.loadProgress });
+    this.log.verbose([
+      `Progress ${this.name}: ${this.loadProgress}`,
+      "event:",
+      event,
+    ]);
   };
 
   /**
@@ -166,15 +173,20 @@ export class Bucket extends Logger {
    * @param event
    * @returns
    */
-  #onImageLoadend = () => {
+  #onImageLoadend = (event: ImageEvent<"size">) => {
     this.loaded = true;
+    this.log.verbose([
+      `Image loaded ${this.name}`,
+      new Date().toLocaleTimeString("en-US", TIME_FORMAT),
+      event,
+    ]);
     for (const image of this.images) {
       this.loaded = !image.gotSize ? false : this.loaded;
     }
     this.loading = !this.loaded;
     this.loadProgress = 1;
     if (this.loaded) {
-      this.emit("loadend");
+      this.emit("loadend", { loaded: this.loaded });
       this.log.info([
         `Loaded ${this.name}`,
         new Date().toLocaleTimeString("en-US", TIME_FORMAT),
@@ -187,7 +199,7 @@ export class Bucket extends Logger {
    * @param event
    */
   #onImageError = (event: ImageEvent<"error">) => {
-    this.emit("error", event);
+    this.emit("error", { error: event.error });
   };
 
   /**
@@ -244,7 +256,10 @@ export class Bucket extends Logger {
     return this;
   }
 
-  emit(type: Events, data: Record<string, unknown> = {}): boolean {
+  emit<T extends Events>(
+    type: T,
+    data?: Omit<Event<T>, "target" | "type">,
+  ): boolean {
     return super.emit(type, {
       ...data,
       type,

@@ -42,14 +42,15 @@ export type Size = {
 
 export type Event<T extends Events> = {
   event: T;
-  target: T extends LoaderEvents ? Loader : Img;
+  target: Img;
 } & (T extends "size" ? { size: Size } : unknown) &
   (T extends
     | "render-request-rendered"
     | "render-request-removed"
     | "render-request-added"
     ? { request: RenderRequest }
-    : unknown);
+    : unknown) &
+  (T extends "error" ? { error: Error } : unknown);
 
 export type LockState = {
   locked: number;

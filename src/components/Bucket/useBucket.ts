@@ -6,14 +6,14 @@ export type BucketHook = {
   onProgress?: (event: Event<"progress">) => void;
   onError?: (event: Event<"error">) => void;
   onLoadend?: (event: Event<"loadend">) => void;
-  onRender?: (event: Event<"render">) => void;
+  onRendered?: (event: Event<"rendered">) => void;
 };
 
 export const useBucket = ({
   onProgress,
   onError,
   onLoadend,
-  onRender,
+  onRendered,
 }: BucketHook = {}) => {
   const context = useContext(Context);
   if (!context) {
@@ -24,14 +24,14 @@ export const useBucket = ({
     if (onProgress) context.bucket.on("progress", onProgress);
     if (onError) context.bucket.on("error", onError);
     if (onLoadend) context.bucket.on("loadend", onLoadend);
-    if (onRender) context.bucket.on("render", onRender);
+    if (onRendered) context.bucket.on("rendered", onRendered);
 
     return () => {
       if (onProgress) context.bucket.off("progress", onProgress);
       if (onError) context.bucket.off("error", onError);
       if (onLoadend) context.bucket.off("loadend", onLoadend);
-      if (onRender) context.bucket.off("render", onRender);
+      if (onRendered) context.bucket.off("rendered", onRendered);
     };
-  }, [context.bucket, onProgress, onError, onLoadend, onRender]);
+  }, [context.bucket, onProgress, onError, onLoadend, onRendered]);
   return context;
 };

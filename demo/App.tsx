@@ -25,7 +25,7 @@ function App() {
         React Image Cache Demo
       </div>
       <ControllerProvider
-        loaders={6}
+        loaders={1}
         ram={5}
         video={5}
         units="GB"
