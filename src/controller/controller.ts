@@ -12,21 +12,14 @@ import { LogLevel, Logger } from "@/logger";
 import { Memory } from "@/memory";
 import { Network } from "@/network";
 import { UnitsType } from "../units";
-import { FrameQueue } from "@/frame-queue";
-import { RenderRequest } from "@/image/render-request";
+import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
-export type RenderFunctionProps = {
-  request: RenderRequest;
-  cb: () => void;
-};
-export type RenderFunction = (props: RenderFunctionProps) => void;
-export type ControllerProps = {
+export type ControllerProps = FrameQueueProps & {
   ram?: number;
   video?: number;
   loaders?: number;
   units?: UnitsType;
   logLevel?: LogLevel;
-  onRenderRequest: RenderFunction;
 };
 
 const styles = {
@@ -41,13 +34,8 @@ export class Controller extends Logger {
   readonly video: Memory;
   readonly updating = false;
   readonly cache = new Map<string, Img>();
-  readonly frameQueue = new FrameQueue({
-    name: "Frame queue",
-    logLevel: "verbose",
-  });
-  // readonly buckets = new Set<Bucket>();
+  readonly frameQueue: FrameQueue;
   readonly network: Network;
-  readonly onRenderRequest: ControllerProps["onRenderRequest"];
 
   constructor({
     ram = 2,
@@ -55,14 +43,19 @@ export class Controller extends Logger {
     loaders = 6,
     units = "GB",
     logLevel = "error",
-    onRenderRequest,
+    hwRank,
+    renderer,
   }: ControllerProps) {
     super({
       name: "Master",
       logLevel,
       styles,
     });
-    this.onRenderRequest = onRenderRequest;
+    this.frameQueue = new FrameQueue({
+      logLevel,
+      hwRank,
+      renderer,
+    });
     this.network = new Network({ loaders });
     this.ram = new Memory({
       size: ram,
@@ -70,7 +63,6 @@ export class Controller extends Logger {
       logLevel,
       name: "RAM",
     });
-
     this.video = new Memory({
       size: video,
       units: units,
@@ -84,22 +76,6 @@ export class Controller extends Logger {
   getImage(props: ImgProps): Img {
     return this.cache.get(props.url) || this.#createImage(props);
   }
-
-  renderRequest = ({ request, cb }: RenderFunctionProps) => {
-    const onRendered = () => {
-      this.#onRenderRequestRendered({ request, cb });
-    };
-
-    this.frameQueue.add(() => {
-      this.onRenderRequest({ request, cb: onRendered });
-    });
-  };
-
-  #onRenderRequestRendered = ({ request, cb }: RenderFunctionProps) => {
-    this.video.removeBytes(request.bytesVideo);
-    this.ram.removeBytes(request.image.getBytesVideo(request.size));
-    cb();
-  };
 
   //-----------------------   PRIVATE   -----------------------
 

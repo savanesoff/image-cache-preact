@@ -1,6 +1,7 @@
 import { Logger } from "@/logger";
 import { Bucket } from "..";
 import { Img, ImgProps, Size } from "./image";
+import { Controller } from "@/controller";
 
 export type RenderRequestProps = ImgProps & {
   size: Size;
@@ -25,6 +26,7 @@ export class RenderRequest extends Logger {
   bucket: Bucket;
   key: string;
   bytesVideo: number;
+  readonly controller: Controller;
 
   constructor({ size, bucket, ...props }: RenderRequestProps) {
     super({ name: "RenderRequest" });
@@ -32,6 +34,7 @@ export class RenderRequest extends Logger {
     this.size = size;
     this.rendered = false;
     this.bucket = bucket;
+    this.controller = this.bucket.controller;
     this.image = this.bucket.controller.getImage(props);
     this.bytesVideo = this.image.getBytesVideo(size);
     this.image.registerRequest(this);
@@ -45,10 +48,7 @@ export class RenderRequest extends Logger {
 
   request = () => {
     // request render
-    this.bucket.controller.renderRequest({
-      request: this,
-      cb: this.onRendered,
-    });
+    this.controller.frameQueue.add(this);
   };
 
   onRendered = () => {

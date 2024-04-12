@@ -10,25 +10,10 @@ export type ProviderProps = ControllerProps & {
   children: ReactNode;
 };
 
-export function ControllerProvider({
-  loaders,
-  logLevel,
-  ram,
-  video,
-  units,
-  onRenderRequest,
-  children,
-}: ProviderProps) {
+export function ControllerProvider({ children, ...props }: ProviderProps) {
   const controller = useMemo(() => {
-    return new Controller({
-      loaders,
-      logLevel,
-      ram,
-      video,
-      units,
-      onRenderRequest,
-    });
-  }, [loaders, logLevel, ram, video, units, onRenderRequest]);
+    return new Controller(props);
+  }, [props]);
 
   return <Context.Provider value={{ controller }}>{children}</Context.Provider>;
 }

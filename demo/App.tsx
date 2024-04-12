@@ -1,7 +1,7 @@
 import devtoolsFPS from "devtools-fps";
 import { cn } from "@/utils";
 import { ControllerProvider } from "@/components/Controller";
-import { cacheVideo } from "./renderer";
+
 import { View } from "./View";
 
 devtoolsFPS.config({
@@ -29,7 +29,7 @@ function App() {
         ram={5}
         video={5}
         units="GB"
-        onRenderRequest={cacheVideo}
+        hwRank={0.92}
       >
         <View />
       </ControllerProvider>
