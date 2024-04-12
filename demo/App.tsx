@@ -1,7 +1,7 @@
 import devtoolsFPS from "devtools-fps";
 import { cn } from "@/utils";
 import { ControllerProvider } from "@/components/Controller";
-import { cacheVideo } from "./rendered";
+import { cacheVideo } from "./renderer";
 import { View } from "./View";
 
 devtoolsFPS.config({
