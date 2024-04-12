@@ -2,15 +2,14 @@ import { RenderFunctionProps } from "@/controller";
 
 export const cacheVideo = ({ request, cb }: RenderFunctionProps) => {
   // calculate time needed to cache video, this will depend on the platform
-  const timeNeeded =
-    request.image.getBytesVideo(request.image.element) / 1000000;
+  const timeNeeded = request.image.bytesUncompressed / 100000;
 
   // create div of w/h set opacity to 0.1 append to body, ren remove on next frame
   const div = document.createElement("div");
   const style = {
     width: `${request.size.width}px`,
     height: `${request.size.height}px`,
-    opacity: "0.01",
+    opacity: "1",
     position: "absolute",
     top: "0",
     left:

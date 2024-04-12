@@ -67,7 +67,7 @@ export class Img extends Loader {
 
   gotSize = false;
   decoded = false;
-
+  bytesUncompressed = 0;
   constructor({
     headers = {
       "Content-Type": "image/jpeg",
@@ -103,7 +103,7 @@ export class Img extends Loader {
     this.element.onerror = null;
     // not really needed to have size separate from image props, but image can be cleared to free memory
     this.gotSize = true;
-
+    this.bytesUncompressed = this.getBytesVideo(this.element);
     this.emit("size", {
       size: { with: this.element.width, height: this.element.height },
     });
@@ -120,6 +120,7 @@ export class Img extends Loader {
     this.element.onerror = null;
     this.element.src = "";
     this.gotSize = false;
+    this.bytesUncompressed = 0;
     URL.revokeObjectURL(this.element.src);
     for (const request of this.renderRequests) {
       this.unregisterRequest(request);
@@ -184,15 +185,7 @@ export class Img extends Loader {
    */
   getBytesRam() {
     // add together compressed size and uncompressed size
-    return (
-      this.bytes +
-      (this.decoded
-        ? this.getBytesVideo({
-            width: this.element.width,
-            height: this.element.height,
-          })
-        : 0)
-    );
+    return this.bytes + (this.decoded ? this.bytesUncompressed : 0);
   }
 
   /**
