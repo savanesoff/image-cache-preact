@@ -15,13 +15,18 @@ import { UnitsType } from "../units";
 import { FrameQueue } from "@/frame-queue";
 import { RenderRequest } from "@/image/render-request";
 
+export type RenderFunctionProps = {
+  request: RenderRequest;
+  cb: () => void;
+};
+export type RenderFunction = (props: RenderFunctionProps) => void;
 export type ControllerProps = {
   ram?: number;
   video?: number;
   loaders?: number;
   units?: UnitsType;
   logLevel?: LogLevel;
-  onRenderRequest: (request: RenderRequest) => void;
+  onRenderRequest: RenderFunction;
 };
 
 const styles = {
@@ -80,13 +85,20 @@ export class Controller extends Logger {
     return this.cache.get(props.url) || this.#createImage(props);
   }
 
-  renderRequest = (request: RenderRequest, cb: () => void) => {
+  renderRequest = ({ request, cb }: RenderFunctionProps) => {
+    const onRendered = () => {
+      this.#onRenderRequestRendered({ request, cb });
+    };
+
     this.frameQueue.add(() => {
-      this.onRenderRequest(request);
-      this.ram.addBytes(request.image.getBytesVideo(request.image.element));
-      this.video.addBytes(request.bytesVideo);
-      cb();
+      this.onRenderRequest({ request, cb: onRendered });
     });
+  };
+
+  #onRenderRequestRendered = ({ request, cb }: RenderFunctionProps) => {
+    this.video.removeBytes(request.bytesVideo);
+    this.ram.removeBytes(request.image.getBytesVideo(request.size));
+    cb();
   };
 
   //-----------------------   PRIVATE   -----------------------

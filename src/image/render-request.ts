@@ -45,7 +45,10 @@ export class RenderRequest extends Logger {
 
   request = () => {
     // request render
-    this.bucket.controller.renderRequest(this, this.onRendered);
+    this.bucket.controller.renderRequest({
+      request: this,
+      cb: this.onRendered,
+    });
   };
 
   onRendered = () => {

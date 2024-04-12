@@ -8,7 +8,7 @@ export type BucketContext = {
 export const Context = createContext<BucketContext | null>(null);
 
 export type ProviderProps = Pick<BucketProps, "name" | "lock"> & {
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 export function BucketProvider({ children, ...props }: ProviderProps) {
@@ -19,7 +19,7 @@ export function BucketProvider({ children, ...props }: ProviderProps) {
         controller,
         ...props,
       }),
-    [props, controller]
+    [props, controller],
   );
 
   useEffect(() => {
