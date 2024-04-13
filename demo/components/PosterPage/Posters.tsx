@@ -24,13 +24,10 @@ export const Posters = ({
   useBucket({ onRendered });
 
   return (
-    <div
-      className={cn("flex flex-wrap gap-10", { "opacity-0": !show }, className)}
-      {...props}
-    >
+    <div className={cn("flex flex-wrap gap-2", className)} {...props}>
       {urls.map((url, index) => (
         <ImageProvider key={index} url={url} width={width} height={height}>
-          <Poster />
+          <Poster show={show} />
         </ImageProvider>
       ))}
     </div>

@@ -1,10 +1,10 @@
-import { Event as BucketEvent } from "@/bucket";
+import { BucketEvent } from "@/bucket";
 import { useCallback, useState } from "react";
 import { useBucket } from "@/components/Bucket";
 
 export const LoadStatus = () => {
   const [loadStatus, setLoadStatus] = useState<"loading" | "loaded">("loading");
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [rendered, setRendered] = useState<"Yes" | "No">("No");
   const onError = useCallback((event: BucketEvent<"error">) => {
     setError(event.error);
@@ -21,7 +21,7 @@ export const LoadStatus = () => {
   useBucket({ onProgress, onError, onRendered });
   return (
     <>
-      {error ? <div>Error: {error.message}</div> : null}
+      {error ? <div>Error: {error}</div> : null}
       <div>Status: {loadStatus}</div>
       <div>Rendered: {rendered}</div>
     </>

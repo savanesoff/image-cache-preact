@@ -1,12 +1,12 @@
 import { Context } from "./Bucket";
 import { useContext, useEffect } from "react";
-import { Event } from "@/bucket";
+import { BucketEvent } from "@/bucket";
 
-export type BucketHook = {
-  onProgress?: (event: Event<"progress">) => void;
-  onError?: (event: Event<"error">) => void;
-  onLoadend?: (event: Event<"loadend">) => void;
-  onRendered?: (event: Event<"rendered">) => void;
+export type UseBucketProps = {
+  onProgress?: (event: BucketEvent<"progress">) => void;
+  onError?: (event: BucketEvent<"error">) => void;
+  onLoadend?: (event: BucketEvent<"loadend">) => void;
+  onRendered?: (event: BucketEvent<"rendered">) => void;
 };
 
 export const useBucket = ({
@@ -14,7 +14,7 @@ export const useBucket = ({
   onError,
   onLoadend,
   onRendered,
-}: BucketHook = {}) => {
+}: UseBucketProps = {}) => {
   const context = useContext(Context);
   if (!context) {
     throw new Error("useBucket must be used within a BucketProvider");

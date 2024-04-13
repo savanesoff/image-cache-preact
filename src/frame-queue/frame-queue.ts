@@ -1,4 +1,4 @@
-import { RenderRequest } from "@/image/render-request";
+import { RenderRequest } from "@/request";
 import { Logger, LoggerProps } from "@/logger";
 
 export type RendererProps = {

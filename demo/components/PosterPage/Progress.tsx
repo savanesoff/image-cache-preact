@@ -1,4 +1,4 @@
-import { Event as BucketEvent } from "@/bucket";
+import { BucketEvent } from "@/bucket";
 import { useCallback, useState } from "react";
 import { useBucket } from "@/components/Bucket";
 

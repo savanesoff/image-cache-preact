@@ -1,28 +1,29 @@
 import { useContext, useEffect } from "react";
 import { Context } from "./Image";
-import { Event as ImageEvent } from "@/image";
-import { Event as RequestEvent } from "@/image/render-request";
+import { ImgEvent } from "@/image";
+import { RenderRequestEvent } from "@/request";
 
-export type Events = "progress" | "loadend" | "error" | "rendered";
-export type Event<T extends Events> = T extends Exclude<T, "rendered">
-  ? ImageEvent<T>
-  : T extends "rendered"
-  ? RequestEvent<T>
-  : never;
+export type UseImageEventTypes = "progress" | "loadend" | "error" | "rendered";
+export type UseImageEvent<T extends UseImageEventTypes> =
+  T extends Exclude<T, "rendered">
+    ? ImgEvent<T>
+    : T extends "rendered"
+      ? RenderRequestEvent<T>
+      : never;
 
-export type ImageHook = {
-  onProgress?: (event: Event<"progress">) => void;
-  onError?: (event: Event<"error">) => void;
-  onLoadend?: (event: Event<"loadend">) => void;
-  onRender?: (event: Event<"rendered">) => void;
+export type useImageProps = {
+  onProgress?: (event: UseImageEvent<"progress">) => void;
+  onError?: (event: UseImageEvent<"error">) => void;
+  onLoadend?: (event: UseImageEvent<"loadend">) => void;
+  onRendered?: (event: UseImageEvent<"rendered">) => void;
 };
 
 export const useImage = ({
   onProgress,
   onError,
   onLoadend,
-  onRender,
-}: ImageHook = {}) => {
+  onRendered,
+}: useImageProps = {}) => {
   const context = useContext(Context);
   if (!context) {
     throw new Error("useImage must be used within a ImageProvider");
@@ -33,15 +34,15 @@ export const useImage = ({
     if (onProgress) image.on("progress", onProgress);
     if (onError) image.on("error", onError);
     if (onLoadend) image.on("loadend", onLoadend);
-    if (onRender) request.on("rendered", onRender);
+    if (onRendered) request.on("rendered", onRendered);
 
     return () => {
       if (onProgress) image.off("progress", onProgress);
       if (onError) image.off("error", onError);
       if (onLoadend) image.off("loadend", onLoadend);
-      if (onRender) request.off("rendered", onRender);
+      if (onRendered) request.off("rendered", onRendered);
     };
-  }, [image, onProgress, onError, onLoadend, onRender, request]);
+  }, [image, onProgress, onError, onLoadend, onRendered, request]);
 
   return context;
 };

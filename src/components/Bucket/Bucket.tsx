@@ -1,6 +1,6 @@
 import { Bucket, BucketProps } from "@/bucket";
 import { createContext, ReactNode, useEffect, useMemo } from "react";
-import { useController } from "../Controller";
+import { useController } from "@/components/Controller";
 
 export type BucketContext = {
   bucket: Bucket;

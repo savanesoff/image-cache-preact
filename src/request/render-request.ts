@@ -1,6 +1,6 @@
 import { Logger } from "@/logger";
 import { Bucket } from "..";
-import { Img, ImgProps, Size } from "./image";
+import { Img, ImgProps, Size } from "../image/image";
 import { Controller } from "@/controller";
 
 export type RenderRequestProps = ImgProps & {
@@ -8,14 +8,16 @@ export type RenderRequestProps = ImgProps & {
   bucket: Bucket;
 };
 
-export type Events = "rendered" | "clear";
+export type RenderRequestEventTypes = "rendered" | "clear";
 
-export type Event<T extends Events> = {
+export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   type: T;
   target: RenderRequest;
 };
 
-export type EventHandler<T extends Events> = (event: Event<T>) => void;
+export type EventHandler<T extends RenderRequestEventTypes> = (
+  event: RenderRequestEvent<T>,
+) => void;
 
 export class RenderRequest extends Logger {
   static makeKey: (size: Size) => string = (size) =>
@@ -67,15 +69,24 @@ export class RenderRequest extends Logger {
     return this.bucket.locked;
   }
 
-  on<T extends Events>(type: T, handler: EventHandler<T>): this {
+  on<T extends RenderRequestEventTypes>(
+    type: T,
+    handler: EventHandler<T>,
+  ): this {
     return super.on(type, handler);
   }
 
-  off<T extends Events>(type: T, handler: EventHandler<T>): this {
+  off<T extends RenderRequestEventTypes>(
+    type: T,
+    handler: EventHandler<T>,
+  ): this {
     return super.off(type, handler);
   }
 
-  emit(type: Events, data: Record<string, unknown> = {}): boolean {
+  emit<T extends RenderRequestEventTypes>(
+    type: T,
+    data?: Omit<RenderRequestEvent<T>, "target" | "type">,
+  ): boolean {
     return super.emit(type, {
       ...data,
       type,

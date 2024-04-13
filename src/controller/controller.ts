@@ -7,11 +7,11 @@
  * or from one position on the screen to another position.
  *
  */
-import { Img, ImgProps, Event as ImgEvent } from "@/image";
+import { Img, ImgProps, ImgEvent } from "@/image";
 import { LogLevel, Logger } from "@/logger";
 import { Memory } from "@/memory";
 import { Network } from "@/network";
-import { UnitsType } from "../units";
+import { UnitsType } from "@/utils";
 import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerProps = FrameQueueProps & {

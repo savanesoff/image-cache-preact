@@ -1,21 +1,18 @@
-import { Loader, Event as LoaderEvent, Events as LoaderEvents } from "@/loader";
+import { Loader, LoaderEvent, LoaderEventTypes } from "@/loader";
 import { Logger } from "@/logger";
 
-type Events = LoaderEvents | "pause" | "resume";
+export type NetworkEventTypes = LoaderEventTypes | "pause" | "resume";
 
-type NetworkProps = {
-  /** Number of loaders in parallel */
-  loaders?: number;
-};
-
-type NetworkEvent = {
-  event: Events;
+type NetworkEvent<T extends NetworkEventTypes> = {
+  event: T;
   target: Network;
 };
 
-type EventHandler = (event: NetworkEvent) => void;
+export type NetworkEventHandler<T extends NetworkEventTypes> = (
+  event: NetworkEvent<T>,
+) => void;
 
-const loaderEvent: LoaderEvents[] = [
+const loaderEvent: LoaderEventTypes[] = [
   "loadstart",
   "progress",
   "abort",
@@ -24,10 +21,15 @@ const loaderEvent: LoaderEvents[] = [
   "loadend",
 ];
 
+export type NetworkProps = {
+  /** Number of loaders in parallel */
+  loaders?: number;
+};
+
 export class Network extends Logger {
   readonly inFlight = new Map<string, Loader>();
   readonly queue = new Map<string, Loader>();
-  maxLoaders = 16;
+  maxLoaders = 6;
   paused = false;
 
   /**
@@ -107,19 +109,22 @@ export class Network extends Logger {
     }
   }
 
-  private onLoaderEvent = ({ event, target: loader }: LoaderEvent) => {
-    switch (event) {
+  private onLoaderEvent = ({
+    type,
+    target: loader,
+  }: LoaderEvent<LoaderEventTypes>) => {
+    switch (type) {
       case "loadend":
       case "abort":
       case "timeout":
       case "error":
-        loader.off(event, this.onLoaderEvent);
+        loader.off(type, this.onLoaderEvent);
         this.inFlight.delete(loader.url);
-        this.emit(event, loader);
+        this.emit(type, loader);
         this.update();
         break;
       default:
-        this.emit(event, loader);
+        this.emit(type, loader);
     }
   };
   /**
@@ -130,14 +135,25 @@ export class Network extends Logger {
     loader.load();
   }
 
-  on(event: Events, handler: EventHandler): this {
-    super.on(event, handler);
+  on<T extends NetworkEventTypes>(
+    type: T,
+    handler: NetworkEventHandler<T>,
+  ): this {
+    super.on(type, handler);
     return this;
   }
 
-  emit(event: Events, loader?: Loader): boolean {
-    return super.emit(event, {
-      event,
+  off<T extends NetworkEventTypes>(
+    type: T,
+    handler: NetworkEventHandler<T>,
+  ): this {
+    super.off(type, handler);
+    return this;
+  }
+
+  emit<T extends NetworkEventTypes>(type: T, loader?: Loader): boolean {
+    return super.emit(type, {
+      type,
       loader,
       target: this,
     });

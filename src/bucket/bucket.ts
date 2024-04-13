@@ -1,11 +1,8 @@
 import { Img } from "@/image";
 import { Logger } from "@/logger";
-import { Event as ImageEvent } from "@/image";
+import { ImgEvent } from "@/image";
 import { Controller } from "@/controller";
-import {
-  RenderRequest,
-  Event as RenderRequestEvent,
-} from "@/image/render-request";
+import { RenderRequest, RenderRequestEvent } from "@/request";
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour: "2-digit",
@@ -15,7 +12,7 @@ const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hourCycle: "h23",
 };
 
-export type Events =
+export type BucketEventTypes =
   | "progress"
   | "loadend"
   | "error"
@@ -27,7 +24,7 @@ export type ProgressEvent = {
   progress: number;
 };
 export type ErrorEvent = {
-  error: Error;
+  error: string;
 };
 export type LoadEvent = {
   loaded: boolean;
@@ -36,7 +33,7 @@ export type RenderEvent = {
   rendered: boolean;
 };
 
-export type Event<T extends Events> = {
+export type BucketEvent<T extends BucketEventTypes> = {
   type: T;
   target: Bucket;
 } & (T extends "progress" ? ProgressEvent : unknown) &
@@ -44,7 +41,9 @@ export type Event<T extends Events> = {
   (T extends "loadend" ? LoadEvent : unknown) &
   (T extends "rendered" ? RenderEvent : unknown);
 
-export type EventHandler<T extends Events> = (event: Event<T>) => void;
+export type BucketEventHandler<T extends BucketEventTypes> = (
+  event: BucketEvent<T>,
+) => void;
 
 export interface BucketProps {
   name: string;
@@ -139,7 +138,7 @@ export class Bucket extends Logger {
    * Any image load event will reset the loading state
    * @param event
    */
-  #onImageLoadStart = (event: ImageEvent<"loadstart">) => {
+  #onImageLoadStart = (event: ImgEvent<"loadstart">) => {
     this.loading = true;
     this.loaded = false;
     this.rendered = false;
@@ -151,7 +150,7 @@ export class Bucket extends Logger {
    * Instead, a getter should be used to calculate the current progress
    * @param event
    */
-  #onImageProgress = (event: ImageEvent<"progress">): void => {
+  #onImageProgress = (event: ImgEvent<"progress">): void => {
     this.loaded = false;
     this.loading = true;
     let progress = 0;
@@ -173,7 +172,7 @@ export class Bucket extends Logger {
    * @param event
    * @returns
    */
-  #onImageLoadend = (event: ImageEvent<"size">) => {
+  #onImageLoadend = (event: ImgEvent<"size">) => {
     this.loaded = true;
     this.log.verbose([
       `Image loaded ${this.name}`,
@@ -198,8 +197,8 @@ export class Bucket extends Logger {
    * When an image errors, emit the error event
    * @param event
    */
-  #onImageError = (event: ImageEvent<"error">) => {
-    this.emit("error", { error: event.error });
+  #onImageError = (event: ImgEvent<"error">) => {
+    this.emit("error", { error: event.statusText });
   };
 
   /**
@@ -246,19 +245,25 @@ export class Bucket extends Logger {
     return [...this.images];
   }
 
-  on<T extends Events>(event: T, handler: EventHandler<T>): this {
+  on<T extends BucketEventTypes>(
+    event: T,
+    handler: BucketEventHandler<T>,
+  ): this {
     super.on(event, handler);
     return this;
   }
 
-  off<T extends Events>(event: T, handler: EventHandler<T>): this {
+  off<T extends BucketEventTypes>(
+    event: T,
+    handler: BucketEventHandler<T>,
+  ): this {
     super.off(event, handler);
     return this;
   }
 
-  emit<T extends Events>(
+  emit<T extends BucketEventTypes>(
     type: T,
-    data?: Omit<Event<T>, "target" | "type">,
+    data?: Omit<BucketEvent<T>, "target" | "type">,
   ): boolean {
     return super.emit(type, {
       ...data,

@@ -19,29 +19,30 @@
  */
 
 import {
-  EventHandler as LoaderEventHandler,
+  LoaderEventHandler,
   Loader,
-  Events as LoaderEvents,
+  LoaderEventTypes,
+  LoaderEvent,
   LoaderProps,
 } from "@/loader";
-import { RenderRequest, Event as RenderRequestEvent } from "./render-request";
+import { RenderRequest, RenderRequestEvent } from "@/request";
 
-type Events =
-  | LoaderEvents
+export type ImgEventTypes =
+  | LoaderEventTypes
   | "size"
   | "clear"
   | "render-request-rendered"
   | "render-request-added"
   | "render-request-removed"
-  | "error";
+  | "blob-error";
 
 export type Size = {
   width: number;
   height: number;
 };
 
-export type Event<T extends Events> = {
-  event: T;
+type Events<T extends ImgEventTypes> = {
+  type: T;
   target: Img;
 } & (T extends "size" ? { size: Size } : unknown) &
   (T extends
@@ -50,13 +51,16 @@ export type Event<T extends Events> = {
     | "render-request-added"
     ? { request: RenderRequest }
     : unknown) &
-  (T extends "error" ? { error: Error } : unknown);
+  (T extends "blob-error" ? { error: string } : unknown);
 
-export type LockState = {
-  locked: number;
-};
+export type ImgEvent<T extends ImgEventTypes> = T extends LoaderEventTypes
+  ? LoaderEvent<T>
+  : Events<T>;
 
-export type EventHandler<T extends Events> = (event: Event<T>) => void;
+export type ImgEventHandler<T extends ImgEventTypes> =
+  T extends LoaderEventTypes
+    ? LoaderEventHandler<T>
+    : (event: ImgEvent<T>) => void;
 
 export type ImgProps = LoaderProps;
 
@@ -113,7 +117,7 @@ export class Img extends Loader {
   private onBlobError = () => {
     this.element.onload = null;
     this.element.onerror = null;
-    this.emit("error");
+    this.emit("blob-error");
   };
 
   clear() {
@@ -197,17 +201,31 @@ export class Img extends Loader {
     return size.width * size.height * 4;
   }
 
-  on<T extends Events>(event: T, handler: EventHandler<T>): this {
-    super.on(event as LoaderEvents, handler as LoaderEventHandler);
+  on<T extends ImgEventTypes>(type: T, handler: ImgEventHandler<T>): this {
+    super.on(
+      type as LoaderEventTypes,
+      handler as LoaderEventHandler<LoaderEventTypes>,
+    );
     return this;
   }
 
-  off<T extends Events>(event: T, handler: EventHandler<T>): this {
-    super.off(event as LoaderEvents, handler as LoaderEventHandler);
+  off<T extends ImgEventTypes>(type: T, handler: ImgEventHandler<T>): this {
+    super.off(
+      type as LoaderEventTypes,
+      handler as LoaderEventHandler<LoaderEventTypes>,
+    );
     return this;
   }
 
-  emit(event: Events, data?: Record<string, unknown>): boolean {
-    return super.emit(event as LoaderEvents, data);
+  emit<T extends ImgEventTypes>(
+    type: T,
+    data?:
+      | Omit<LoaderEvent<LoaderEventTypes>, "target" | "type">
+      | Omit<ImgEvent<T>, "target" | "type">,
+  ): boolean {
+    return super.emit(
+      type as LoaderEventTypes,
+      data as Omit<LoaderEvent<LoaderEventTypes>, "target" | "type">,
+    );
   }
 }

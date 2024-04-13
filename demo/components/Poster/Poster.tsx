@@ -1,45 +1,39 @@
-import { useCallback } from "react";
+import { HTMLAttributes } from "react";
 import { useImage } from "@/components/Image";
-import { Event as ImageEvent } from "@/components/Image/useImage";
+import { cn } from "@/utils";
+import { LoadStatus } from "./Status";
+import { Progress } from "./Progress";
 
-export const Poster = () => {
-  const onProgress = useCallback((event: ImageEvent<"progress">) => {
-    console.log("onProgress", event);
-  }, []);
+export type PosterProps = HTMLAttributes<HTMLDivElement> & {
+  show: boolean;
+};
 
-  const onError = useCallback((event: ImageEvent<"error">) => {
-    console.log("onError", event);
-  }, []);
-
-  const onLoadend = useCallback((event: ImageEvent<"loadend">) => {
-    console.log("onLoadend", event);
-  }, []);
-
-  const onRender = useCallback((event: ImageEvent<"rendered">) => {
-    console.log("onRender", event);
-  }, []);
-
-  const { image, request } = useImage({
-    onProgress,
-    onError,
-    onLoadend,
-    onRender,
-  });
+export const Poster = ({ show, className, ...props }: PosterProps) => {
+  const { image, request } = useImage();
 
   return (
-    <div>
-      <div>Poster</div>
-      <div>loaded: {image?.loaded}</div>
-      <div>loading: {image?.loading}</div>
-      <div>rendered: {request?.rendered}</div>
+    <div
+      className={cn(
+        "bg-orange-800",
+        `max-w-[${request?.size.width}px]`,
+        `w-[${request?.size.width}px]`,
+        className,
+      )}
+      {...props}
+    >
+      <div className={cn("bg-slate-800 p-1 text-[8px]", className)}>
+        <LoadStatus />
+        <Progress />
+      </div>
       <div
+        className="transition-opacity duration-1000 ease-in-out"
         style={{
           width: request?.size.width,
           height: request?.size.height,
           position: "relative",
           backgroundImage: `url(${image?.url})`,
           backgroundSize: "cover",
-          backgroundColor: "black",
+          opacity: show ? 1 : 0,
         }}
       />
     </div>

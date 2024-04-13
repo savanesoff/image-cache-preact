@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
-import { useBucket } from "../Bucket";
-import { RenderRequest } from "@/image/render-request";
+import { useBucket } from "@/components/Bucket";
+import { RenderRequest } from "@/request";
 import { Img, ImgProps, Size } from "@/index";
 
 export type ImageContext = {
@@ -35,7 +35,7 @@ export const ImageProvider = ({
         headers,
         retry,
       }),
-    [height, width, url, bucket, headers, retry]
+    [height, width, url, bucket, headers, retry],
   );
 
   useEffect(() => {

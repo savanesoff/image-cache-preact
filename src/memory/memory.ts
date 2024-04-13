@@ -1,5 +1,5 @@
 import { Logger, LogLevel } from "@/logger";
-import { UNITS, UnitsType } from "../units";
+import { UNITS, UnitsType } from "@/utils";
 
 type Events = "overflow" | "clear";
 interface MemoryProps {
@@ -62,7 +62,7 @@ export class Memory extends Logger {
         used: this.getUsedSpace(),
       },
       null,
-      2
+      2,
     );
   }
 
@@ -143,7 +143,7 @@ export class Memory extends Logger {
         `Added: ${this.toUnits(bytes).toFixed(3)} ${this.units}`,
         this.getStatus(),
       ],
-      this.styles.info
+      this.styles.info,
     );
     return remainingBytes;
   }
@@ -182,7 +182,7 @@ export class Memory extends Logger {
         `Removed: ${this.toUnits(bytes).toFixed(3)} ${this.units}`,
         this.getStatus(),
       ],
-      this.styles.info
+      this.styles.info,
     );
 
     return this.getBytesSpace();
