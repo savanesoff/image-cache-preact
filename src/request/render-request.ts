@@ -19,20 +19,25 @@ export type EventHandler<T extends RenderRequestEventTypes> = (
   event: RenderRequestEvent<T>,
 ) => void;
 
+/**
+ * Represents a render request for an image.
+ */
 export class RenderRequest extends Logger {
-  static makeKey: (size: Size) => string = (size) =>
-    `${size.width}x${size.height}`;
   size: Size;
   rendered: boolean;
   image: Img;
   bucket: Bucket;
-  key: string;
   bytesVideo: number;
   readonly controller: Controller;
 
+  /**
+   * Constructs a new RenderRequest instance.
+   * @param size - The size of the image.
+   * @param bucket - The bucket containing the image.
+   * @param props - Additional properties for the request.
+   */
   constructor({ size, bucket, ...props }: RenderRequestProps) {
     super({ name: "RenderRequest" });
-    this.key = RenderRequest.makeKey(size);
     this.size = size;
     this.rendered = false;
     this.bucket = bucket;
@@ -48,16 +53,25 @@ export class RenderRequest extends Logger {
     }
   }
 
+  /**
+   * Requests the image to be rendered.
+   */
   request = () => {
     // request render
     this.controller.frameQueue.add(this);
   };
 
+  /**
+   * Event handler for when the image has been rendered.
+   */
   onRendered = () => {
     this.rendered = true;
     this.emit("rendered");
   };
 
+  /**
+   * Clears the render request.
+   */
   clear() {
     this.image.unregisterRequest(this);
     this.bucket.unregisterRequest(this);
@@ -65,10 +79,20 @@ export class RenderRequest extends Logger {
     this.emit("clear");
   }
 
+  /**
+   * Checks if the render request is locked.
+   * @returns True if the render request is locked, false otherwise.
+   */
   isLocked() {
     return this.bucket.locked;
   }
 
+  /**
+   * Adds an event listener for the specified event type.
+   * @param type - The type of the event.
+   * @param handler - The event handler function.
+   * @returns The current instance of RenderRequest.
+   */
   on<T extends RenderRequestEventTypes>(
     type: T,
     handler: EventHandler<T>,
@@ -76,6 +100,12 @@ export class RenderRequest extends Logger {
     return super.on(type, handler);
   }
 
+  /**
+   * Removes an event listener for the specified event type.
+   * @param type - The type of the event.
+   * @param handler - The event handler function.
+   * @returns The current instance of RenderRequest.
+   */
   off<T extends RenderRequestEventTypes>(
     type: T,
     handler: EventHandler<T>,
@@ -83,6 +113,12 @@ export class RenderRequest extends Logger {
     return super.off(type, handler);
   }
 
+  /**
+   * Emits an event of the specified type.
+   * @param type - The type of the event.
+   * @param data - Additional data for the event.
+   * @returns True if the event was emitted successfully, false otherwise.
+   */
   emit<T extends RenderRequestEventTypes>(
     type: T,
     data?: Omit<RenderRequestEvent<T>, "target" | "type">,

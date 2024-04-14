@@ -27,6 +27,7 @@ import {
 } from "@/loader";
 import { RenderRequest, RenderRequestEvent } from "@/request";
 
+/** Event types for the Img class */
 export type ImgEventTypes =
   | LoaderEventTypes
   | "size"
@@ -36,13 +37,18 @@ export type ImgEventTypes =
   | "render-request-removed"
   | "blob-error";
 
+/** Event data for the Img class */
 export type Size = {
+  /** The width of the image */
   width: number;
+  /** The height of the image */
   height: number;
 };
 
 type Events<T extends ImgEventTypes> = {
+  /** The type of the event */
   type: T;
+  /** The image instance that triggered the event */
   target: Img;
 } & (T extends "size" ? { size: Size } : unknown) &
   (T extends
@@ -53,10 +59,12 @@ type Events<T extends ImgEventTypes> = {
     : unknown) &
   (T extends "blob-error" ? { error: string } : unknown);
 
+/** Event data for the Img class */
 export type ImgEvent<T extends ImgEventTypes> = T extends LoaderEventTypes
   ? LoaderEvent<T>
   : Events<T>;
 
+/** Event handler for the Img class */
 export type ImgEventHandler<T extends ImgEventTypes> =
   T extends LoaderEventTypes
     ? LoaderEventHandler<T>
@@ -64,6 +72,13 @@ export type ImgEventHandler<T extends ImgEventTypes> =
 
 export type ImgProps = LoaderProps;
 
+/**
+ * Represents an image loader that loads image data via XMLHttpRequest.
+ * Emits events when the image data is loaded, when the image size is determined,
+ * and when the image data is cleared from memory.
+ * Also tracks render requests for the image and emits events when a render request is added or removed.
+ * @extends Loader
+ */
 export class Img extends Loader {
   /** Image element that helps us hold on to blob url data in ram */
   readonly element: HTMLImageElement;
@@ -84,42 +99,15 @@ export class Img extends Loader {
       ...props,
     });
     this.element = new Image(); // need to get actual size of image
-    this.on("loadend", this.onLoadEnd); // called by a loader process
+    this.on("loadend", this.#onLoadEnd); // called by a loader process
   }
 
   /**
-   * Called when the image data is loaded
-   * Creates a blob URL for the image data to get its size
+   * Clears the image data from memory.
+   * Emits a "clear" event when the image data is cleared.
+   * Also removes all event listeners from the image.
+   * Unregisters all render requests for the image
    */
-  private onLoadEnd() {
-    if (!this.blob) {
-      throw new Error("No blob data found!");
-    }
-    this.element.onload = this.onBlobAssigned;
-    this.element.onerror = this.onBlobError;
-    this.element.src = URL.createObjectURL(this.blob);
-  }
-
-  /**
-   * Called when the image data is loaded
-   */
-  private onBlobAssigned = () => {
-    this.element.onload = null;
-    this.element.onerror = null;
-    // not really needed to have size separate from image props, but image can be cleared to free memory
-    this.gotSize = true;
-    this.bytesUncompressed = this.getBytesVideo(this.element);
-    this.emit("size", {
-      size: { with: this.element.width, height: this.element.height },
-    });
-  };
-
-  private onBlobError = () => {
-    this.element.onload = null;
-    this.element.onerror = null;
-    this.emit("blob-error");
-  };
-
   clear() {
     this.element.onload = null;
     this.element.onerror = null;
@@ -134,17 +122,18 @@ export class Img extends Loader {
     this.removeAllListeners();
   }
 
-  #onRendered = (event: RenderRequestEvent<"rendered">) => {
-    this.decoded = true;
-    this.emit("render-request-rendered", { request: event.target });
-  };
-
+  /**
+   * Registers a render request for the image.
+   */
   registerRequest(request: RenderRequest) {
     this.renderRequests.add(request);
     request.on("rendered", this.#onRendered);
     this.emit("render-request-added", { request });
   }
 
+  /**
+   * Unregisters a render request for the image.
+   */
   unregisterRequest(request: RenderRequest) {
     request.off("rendered", this.#onRendered);
     this.renderRequests.delete(request);
@@ -201,22 +190,87 @@ export class Img extends Loader {
     return size.width * size.height * 4;
   }
 
+  //--------------------------   PRIVATE METHODS   -----------------------------
+
+  /**
+   * Called when the image data is loaded
+   * Creates a blob URL for the image data to get its size
+   */
+  #onLoadEnd() {
+    if (!this.blob) {
+      throw new Error("No blob data found!");
+    }
+    this.element.onload = this.#onBlobAssigned;
+    this.element.onerror = this.#onBlobError;
+    this.element.src = URL.createObjectURL(this.blob);
+  }
+
+  /**
+   * Called when the image data is loaded
+   */
+  #onBlobAssigned = () => {
+    this.element.onload = null;
+    this.element.onerror = null;
+    // not really needed to have size separate from image props, but image can be cleared to free memory
+    this.gotSize = true;
+    this.bytesUncompressed = this.getBytesVideo(this.element);
+    this.emit("size", {
+      size: { with: this.element.width, height: this.element.height },
+    });
+  };
+
+  /**
+   * Called when the image data fails to load
+   */
+  #onBlobError = () => {
+    this.element.onload = null;
+    this.element.onerror = null;
+    this.emit("blob-error");
+  };
+
+  /**
+   * Called when the image is rendered
+   */
+  #onRendered = (event: RenderRequestEvent<"rendered">) => {
+    this.decoded = true;
+    this.emit("render-request-rendered", { request: event.target });
+  };
+
+  //--------------------------   EVENT HANDLERS   --------------------==--------
+
+  /**
+   * Adds an event listener for the specified event type.
+   * @param type - The type of the event to listen for.
+   * @param handler - The event handler function to call when the event is emitted.
+   * @returns The current instance of the Img class.
+   * @override Loader.on
+   */
   on<T extends ImgEventTypes>(type: T, handler: ImgEventHandler<T>): this {
-    super.on(
+    return super.on(
       type as LoaderEventTypes,
       handler as LoaderEventHandler<LoaderEventTypes>,
     );
-    return this;
   }
 
+  /**
+   * Removes an event listener for the specified event type.
+   * @param type - The type of the event to remove the listener for.
+   * @param handler - The event handler function to remove.
+   * @returns The current instance of the Img class.
+   */
   off<T extends ImgEventTypes>(type: T, handler: ImgEventHandler<T>): this {
-    super.off(
+    return super.off(
       type as LoaderEventTypes,
       handler as LoaderEventHandler<LoaderEventTypes>,
     );
-    return this;
   }
 
+  /**
+   * Emits an event of the specified type.
+   * @param type - The type of the event to emit.
+   * @param data - Additional data to pass to the event listeners.
+   * @returns A boolean indicating whether the event was emitted successfully.
+   */
   emit<T extends ImgEventTypes>(
     type: T,
     data?:

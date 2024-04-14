@@ -1,11 +1,19 @@
 /**
- * "BLIT" is an abbreviation for "Block Image Transfer".
- * In the context of computer graphics,
- * blitting is an operation where two bitmaps are combined into one using a boolean function.
- * In simpler terms, it's a way of moving blocks of raw pixel data from one place to another.
- * This is often used for copying a bitmap image (like a sprite or a tile) from memory to the screen (or vice versa),
- * or from one position on the screen to another position.
+ * The `Controller` class manages the loading and rendering of images.
+ * It extends the `Logger` class, inheriting its logging capabilities.
  *
+ * The `Controller` class maintains a cache of loaded images and a network queue for loading images.
+ * It also manages the video memory, keeping track of the total bytes used.
+ *
+ * The `Controller` class provides methods to add an image to the cache and network queue (`addImage`),
+ * add and remove video bytes of a render request (`#onRenderRequestAdded` and `#onRenderRequestRemoved`),
+ * and add bytes to the video memory (`#addVideoBytes`).
+ *
+ * Usage:
+ *
+ * const controller = new Controller();
+ * const image = new Img({ url: "http://example.com/image.jpg" });
+ * controller.addImage(image); // Add an image to the cache and network queue
  */
 import { Img, ImgProps, ImgEvent } from "@/image";
 import { LogLevel, Logger } from "@/logger";
@@ -14,11 +22,31 @@ import { Network } from "@/network";
 import { UnitsType } from "@/utils";
 import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
+export type ControllerEventTypes = "ram-overflow" | "video-overflow";
+
+/** Controller event */
+export type ControllerEvent<T extends ControllerEventTypes> = {
+  /** The type of the event */
+  type: T;
+  /** The target of the event */
+  target: Controller;
+} & (T extends "ram-overflow" | "video-overflow" ? { bytes: number } : unknown);
+
+/** Controller event handler */
+export type ControllerEventHandler<T extends ControllerEventTypes> = (
+  event: ControllerEvent<T>,
+) => void;
+
 export type ControllerProps = FrameQueueProps & {
+  /** The amount of RAM [GB] */
   ram?: number;
+  /** The amount of video memory [GB] */
   video?: number;
+  /** The number of loaders in parallel */
   loaders?: number;
+  /** The units of the memory size, default "GB" */
   units?: UnitsType;
+  /** The log level for the controller */
   logLevel?: LogLevel;
 };
 
@@ -73,6 +101,11 @@ export class Controller extends Logger {
 
   //-----------------------   API   -----------------------
 
+  /**
+   * Adds an image to the cache and network queue
+   * @param image
+   * @returns the image object
+   */
   getImage(props: ImgProps): Img {
     return this.cache.get(props.url) || this.#createImage(props);
   }

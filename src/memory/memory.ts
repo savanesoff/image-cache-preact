@@ -1,15 +1,42 @@
 import { Logger, LogLevel } from "@/logger";
 import { UNITS, UnitsType } from "@/utils";
 
-type Events = "overflow" | "clear";
-interface MemoryProps {
+/** Memory event types */
+export type MemoryEventTypes =
+  | "overflow"
+  | "clear"
+  | "bytes-added"
+  | "bytes-removed"
+  | "cleared";
+
+/** Event data for memory events */
+export type MemoryEvent<T> = {
+  /** The type of the event */
+  type: T;
+  /** The memory object that emitted the event */
+  target: Memory;
+} & (T extends "overflow" ? { bytes: number } : unknown) &
+  (T extends "bytes-added"
+    ? { bytes: number; remainingBytes: number }
+    : unknown) &
+  (T extends "bytes-removed" ? { bytes: number } : unknown);
+
+/** Event handler for memory events */
+export type MemoryEventHandler<T extends MemoryEventTypes> = (
+  event: MemoryEvent<T>,
+) => void;
+
+/** Memory properties */
+export type MemoryProps = {
   /** Size of memory in <units> */
   size?: number;
   /** Units of memory used with size */
   units?: UnitsType;
+  /** Log level for memory */
   logLevel?: LogLevel;
+  /** Name of memory object */
   name?: string;
-}
+};
 
 /**
  * Represents a memory/size object in bytes.
@@ -20,9 +47,13 @@ interface MemoryProps {
  * Represents a Memory object that tracks the usage of memory.
  */
 export class Memory extends Logger {
+  /** The number of bytes in the memory object */
   private bytes = 0;
+  /** The units of the memory object, e.g. "GB" */
   readonly units: UnitsType;
+  /** The size of the memory object */
   readonly size: number;
+  /** The count of the memory requests to calculate average */
   private count = 0;
 
   /**
@@ -46,10 +77,6 @@ export class Memory extends Logger {
     this.size = size;
   }
 
-  private toUnits(bytes: number): number {
-    return bytes / UNITS[this.units];
-  }
-
   /**
    * Compiles a string with the status of the memory object that can be logged.
    * @returns A string with the status of the memory object.
@@ -71,7 +98,7 @@ export class Memory extends Logger {
    * @returns An object with the free space in bytes, units, and percentage.
    */
   getFreeSpace() {
-    const unitUsed = this.toUnits(this.bytes);
+    const unitUsed = this.#toUnits(this.bytes);
     const prsUsed = (unitUsed / this.size) * 100;
     return {
       bytes: this.getBytesSpace(),
@@ -85,7 +112,7 @@ export class Memory extends Logger {
    * @returns An object with the used space in bytes, units, and percentage.
    */
   getUsedSpace() {
-    const unitUsed = this.toUnits(this.bytes);
+    const unitUsed = this.#toUnits(this.bytes);
     const prsUsed = (unitUsed / this.size) * 100;
     return {
       bytes: this.bytes,
@@ -99,7 +126,7 @@ export class Memory extends Logger {
    * @returns An object with the average space in bytes, units, and percentage.
    */
   getAverage() {
-    const unitUsed = this.toUnits(this.bytes);
+    const unitUsed = this.#toUnits(this.bytes);
     const prsUsed = (unitUsed / this.size) * 100;
     const isZero = unitUsed === 0 || this.count === 0;
     return {
@@ -132,15 +159,15 @@ export class Memory extends Logger {
     const remainingBytes = this.getBytesSpace(bytes);
     if (remainingBytes < 0) {
       this.log.warn([`Overflow!`, this.getStatus()], this.styles.error);
-      this.emit("overflow", -remainingBytes);
+      this.emit("overflow", { bytes: remainingBytes });
     }
 
     this.count++;
     this.bytes += bytes;
-
+    this.emit("bytes-added", { bytes, remainingBytes });
     this.log.info(
       [
-        `Added: ${this.toUnits(bytes).toFixed(3)} ${this.units}`,
+        `Added: ${this.#toUnits(bytes).toFixed(3)} ${this.units}`,
         this.getStatus(),
       ],
       this.styles.info,
@@ -177,9 +204,10 @@ export class Memory extends Logger {
   removeBytes(bytes: number): number {
     this.count--;
     this.bytes -= bytes;
+    this.emit("bytes-removed", { bytes });
     this.log.info(
       [
-        `Removed: ${this.toUnits(bytes).toFixed(3)} ${this.units}`,
+        `Removed: ${this.#toUnits(bytes).toFixed(3)} ${this.units}`,
         this.getStatus(),
       ],
       this.styles.info,
@@ -195,6 +223,7 @@ export class Memory extends Logger {
   clear() {
     this.bytes = 0;
     this.count = 0;
+    this.emit("cleared");
     this.log.info([`Cleared`], this.styles.info);
     this.emit("clear");
   }
@@ -206,24 +235,58 @@ export class Memory extends Logger {
     this.log.info([this.getStatus()], this.styles.info);
   }
 
+  //--------------------------------  PRIVATE   --------------------------------
+  /**
+   * Converts bytes to the units of the memory object.
+   * @param bytes - The number of bytes to convert.
+   * @returns The number of units.
+   */
+  #toUnits(bytes: number): number {
+    return bytes / UNITS[this.units];
+  }
+
+  //--------------------------------  EVENT HANDLING   -------------------------
+
   /**
    * Overrides the `on` method to add event listeners to the memory object.
    * @param event - The event to listen for.
    * @param listener - The listener function to be called when the event is emitted.
    * @returns The memory object itself.
    */
-  on(event: Events, listener: () => void): this {
-    super.on(event, listener);
-    return this;
+  on<T extends MemoryEventTypes>(
+    event: T,
+    listener: MemoryEventHandler<T>,
+  ): this {
+    return super.on(event, listener);
+  }
+
+  /**
+   * Removes an event listener for the specified event type.
+   * @param event - The type of the event.
+   * @param listener - The event handler function.
+   * @returns
+   */
+  off<T extends MemoryEventTypes>(
+    event: T,
+    listener: MemoryEventHandler<T>,
+  ): this {
+    return super.off(event, listener);
   }
 
   /**
    * Overrides the `emit` method to emit events from the memory object.
    * @param event - The event to emit.
-   * @param value - The value to pass to the event listeners.
+   * @param data - The value to pass to the event listeners.
    * @returns A boolean indicating whether the event was emitted successfully.
    */
-  emit(event: Events, value?: unknown): boolean {
-    return super.emit(event, this, value);
+  emit<T extends MemoryEventTypes>(
+    event: T,
+    data?: Omit<MemoryEvent<T>, "target" | "type">,
+  ): boolean {
+    return super.emit(event, {
+      ...data,
+      type: event,
+      target: this,
+    });
   }
 }

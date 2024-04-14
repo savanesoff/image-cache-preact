@@ -1,3 +1,11 @@
+/**
+ * Network class that manages the loading of resources over the network.
+ * It maintains a queue of Loader instances, each representing a resource to be loaded.
+ * The Network class can pause and resume the loading process,
+ * and it emits events to indicate the progress of the loading process.
+ * It also limits the number of concurrent loaders to avoid overloading the network.
+ */
+
 import { Loader, LoaderEvent, LoaderEventTypes } from "@/loader";
 import { Logger } from "@/logger";
 
@@ -12,6 +20,7 @@ export type NetworkEventHandler<T extends NetworkEventTypes> = (
   event: NetworkEvent<T>,
 ) => void;
 
+// List of loader events
 const loaderEvent: LoaderEventTypes[] = [
   "loadstart",
   "progress",
@@ -52,7 +61,7 @@ export class Network extends Logger {
       this.queue.set(loader.url, loader);
     }
     // in case processing queue is empty, start processing
-    this.update();
+    this.#update();
   }
 
   /**
@@ -62,7 +71,7 @@ export class Network extends Logger {
     const queuedImage = this.queue.get(loader.url);
     if (queuedImage) {
       this.queue.delete(loader.url);
-      this.update();
+      this.#update();
     }
 
     const inFlight = this.inFlight.get(loader.url);
@@ -70,7 +79,11 @@ export class Network extends Logger {
       inFlight.abort();
     }
   }
-
+  /**
+   * Clears all network requests
+   * Cancels all network requests
+   * Clears the network queue and aborts all in-flight loaders.
+   */
   clear() {
     for (const loader of this.inFlight.values()) {
       loader.abort();
@@ -79,21 +92,29 @@ export class Network extends Logger {
     this.queue.clear();
   }
 
+  /**
+   * Pauses all network requests and emits a "pause" event.
+   */
   pause() {
     this.paused = true;
     this.emit("pause");
   }
 
+  /**
+   * Resumes all network requests and emits a "resume" event.
+   */
   resume() {
     this.paused = false;
     this.emit("resume");
-    this.update();
+    this.#update();
   }
+
+  //-----------------------------   PRIVATE METHODS   ---------------------------
 
   /**
    * Cancels all network requests
    */
-  private update() {
+  #update() {
     if (this.inFlight.size >= this.maxLoaders) return;
 
     const entries = this.queue.entries();
@@ -105,11 +126,17 @@ export class Network extends Logger {
       }
       this.inFlight.set(url, loader);
       this.queue.delete(url);
-      this.launch(loader);
+      this.#launch(loader);
     }
   }
 
-  private onLoaderEvent = ({
+  /**
+   * Event handler for loader events
+   * Deletes the loader from the in-flight map when the loader has finished loading.
+   * Emits the loader event, and updates the network queue.
+   * @param param0
+   */
+  #onLoaderEvent = ({
     type,
     target: loader,
   }: LoaderEvent<LoaderEventTypes>) => {
@@ -118,10 +145,10 @@ export class Network extends Logger {
       case "abort":
       case "timeout":
       case "error":
-        loader.off(type, this.onLoaderEvent);
+        loader.off(type, this.#onLoaderEvent);
         this.inFlight.delete(loader.url);
         this.emit(type, loader);
-        this.update();
+        this.#update();
         break;
       default:
         this.emit(type, loader);
@@ -130,27 +157,45 @@ export class Network extends Logger {
   /**
    * Processes image
    */
-  private launch(loader: Loader) {
-    loaderEvent.forEach((event) => loader.on(event, this.onLoaderEvent));
+  #launch(loader: Loader) {
+    loaderEvent.forEach((event) => loader.on(event, this.#onLoaderEvent));
     loader.load();
   }
 
+  //-----------------------------   EVENT EMITTER   ----------------------------
+
+  /**
+   * Overrides the `on` method to add event listeners to the memory object.
+   * @param event - The event to listen for.
+   * @param listener - The listener function to be called when the event is emitted.
+   * @returns The memory object itself.
+   */
   on<T extends NetworkEventTypes>(
     type: T,
     handler: NetworkEventHandler<T>,
   ): this {
-    super.on(type, handler);
-    return this;
+    return super.on(type, handler);
   }
 
+  /**
+   * Removes an event listener for the specified event type.
+   * @param type - The type of the event.
+   * @param handler - The event handler function.
+   * @returns The current instance of Network.
+   */
   off<T extends NetworkEventTypes>(
     type: T,
     handler: NetworkEventHandler<T>,
   ): this {
-    super.off(type, handler);
-    return this;
+    return super.off(type, handler);
   }
 
+  /**
+   * Emits an event of the specified type.
+   * @param type - The type of the event.
+   * @param loader - The loader object.
+   * @returns True if the event was emitted successfully, false otherwise.
+   */
   emit<T extends NetworkEventTypes>(type: T, loader?: Loader): boolean {
     return super.emit(type, {
       type,

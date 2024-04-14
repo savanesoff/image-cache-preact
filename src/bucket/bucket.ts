@@ -1,16 +1,22 @@
+/**
+ * The `Bucket` class manages a set of images and their associated render requests.
+ * It extends the `Logger` class, inheriting its logging capabilities.
+ *
+ * The `Bucket` class maintains a set of `Img` instances, a set of `RenderRequest` instances,
+ * and a map of video memory usage by image.
+ *
+ * The `Bucket` class also maintains several state properties, such as `rendered`, `loading`, `loaded`, `loadProgress`, and `timeout`.
+ *
+ * The `Bucket` class provides methods to register and unregister a `RenderRequest`,
+ * which involves adding or removing the `RenderRequest` from the set,
+ * subscribing or unsubscribing to the "rendered" event, and adding or removing the image from the set of images.
+ */
 import { Img } from "@/image";
 import { Logger } from "@/logger";
 import { ImgEvent } from "@/image";
 import { Controller } from "@/controller";
 import { RenderRequest, RenderRequestEvent } from "@/request";
-
-const TIME_FORMAT: Intl.DateTimeFormatOptions = {
-  hour: "2-digit",
-  minute: "numeric",
-  second: "2-digit",
-  fractionalSecondDigits: 3,
-  hourCycle: "h23",
-};
+import { now } from "@/utils/time";
 
 export type BucketEventTypes =
   | "progress"
@@ -21,20 +27,26 @@ export type BucketEventTypes =
   | "loading";
 
 export type ProgressEvent = {
+  /** The progress of the loading operation */
   progress: number;
 };
 export type ErrorEvent = {
+  /** The error message */
   error: string;
 };
 export type LoadEvent = {
+  /** The loading state */
   loaded: boolean;
 };
 export type RenderEvent = {
+  /** The rendered state */
   rendered: boolean;
 };
 
 export type BucketEvent<T extends BucketEventTypes> = {
+  /** The type of the event */
   type: T;
+  /** The target of the event */
   target: Bucket;
 } & (T extends "progress" ? ProgressEvent : unknown) &
   (T extends "error" ? ErrorEvent : unknown) &
@@ -46,11 +58,19 @@ export type BucketEventHandler<T extends BucketEventTypes> = (
 ) => void;
 
 export interface BucketProps {
+  /** The name of the bucket */
   name: string;
+  /** Whether the bucket is locked */
   lock?: boolean;
+  /** The controller instance */
   controller: Controller;
 }
 
+/**
+ * Represents a bucket of images and their associated render requests.
+ * Emits events when images are loaded, when the bucket is cleared, and when the bucket is rendered.
+ * Also tracks the loading state of the bucket and the progress of the loading operation.
+ */
 export class Bucket extends Logger {
   readonly images = new Set<Img>();
   readonly requests = new Set<RenderRequest>();
@@ -123,11 +143,7 @@ export class Bucket extends Logger {
       this.rendered = !request.rendered ? false : this.rendered;
     }
 
-    this.log.verbose([
-      `Request Rendered ${this.name}`,
-      new Date().toLocaleTimeString("en-US", TIME_FORMAT),
-      event.target,
-    ]);
+    this.log.verbose([`Request Rendered ${this.name}`, now(), event.target]);
 
     if (this.rendered) {
       this.emit("rendered", { rendered: this.rendered });
@@ -174,11 +190,7 @@ export class Bucket extends Logger {
    */
   #onImageLoadend = (event: ImgEvent<"size">) => {
     this.loaded = true;
-    this.log.verbose([
-      `Image loaded ${this.name}`,
-      new Date().toLocaleTimeString("en-US", TIME_FORMAT),
-      event,
-    ]);
+    this.log.verbose([`Image loaded ${this.name}`, now(), event]);
     for (const image of this.images) {
       this.loaded = !image.gotSize ? false : this.loaded;
     }
@@ -186,10 +198,7 @@ export class Bucket extends Logger {
     this.loadProgress = 1;
     if (this.loaded) {
       this.emit("loadend", { loaded: this.loaded });
-      this.log.info([
-        `Loaded ${this.name}`,
-        new Date().toLocaleTimeString("en-US", TIME_FORMAT),
-      ]);
+      this.log.info([`Loaded ${this.name}`, now()]);
     }
   };
 
@@ -241,26 +250,50 @@ export class Bucket extends Logger {
     this.removeAllListeners();
   };
 
+  /**
+   * Get all images in the bucket
+   */
   getImages() {
     return [...this.images];
   }
 
+  //-----------------------   EVENT METHODS   -----------------------
+
+  /**
+   * Adds an event listener for the specified event type.
+   * @param event - The type of the event.
+   * @param handler - The event handler function.
+   * @returns The current instance of the Bucket.
+   * @override Logger.on
+   */
   on<T extends BucketEventTypes>(
     event: T,
     handler: BucketEventHandler<T>,
   ): this {
-    super.on(event, handler);
-    return this;
+    return super.on(event, handler);
   }
 
+  /**
+   * Removes an event listener for the specified event type.
+   * @param event - The type of the event.
+   * @param handler - The event handler function to remove.
+   * @returns The current instance of the Bucket.
+   * @override Logger.off
+   */
   off<T extends BucketEventTypes>(
     event: T,
     handler: BucketEventHandler<T>,
   ): this {
-    super.off(event, handler);
-    return this;
+    return super.off(event, handler);
   }
 
+  /**
+   * Emits an event of the specified type with the specified data.
+   * @param type - The type of the event to emit.
+   * @param data - The data to emit with the event.
+   * @returns True if the event was emitted successfully, false otherwise.
+   * @override Logger.emit
+   */
   emit<T extends BucketEventTypes>(
     type: T,
     data?: Omit<BucketEvent<T>, "target" | "type">,
