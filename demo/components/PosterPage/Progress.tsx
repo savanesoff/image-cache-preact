@@ -1,8 +1,7 @@
-import { BucketEvent } from "@/bucket";
+import { BucketEvent, useBucket } from "@cache";
 import { useCallback, useState } from "react";
-import { useBucket } from "@/components/Bucket";
 
-export const Progress = () => {
+export const PageProgress = () => {
   const [progress, setProgress] = useState(0);
   const onProgress = useCallback((event: BucketEvent<"progress">) => {
     setProgress(event.progress);

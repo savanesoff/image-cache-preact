@@ -17,18 +17,19 @@
  * which contains the `Img` instance and the `RenderRequest` for the image.
  */
 import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
-import { useBucket } from "@/components/Bucket";
-import { RenderRequest } from "@/request";
-import { Img, ImgProps, Size } from "@/index";
+import { useBucket } from "@components";
+import { RenderRequest, Img, ImgProps, Size } from "@lib";
 
-export type ImageContext = {
+export type ImageContextType = {
   image: Img | null;
   request: RenderRequest;
 };
 
-export const Context = createContext<ImageContext | null>(null);
+export const ImageContext = createContext<ImageContextType>(
+  {} as ImageContextType,
+);
 
-export type ProviderProps = ImgProps &
+export type ImageProviderProps = ImgProps &
   Size & {
     children: ReactNode;
   };
@@ -45,7 +46,7 @@ export const ImageProvider = ({
   children,
   height,
   width,
-}: ProviderProps) => {
+}: ImageProviderProps) => {
   const { bucket } = useBucket();
   const [image, setImage] = useState<Img | null>(null);
   // create render request
@@ -69,6 +70,8 @@ export const ImageProvider = ({
   }, [request]);
 
   return (
-    <Context.Provider value={{ image, request }}>{children}</Context.Provider>
+    <ImageContext.Provider value={{ image, request }}>
+      {children}
+    </ImageContext.Provider>
   );
 };

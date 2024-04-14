@@ -1,8 +1,7 @@
 import { HTMLAttributes, useCallback, useState } from "react";
-import { ImageProvider } from "@/components/Image";
-import { useBucket } from "@/components/Bucket";
-import { Poster } from "../Poster/Poster";
-import { cn } from "@/utils";
+import { ImageProvider, useBucket } from "@cache";
+import { Poster } from "@components";
+import { cn } from "@utils";
 
 export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   urls: string[];

@@ -1,11 +1,11 @@
 import { useContext } from "react";
-import { Context } from "./Controller";
+import { ControllerContext, ControllerContextType } from "./Controller";
 
 /**
  * The useController hook provides a way to access the `Controller` instance from the `ControllerProvider`.
  */
-export const useController = () => {
-  const context = useContext(Context);
+export const useController = (): ControllerContextType => {
+  const context = useContext(ControllerContext);
   if (!context) {
     throw new Error("useController must be used within a ControllerProvider");
   }

@@ -6,8 +6,7 @@
  * It also limits the number of concurrent loaders to avoid overloading the network.
  */
 
-import { Loader, LoaderEvent, LoaderEventTypes } from "@/loader";
-import { Logger } from "@/logger";
+import { Loader, LoaderEvent, LoaderEventTypes, Logger } from "@lib";
 
 export type NetworkEventTypes = LoaderEventTypes | "pause" | "resume";
 

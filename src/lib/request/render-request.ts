@@ -1,7 +1,4 @@
-import { Logger } from "@/logger";
-import { Bucket } from "..";
-import { Img, ImgProps, Size } from "../image/image";
-import { Controller } from "@/controller";
+import { ImgProps, Size, Bucket, Img, Controller, Logger } from "@lib";
 
 export type RenderRequestProps = ImgProps & {
   size: Size;

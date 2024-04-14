@@ -23,8 +23,7 @@
  * const renderRequest = new RenderRequest({ id: "request1", priority: 1 });
  * frameQueue.add(renderRequest); // Add a render request to the queue
  */
-import { RenderRequest } from "@/request";
-import { Logger, LoggerProps } from "@/logger";
+import { RenderRequest, Logger, LoggerProps } from "@lib";
 
 export type FrameQueueEventTypes = "rendered";
 /** FrameQueue event */

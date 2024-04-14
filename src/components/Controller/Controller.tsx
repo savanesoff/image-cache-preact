@@ -3,14 +3,16 @@
  * It provides a `ControllerContext` that contains a `Controller` instance.
  */
 import { createContext, ReactNode, useMemo } from "react";
-import { ControllerProps, Controller } from "@/controller";
+import { ControllerProps, Controller } from "@lib";
 
-export type ControllerContext = {
+export type ControllerContextType = {
   controller: Controller;
 };
-export const Context = createContext<ControllerContext | null>(null);
+export const ControllerContext = createContext<ControllerContextType | null>(
+  null,
+);
 
-export type ProviderProps = ControllerProps & {
+export type ControllerProviderProps = ControllerProps & {
   children: ReactNode;
 };
 
@@ -19,10 +21,17 @@ export type ProviderProps = ControllerProps & {
  * @param param0
  * @returns
  */
-export function ControllerProvider({ children, ...props }: ProviderProps) {
+export function ControllerProvider({
+  children,
+  ...props
+}: ControllerProviderProps) {
   const controller = useMemo(() => {
     return new Controller(props);
   }, [props]);
 
-  return <Context.Provider value={{ controller }}>{children}</Context.Provider>;
+  return (
+    <ControllerContext.Provider value={{ controller }}>
+      {children}
+    </ControllerContext.Provider>
+  );
 }

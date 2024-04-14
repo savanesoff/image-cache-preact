@@ -1,5 +1,5 @@
-import { Logger, LogLevel } from "@/logger";
-import { UNITS, UnitsType } from "@/utils";
+import { Logger, LogLevel } from "@lib";
+import { UNITS, UnitsType } from "@utils";
 
 /** Memory event types */
 export type MemoryEventTypes =

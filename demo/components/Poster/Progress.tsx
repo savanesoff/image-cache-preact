@@ -1,9 +1,8 @@
 import { HTMLAttributes, useCallback, useState } from "react";
-import { useImage } from "@/components/Image";
-import { UseImageEvent } from "@/components/Image/";
+import { useImage, UseImageEvent } from "@cache";
 
-export type LoadStatusProps = HTMLAttributes<HTMLDivElement>;
-export const Progress = ({ ...props }: LoadStatusProps) => {
+export type ProgressProps = HTMLAttributes<HTMLDivElement>;
+export const PosterProgress = ({ ...props }: ProgressProps) => {
   const [progress, setProgress] = useState(0);
   const onProgress = useCallback((event: UseImageEvent<"progress">) => {
     setProgress(event.progress);

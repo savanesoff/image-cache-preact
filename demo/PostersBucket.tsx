@@ -1,7 +1,7 @@
-import { BucketProvider, ProviderProps } from "@/components/Bucket";
+import { BucketProvider, BucketProviderProps } from "@cache";
 import { PosterPage, PosterPageProps } from "./components/PosterPage";
 
-export type PosterBucketProps = Exclude<ProviderProps, "children"> &
+export type PosterBucketProps = Exclude<BucketProviderProps, "children"> &
   PosterPageProps;
 export const PostersBucket = ({ name, lock, ...props }: PosterBucketProps) => {
   return (

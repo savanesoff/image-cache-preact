@@ -1,8 +1,8 @@
 import { HTMLAttributes } from "react";
-import { useImage } from "@/components/Image";
-import { cn } from "@/utils";
-import { LoadStatus } from "./Status";
-import { Progress } from "./Progress";
+import { useImage } from "@cache";
+import { cn } from "@utils";
+import { PosterLoadStatus } from "./Status";
+import { PosterProgress } from "./Progress";
 
 export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   show: boolean;
@@ -22,8 +22,8 @@ export const Poster = ({ show, className, ...props }: PosterProps) => {
       {...props}
     >
       <div className={cn("bg-slate-800 p-1 text-[8px]", className)}>
-        <LoadStatus />
-        <Progress />
+        <PosterLoadStatus />
+        <PosterProgress />
       </div>
       <div
         className="transition-opacity duration-1000 ease-in-out"

@@ -24,8 +24,8 @@ import {
   LoaderEventTypes,
   LoaderEvent,
   LoaderProps,
-} from "@/loader";
-import { RenderRequest, RenderRequestEvent } from "@/request";
+} from "@lib/loader";
+import { RenderRequest, RenderRequestEvent } from "@lib/request";
 
 /** Event types for the Img class */
 export type ImgEventTypes =

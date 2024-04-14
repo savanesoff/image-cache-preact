@@ -1,8 +1,7 @@
-import { BucketEvent } from "@/bucket";
+import { BucketEvent, useBucket } from "@cache";
 import { useCallback, useState } from "react";
-import { useBucket } from "@/components/Bucket";
 
-export const LoadStatus = () => {
+export const PageLoadStatus = () => {
   const [loadStatus, setLoadStatus] = useState<"loading" | "loaded">("loading");
   const [error, setError] = useState<string | null>(null);
   const [rendered, setRendered] = useState<"Yes" | "No">("No");

@@ -15,12 +15,19 @@
  * const image = new Img({ url: "http://example.com/image.jpg" });
  * controller.addImage(image); // Add an image to the cache and network queue
  */
-import { Img, ImgProps, ImgEvent } from "@/image";
-import { LogLevel, Logger } from "@/logger";
-import { Memory } from "@/memory";
-import { Network } from "@/network";
-import { UnitsType } from "@/utils";
-import { FrameQueue, FrameQueueProps } from "@/frame-queue";
+import {
+  Img,
+  ImgProps,
+  ImgEvent,
+  LogLevel,
+  Logger,
+  Memory,
+  Network,
+  FrameQueue,
+  FrameQueueProps,
+} from "@lib";
+import { UnitsType } from "@utils";
+// import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerEventTypes = "ram-overflow" | "video-overflow";
 

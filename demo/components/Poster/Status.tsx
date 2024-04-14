@@ -1,9 +1,9 @@
 import { HTMLAttributes, useCallback, useState } from "react";
-import { useImage, UseImageEvent } from "@/components/Image";
-import { cn } from "@/utils";
+import { useImage, UseImageEvent } from "@cache";
+import { cn } from "@utils";
 
 export type LoadStatusProps = HTMLAttributes<HTMLDivElement>;
-export const LoadStatus = ({ ...props }: LoadStatusProps) => {
+export const PosterLoadStatus = ({ ...props }: LoadStatusProps) => {
   const [loadStatus, setLoadStatus] = useState<"loading" | "loaded">("loading");
   const [error, setError] = useState<string | null>(null);
   const [rendered, setRendered] = useState<"Yes" | "No">("No");

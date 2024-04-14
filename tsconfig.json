@@ -21,9 +21,14 @@
     "types": ["vite/client", "vitest/globals", "vitest/jsdom"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@components/*": ["src/components/*"],
+      "@components": ["src/components"],
+      "@lib/*": ["src/lib/*"],
+      "@lib": ["src/lib"],
+      "@utils/*": ["src/utils/*"],
+      "@utils": ["src/utils"]
     }
   },
-  "include": ["src", "demo"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

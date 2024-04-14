@@ -9,9 +9,9 @@
  * The "progress", "loadend", and "error" events are emitted by the `Bucket` instance,
  * while the "rendered" event is emitted when an image has been rendered.
  */
-import { Context } from "./Bucket";
+import { BucketContext, BucketContextType } from "./Bucket";
 import { useContext, useEffect } from "react";
-import { BucketEvent } from "@/bucket";
+import { BucketEvent } from "@lib";
 
 export type UseBucketProps = {
   /** The progress event handler. */
@@ -32,8 +32,8 @@ export const useBucket = ({
   onError,
   onLoadend,
   onRendered,
-}: UseBucketProps = {}) => {
-  const context = useContext(Context);
+}: UseBucketProps = {}): BucketContextType => {
+  const context = useContext(BucketContext);
   if (!context) {
     throw new Error("useBucket must be used within a BucketProvider");
   }

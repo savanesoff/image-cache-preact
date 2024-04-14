@@ -11,9 +11,8 @@
  *
  */
 import { useContext, useEffect } from "react";
-import { Context } from "./Image";
-import { ImgEvent } from "@/image";
-import { RenderRequestEvent } from "@/request";
+import { ImageContext, ImageContextType } from "@components";
+import { ImgEvent, RenderRequestEvent } from "@lib";
 
 export type UseImageEventTypes = "progress" | "loadend" | "error" | "rendered";
 /**
@@ -44,8 +43,8 @@ export const useImage = ({
   onError,
   onLoadend,
   onRendered,
-}: useImageProps = {}) => {
-  const context = useContext(Context);
+}: useImageProps = {}): ImageContextType => {
+  const context = useContext(ImageContext);
   if (!context) {
     throw new Error("useImage must be used within a ImageProvider");
   }
