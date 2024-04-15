@@ -155,7 +155,10 @@ export class FrameQueue extends Logger {
         Math.round(Math.random() * (window.innerWidth - request.size.width)) +
         "px",
       backgroundImage: `url(${request.image.url})`,
-      backgroundSize: "cover",
+      // backgroundSize: "cover",
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "top left",
+      backgroundSize: `${request.size.width}px ${request.size.height}px`,
     };
     Object.assign(div.style, style);
     document.body.appendChild(div);
