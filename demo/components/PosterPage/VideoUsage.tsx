@@ -13,5 +13,5 @@ export const VideoUsage = () => {
     setUsed(data.usedUnits);
   }, [bucket]);
   useBucket({ onRequestRendered });
-  return <StatusBadge text={`Video r:${requested} u:${used}`} />;
+  return <StatusBadge status="warn" text={`Video r:${requested} u:${used}`} />;
 };
