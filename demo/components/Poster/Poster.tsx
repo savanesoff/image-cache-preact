@@ -1,6 +1,6 @@
 import { HTMLAttributes } from "react";
 import { useImage } from "@cache";
-import { cn } from "@utils";
+import { cn } from "@demo/utils";
 import { PosterLoadStatus } from "./Status";
 import { PosterProgress } from "./Progress";
 

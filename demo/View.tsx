@@ -1,5 +1,5 @@
-import { cn } from "@utils";
-import { PostersRail } from "./components/PostersRail/PostersRail";
+import { cn } from "@demo/utils";
+import { PostersRail } from "@demo/components";
 
 /**
  * Example of an app view that uses the PostersRail component.

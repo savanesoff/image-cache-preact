@@ -19,22 +19,31 @@ export type BucketContextType = {
 };
 export const BucketContext = createContext<BucketContextType | null>(null);
 
-export type BucketProviderProps = Pick<BucketProps, "name" | "lock"> & {
+export type BucketProviderProps = Partial<
+  Pick<BucketProps, "name" | "lock">
+> & {
   children?: ReactNode;
 };
 
 /**
  * Provides a bucket to its children.
  */
-export function BucketProvider({ children, ...props }: BucketProviderProps) {
+export function BucketProvider({
+  children,
+  lock = false,
+  name = "Unknown",
+  ...props
+}: BucketProviderProps) {
   const { controller } = useController();
   const bucket = useMemo(
     () =>
       new Bucket({
         controller,
+        lock,
+        name,
         ...props,
       }),
-    [props, controller],
+    [controller, lock, name, props],
   );
 
   useEffect(() => {

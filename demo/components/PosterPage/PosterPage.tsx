@@ -2,7 +2,7 @@ import { HTMLAttributes } from "react";
 import { PageLoadStatus } from "./Status";
 import { PageProgress } from "./Progress";
 import { Posters } from "./Posters";
-import { cn } from "@utils";
+import { cn } from "@demo/utils";
 import { BucketProvider, BucketProviderProps } from "@cache";
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
@@ -16,7 +16,7 @@ export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
  */
 export const PosterPage = ({
   urls,
-  lock,
+  lock = false,
   name,
   className,
   ...props

@@ -26,9 +26,14 @@
       "@lib/*": ["src/lib/*"],
       "@lib": ["src/lib"],
       "@utils/*": ["src/utils/*"],
-      "@utils": ["src/utils"]
+      "@utils": ["src/utils"],
+      "@cache": ["src"],
+      "@demo/components": ["demo/components"],
+      "@demo/components/*": ["demo/components/*"],
+      "@demo/utils": ["demo/utils"],
+      "@demo": ["demo"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "demo"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

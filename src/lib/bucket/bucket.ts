@@ -232,7 +232,7 @@ export class Bucket extends Logger {
    * Calculate the ram used by the bucket
    * @returns
    */
-  getBytesRam() {
+  getBytesRam(): number {
     let bytes = 0;
     for (const image of this.images) {
       bytes += image.getBytesRam();

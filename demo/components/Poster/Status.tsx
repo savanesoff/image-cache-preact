@@ -1,6 +1,6 @@
 import { HTMLAttributes, useCallback, useState } from "react";
 import { useImage, UseImageEvent } from "@cache";
-import { cn } from "@utils";
+import { cn } from "@demo/utils";
 
 export type LoadStatusProps = HTMLAttributes<HTMLDivElement>;
 /**

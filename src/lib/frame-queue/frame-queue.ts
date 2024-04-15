@@ -148,7 +148,7 @@ export class FrameQueue extends Logger {
     const style = {
       width: `${request.size.width}px`,
       height: `${request.size.height}px`,
-      opacity: "0.01",
+      opacity: "0.001",
       position: "absolute",
       top: "0",
       left:
