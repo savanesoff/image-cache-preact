@@ -3,6 +3,10 @@ import { useImage, UseImageEvent } from "@cache";
 import { cn } from "@utils";
 
 export type LoadStatusProps = HTMLAttributes<HTMLDivElement>;
+/**
+ * Uses the useImage hook to listen to the image loader events.
+ * Renders the load status and error message.
+ */
 export const PosterLoadStatus = ({ ...props }: LoadStatusProps) => {
   const [loadStatus, setLoadStatus] = useState<"loading" | "loaded">("loading");
   const [error, setError] = useState<string | null>(null);

@@ -8,6 +8,10 @@ export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   show: boolean;
 };
 
+/**
+ * Poster component to display the image.
+ * Uses the useImage hook to load the image.
+ */
 export const Poster = ({ show, className, ...props }: PosterProps) => {
   const { image, request } = useImage();
 
