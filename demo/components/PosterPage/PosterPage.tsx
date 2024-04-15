@@ -6,6 +6,7 @@ import { BucketProvider, BucketProviderProps } from "@cache";
 import { PageRenderStatus } from "./RenderStatus";
 import { RamUsage } from "./RamUsage";
 import { VideoUsage } from "./VideoUsage";
+import { StatusBadge } from "../StatusBadge";
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
   Exclude<BucketProviderProps, "children"> & {
@@ -28,6 +29,7 @@ export const PosterPage = ({
       <div className={cn("flex flex-col gap-2", className)} {...props}>
         <div className="flex flex-row gap-2 bg-slate-800 p-2 text-sm text-slate-400">
           <div>Page</div>
+          <StatusBadge text={`count: ${urls.length}`} />
           <PageLoadStatus />
           <PageRenderStatus />
           <RamUsage />

@@ -19,7 +19,7 @@ export const PageRenderStatus = () => {
   return (
     <StatusBadge
       status={rendered ? "on" : "off"}
-      text={rendered ? "rendered" : `${progress}%`}
+      text={rendered ? "rendered" : `rendering: ${progress}%`}
     />
   );
 };
