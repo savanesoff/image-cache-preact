@@ -5,7 +5,7 @@ export type RenderRequestProps = ImgProps & {
   bucket: Bucket;
 };
 
-export type RenderRequestEventTypes = "rendered" | "clear";
+export type RenderRequestEventTypes = "rendered" | "clear" | "loadend";
 
 export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   type: T;
@@ -55,6 +55,7 @@ export class RenderRequest extends Logger {
    */
   request = () => {
     // request render
+    this.emit("loadend");
     this.controller.frameQueue.add(this);
   };
 

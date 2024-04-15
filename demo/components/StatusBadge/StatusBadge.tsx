@@ -2,11 +2,11 @@ import { cn } from "@demo/utils";
 import { HTMLAttributes } from "react";
 
 export type StatusBadgeProps = HTMLAttributes<HTMLDivElement> & {
-  status: "on" | "error" | "warn" | "off";
+  status?: "on" | "error" | "warn" | "off";
   text?: string;
 };
 export const StatusBadge = ({
-  status,
+  status = "off",
   text,
   className,
   ...props

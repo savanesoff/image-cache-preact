@@ -71,6 +71,7 @@ export class Controller extends Logger {
   readonly cache = new Map<string, Img>();
   readonly frameQueue: FrameQueue;
   readonly network: Network;
+  readonly units: UnitsType;
 
   constructor({
     ram = 2,
@@ -86,6 +87,7 @@ export class Controller extends Logger {
       logLevel,
       styles,
     });
+    this.units = units;
     this.frameQueue = new FrameQueue({
       logLevel,
       hwRank,

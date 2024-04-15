@@ -1,9 +1,11 @@
 import { HTMLAttributes } from "react";
-import { PageLoadStatus } from "./Status";
-import { PageProgress } from "./Progress";
+import { PageLoadStatus } from "./LoadStatus";
 import { Posters } from "./Posters";
 import { cn } from "@demo/utils";
 import { BucketProvider, BucketProviderProps } from "@cache";
+import { PageRenderStatus } from "./RenderStatus";
+import { RamUsage } from "./RamUsage";
+import { VideoUsage } from "./VideoUsage";
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
   Exclude<BucketProviderProps, "children"> & {
@@ -24,10 +26,12 @@ export const PosterPage = ({
   return (
     <BucketProvider name={name} lock={lock}>
       <div className={cn("flex flex-col gap-2", className)} {...props}>
-        <div className="flex flex-row gap-6 bg-slate-800 p-2 text-sm text-slate-400">
-          <div>Posters Page</div>
+        <div className="flex flex-row gap-2 bg-slate-800 p-2 text-sm text-slate-400">
+          <div>Page</div>
           <PageLoadStatus />
-          <PageProgress />
+          <PageRenderStatus />
+          <RamUsage />
+          <VideoUsage />
         </div>
         <Posters urls={urls} width={100} height={160} />
       </div>

@@ -1,7 +1,7 @@
 import { BucketEvent, useBucket } from "@cache";
 import { useCallback, useState } from "react";
 
-export const PageLoadStatus = () => {
+export const PageStatus = () => {
   const [loadStatus, setLoadStatus] = useState<"loading" | "loaded">("loading");
   const [error, setError] = useState<string | null>(null);
   const [rendered, setRendered] = useState<"Yes" | "No">("No");
