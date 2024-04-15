@@ -27,23 +27,31 @@ export type BucketEventTypes =
   | "error"
   | "rendered"
   | "clear"
-  | "loading";
+  | "loading"
+  | "request-rendered";
 
-export type ProgressEvent = {
+type ProgressEvent = {
   /** The progress of the loading operation */
   progress: number;
 };
-export type ErrorEvent = {
+type ErrorEvent = {
   /** The error message */
   error: string;
 };
-export type LoadEvent = {
+type LoadEvent = {
   /** The loading state */
   loaded: boolean;
 };
-export type RenderEvent = {
+type RenderEvent = {
   /** The rendered state */
   rendered: boolean;
+};
+
+type RequestRenderedEvent = {
+  /** The request that was rendered */
+  request: RenderRequest;
+  /** The progress of the rendering operation */
+  progress: number;
 };
 
 export type BucketEvent<T extends BucketEventTypes> = {
@@ -54,7 +62,8 @@ export type BucketEvent<T extends BucketEventTypes> = {
 } & (T extends "progress" ? ProgressEvent : unknown) &
   (T extends "error" ? ErrorEvent : unknown) &
   (T extends "loadend" ? LoadEvent : unknown) &
-  (T extends "rendered" ? RenderEvent : unknown);
+  (T extends "rendered" ? RenderEvent : unknown) &
+  (T extends "request-rendered" ? RequestRenderedEvent : unknown);
 
 export type BucketEventHandler<T extends BucketEventTypes> = (
   event: BucketEvent<T>,
@@ -141,10 +150,18 @@ export class Bucket extends Logger {
    */
   #onRequestRendered = (event: RenderRequestEvent<"rendered">) => {
     this.rendered = true;
+    let renderedRequests = 0;
     // emit the render event only if all requests are rendered
     for (const request of this.requests) {
       this.rendered = !request.rendered ? false : this.rendered;
+      renderedRequests += request.rendered ? 1 : 0;
     }
+
+    const progress = parseFloat(
+      (renderedRequests / this.requests.size).toFixed(2),
+    );
+
+    this.emit("request-rendered", { request: event.target, progress });
 
     this.log.verbose([`Request Rendered ${this.name}`, now(), event.target]);
 
