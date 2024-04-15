@@ -18,19 +18,14 @@ export const Poster = ({ show, className, ...props }: PosterProps) => {
   return (
     <div
       className={cn(
-        "bg-orange-800",
+        "bg-slate-800",
         `max-w-[${request?.size.width}px]`,
         `w-[${request?.size.width}px]`,
         className,
       )}
       {...props}
     >
-      <div
-        className={cn(
-          "flex flex-col gap-1 bg-slate-800 p-1 text-xs",
-          className,
-        )}
-      >
+      <div className={cn("flex flex-col gap-1 p-1 text-[10px]", className)}>
         <PosterLoadStatus />
         <PosterRenderStatus />
       </div>
@@ -39,6 +34,10 @@ export const Poster = ({ show, className, ...props }: PosterProps) => {
         style={{
           width: request?.size.width,
           height: request?.size.height,
+          minWidth: request?.size.width,
+          minHeight: request?.size.height,
+          maxWidth: request?.size.width,
+          maxHeight: request?.size.height,
           position: "relative",
           backgroundImage: `url(${image?.url})`,
           backgroundSize: "cover",
