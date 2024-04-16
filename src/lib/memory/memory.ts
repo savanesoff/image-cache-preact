@@ -10,7 +10,7 @@ export type MemoryEventTypes =
   | "cleared";
 
 /** Event data for memory events */
-export type MemoryEvent<T> = {
+export type MemoryEvent<T extends MemoryEventTypes> = {
   /** The type of the event */
   type: T;
   /** The memory object that emitted the event */
