@@ -40,7 +40,7 @@ export const Poster = ({ show, className, ...props }: PosterProps) => {
           maxHeight: request?.size.height,
           position: "relative",
           backgroundImage: `url(${image?.url})`,
-          backgroundSize: "cover",
+          backgroundSize: `${request?.size.width}px ${request?.size.height}px`,
           opacity: show ? 1 : 0,
         }}
       />
