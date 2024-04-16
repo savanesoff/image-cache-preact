@@ -2,7 +2,7 @@ import devtoolsFPS from "devtools-fps";
 import { cn } from "./utils";
 import { ControllerProvider } from "@cache";
 
-import { View } from "./View";
+import { View } from "@demo/components";
 
 devtoolsFPS.config({
   bufferSize: window.innerWidth,
@@ -27,7 +27,7 @@ function App() {
       <ControllerProvider
         loaders={6}
         ram={5} // 100GB 50GB (system) -> 50GB
-        video={5} // Defragmentation -> 1GB
+        video={0.5} // Defragmentation -> 1GB
         units="GB"
         hwRank={0.96} // 0-1
       >

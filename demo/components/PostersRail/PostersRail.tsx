@@ -13,7 +13,7 @@ export const PostersRail = () => {
   );
   return (
     <div>
-      <div>Scroll poster rail</div>
+      <div className="text-slate-400">Poster rail</div>
       <Rail>
         {/* Lock the first page */}
         <PosterPage name="Poser page main" lock urls={urlsMain} />

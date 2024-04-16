@@ -169,13 +169,15 @@ export class Controller extends Logger {
 
   /**
    * Adds bytes to the video memory
-   * If video memory is overflown, it will emit a "video-overflow" event
+   * If video memory is overflown, it will emit a "video-overfloaw" event
    * @param bytes
    */
   #addVideoBytes(bytes: number) {
     const remainingBytes = this.video.addBytes(bytes);
     const overflow = remainingBytes < 0;
     const overflowBytes = Math.abs(remainingBytes);
+
+    console.log("video bytes", this.video.getStats());
     if (overflow && this.#requestVideo(overflowBytes) === false) {
       this.emit("video-overflow", { bytes: overflowBytes });
     }

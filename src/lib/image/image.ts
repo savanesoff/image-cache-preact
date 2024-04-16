@@ -215,7 +215,10 @@ export class Img extends Loader {
     this.gotSize = true;
     this.bytesUncompressed = this.getBytesVideo(this.element);
     this.emit("size", {
-      size: { with: this.element.width, height: this.element.height },
+      size: {
+        width: this.element.width,
+        height: this.element.height,
+      },
     });
   };
 

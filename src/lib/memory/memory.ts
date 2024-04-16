@@ -38,6 +38,24 @@ export type MemoryProps = {
   name?: string;
 };
 
+export type MemoryStatus = {
+  bytes: number;
+  units: string;
+  prs: number;
+};
+
+export type MemoryState = {
+  count: number;
+  size: number;
+  units: UnitsType;
+  sizeBytes: number;
+};
+export type MemoryStats = {
+  state: MemoryState;
+  free: MemoryStatus;
+  used: MemoryStatus;
+};
+
 /**
  * Represents a memory/size object in bytes.
  * Its and abstraction that represents memory usage.
@@ -81,28 +99,24 @@ export class Memory extends Logger {
    * Compiles a string with the status of the memory object that can be logged.
    * @returns A string with the status of the memory object.
    */
-  getStatus(): string {
-    return JSON.stringify(
-      {
-        state: this.getState(),
-        free: this.getFreeSpace(),
-        used: this.getUsedSpace(),
-      },
-      null,
-      2,
-    );
+  getStats(): MemoryStats {
+    return {
+      state: this.getState(),
+      free: this.getFreeSpace(),
+      used: this.getUsedSpace(),
+    };
   }
 
   /**
    * Gets the free space in the memory object.
    * @returns An object with the free space in bytes, units, and percentage.
    */
-  getFreeSpace() {
+  getFreeSpace(): MemoryStatus {
     const unitUsed = this.#toUnits(this.bytes);
     const prsUsed = (unitUsed / this.size) * 100;
     return {
       bytes: this.getBytesSpace(),
-      units: this.size - unitUsed,
+      units: `${(this.size - unitUsed).toFixed(3)}${this.units}`,
       prs: 100 - prsUsed,
     };
   }
@@ -111,12 +125,12 @@ export class Memory extends Logger {
    * Gets the used space in the memory object.
    * @returns An object with the used space in bytes, units, and percentage.
    */
-  getUsedSpace() {
+  getUsedSpace(): MemoryStatus {
     const unitUsed = this.#toUnits(this.bytes);
     const prsUsed = (unitUsed / this.size) * 100;
     return {
       bytes: this.bytes,
-      units: unitUsed,
+      units: `${unitUsed.toFixed(3)}${this.units}`,
       prs: prsUsed,
     };
   }
@@ -125,13 +139,13 @@ export class Memory extends Logger {
    * Gets the average space in the memory object.
    * @returns An object with the average space in bytes, units, and percentage.
    */
-  getAverage() {
+  getAverage(): MemoryStatus {
     const unitUsed = this.#toUnits(this.bytes);
     const prsUsed = (unitUsed / this.size) * 100;
     const isZero = unitUsed === 0 || this.count === 0;
     return {
       bytes: !isZero ? this.bytes / this.count : 0,
-      units: !isZero ? unitUsed / this.count : 0,
+      units: `${!isZero ? unitUsed / this.count : 0}${this.units}`,
       prs: !isZero ? prsUsed / this.count : 0,
     };
   }
@@ -140,7 +154,7 @@ export class Memory extends Logger {
    * Gets the state of the memory object.
    * @returns An object with the count, size, units, and size in bytes of the memory object.
    */
-  getState() {
+  getState(): MemoryState {
     return {
       count: this.count,
       size: this.size,
@@ -155,10 +169,10 @@ export class Memory extends Logger {
    * @param bytes - The number of bytes to add to the memory object.
    * @returns The remaining bytes. If negative, the memory object is overflowed.
    */
-  addBytes(bytes: number): number {
+  addBytes(bytes = 0): number {
     const remainingBytes = this.getBytesSpace(bytes);
     if (remainingBytes < 0) {
-      this.log.warn([`Overflow!`, this.getStatus()], this.styles.error);
+      this.log.warn([`Overflow!`, this.getStats()], this.styles.error);
       this.emit("overflow", { bytes: remainingBytes });
     }
 
@@ -168,7 +182,7 @@ export class Memory extends Logger {
     this.log.info(
       [
         `Added: ${this.#toUnits(bytes).toFixed(3)} ${this.units}`,
-        this.getStatus(),
+        this.getStats(),
       ],
       this.styles.info,
     );
@@ -208,7 +222,7 @@ export class Memory extends Logger {
     this.log.info(
       [
         `Removed: ${this.#toUnits(bytes).toFixed(3)} ${this.units}`,
-        this.getStatus(),
+        this.getStats(),
       ],
       this.styles.info,
     );
@@ -232,7 +246,7 @@ export class Memory extends Logger {
    * Logs the status of the memory object.
    */
   print() {
-    this.log.info([this.getStatus()], this.styles.info);
+    this.log.info([this.getStats()], this.styles.info);
   }
 
   //--------------------------------  PRIVATE   --------------------------------
