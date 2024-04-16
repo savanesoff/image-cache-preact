@@ -29,7 +29,12 @@ import {
 import { UnitsType } from "@utils";
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
-export type ControllerEventTypes = "ram-overflow" | "video-overflow";
+export type ControllerEventTypes =
+  | "ram-overflow"
+  | "video-overflow"
+  | "cache-updated"
+  | "image-added"
+  | "image-deleted";
 
 /** Controller event */
 export type ControllerEvent<T extends ControllerEventTypes> = {
@@ -129,6 +134,8 @@ export class Controller extends Logger {
   #deleteImage(image: Img) {
     this.cache.delete(image.url);
     image.clear();
+    this.emit("image-deleted", { image });
+    this.emit("ccache-updated", { cache: this.cache });
   }
 
   /**
@@ -146,6 +153,8 @@ export class Controller extends Logger {
     image.on("render-request-added", this.#onRenderRequestAdded);
     image.on("render-request-removed", this.#onRenderRequestRemoved);
     this.network.add(image); // request load immediately
+    this.emit("image-added", { image });
+    this.emit("ccache-updated", { cache: this.cache });
     return image;
   }
 

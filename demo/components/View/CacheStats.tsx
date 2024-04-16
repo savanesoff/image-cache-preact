@@ -1,3 +1,4 @@
+import { ImageStats } from "./ImageStats";
 import { RamUsage } from "./RamUsage";
 import { VideoUsage } from "./VideoUsage";
 
@@ -7,6 +8,7 @@ export const CacheStats = () => {
       <div>Cache Stats</div>
       <RamUsage />
       <VideoUsage />
+      <ImageStats />
     </div>
   );
 };
