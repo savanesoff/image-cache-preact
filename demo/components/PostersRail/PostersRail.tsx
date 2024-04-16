@@ -8,7 +8,7 @@ import { PosterPage } from "@demo/components";
 export const PostersRail = () => {
   const urlsMain = useMemo(
     () =>
-      new Array(13).fill(0).map(() => `${config.image}?hash=${Math.random()}`),
+      new Array(20).fill(0).map(() => `${config.image}?hash=${Math.random()}`),
     [],
   );
   return (
