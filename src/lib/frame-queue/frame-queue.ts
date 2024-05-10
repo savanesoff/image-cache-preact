@@ -23,7 +23,8 @@
  * const renderRequest = new RenderRequest({ id: "request1", priority: 1 });
  * frameQueue.add(renderRequest); // Add a render request to the queue
  */
-import { RenderRequest, Logger, LoggerProps } from "@lib";
+import { Logger, LoggerProps } from "@lib/logger";
+import { RenderRequest } from "@lib/request";
 
 export type FrameQueueEventTypes = "rendered";
 /** FrameQueue event */
@@ -60,11 +61,22 @@ export type FrameQueueProps = LoggerProps & {
  * FrameQueue is a queue that processes callbacks in the next animation frame.
  */
 export class FrameQueue extends Logger {
+  /** Flag to indicate if the queue is scheduled */
   private scheduled = false;
-  readonly hwRank: number; // hardware rank number between 0 and 1, where 1 is the fastest
+  /** Hardware rank number between 0 and 1, where 1 is the fastest */
+  readonly hwRank: number;
+  /** Set of render requests */
   readonly queue = new Set<RenderRequest>();
-  /** The number of bytes per frame ratio estimate */
+  /**
+   * The number of bytes per frame ratio estimate. This value determines how fast a platform
+   * can render a frame based on the number of bytes in the image.
+   * Where bytes refers to the uncompressed image size.
+   * The value is set to 50000 bytes per frame, which is an estimate for a typical platform,
+   * and can be adjusted based on the platform's performance.
+   * Typical platforms can render 50000 bytes per frame at 60fps.
+   */
   static readonly bytesPerFrameRatio = 50000;
+  /** The renderer function to process the render request */
   readonly renderer: RenderFunction;
 
   constructor({
