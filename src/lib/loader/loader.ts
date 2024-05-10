@@ -83,10 +83,28 @@ export type LoaderProps = {
 };
 
 /**
- * Represents a loader for loading resources via XMLHttpRequest.
- */
-/**
- * Represents a Loader class for loading resources.
+ * The `Loader` class provides a way to load resources over the network.
+ * It supports various event types such as "loadstart", "progress", "loadend", "abort", "timeout", "error", and "retry".
+ * Each event type corresponds to a specific phase in the loading process,
+ * and the `Loader` class emits these events at the appropriate times.
+ * The `Loader` class also defines several types related to these events,
+ * such as `ProgressEventLoader`, `ErrorEventLoader`, and `RetryEventLoader`.
+ * These types define the shape of the event object that is emitted for each event type.
+ * @example
+ * ```ts
+ *  const loader = new Loader();
+ * loader.on("loadstart", (event) => {
+ *  console.log("Loading started");
+ * });
+ * loader.on("progress", (event) => {
+ * console.log(`Loading progress: ${event.progress}`);
+ * });
+ * loader.on("error", (event) => {
+ * console.error(`Loading error: ${event.statusText}`);
+ * });
+ * loader.load("http://example.com/resource");
+ * ```
+ * @extends Logger
  */
 export class Loader extends Logger {
   static loaded = 0;
@@ -212,7 +230,7 @@ export class Loader extends Logger {
   }
 
   /**
-   * Checks if the resource is currently being loaded.
+   * Checks if the resource is currently being loaded or was scheduled to be loaded.
    * @returns True if the resource is loading, false otherwise.
    */
   isLoading() {
