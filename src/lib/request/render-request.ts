@@ -4,9 +4,9 @@
  * have multiple requests associated with it, a bucket can have multiple images
  */
 import { Bucket } from "@lib/bucket";
-import { Controller } from "@lib/controller";
 import { Img, ImgProps, Size } from "@lib/image";
 import { Logger } from "@lib/logger";
+import { FrameQueue } from "@lib/frame-queue";
 
 export type RenderRequestProps = ImgProps & {
   size: Size;
@@ -33,7 +33,7 @@ export class RenderRequest extends Logger {
   image: Img;
   bucket: Bucket;
   bytesVideo: number;
-  readonly controller: Controller;
+  readonly frameQueue: FrameQueue;
 
   /**
    * Constructs a new RenderRequest instance.
@@ -46,7 +46,7 @@ export class RenderRequest extends Logger {
     this.size = size;
     this.rendered = false;
     this.bucket = bucket;
-    this.controller = this.bucket.controller;
+    this.frameQueue = this.bucket.controller.frameQueue;
     this.image = this.bucket.controller.getImage(props);
     this.bytesVideo = this.image.getBytesVideo(size);
     this.image.registerRequest(this);
@@ -64,7 +64,7 @@ export class RenderRequest extends Logger {
   request = () => {
     // request render
     this.emit("loadend");
-    this.controller.frameQueue.add(this);
+    this.frameQueue.add(this);
   };
 
   /**
