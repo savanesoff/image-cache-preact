@@ -1,4 +1,12 @@
-import { ImgProps, Size, Bucket, Img, Controller, Logger } from "@lib";
+/**
+ * Module for rendering requests.
+ * Each request is associated with an image and a bucket. Where an image can
+ * have multiple requests associated with it, a bucket can have multiple images
+ */
+import { Bucket } from "@lib/bucket";
+import { Controller } from "@lib/controller";
+import { Img, ImgProps, Size } from "@lib/image";
+import { Logger } from "@lib/logger";
 
 export type RenderRequestProps = ImgProps & {
   size: Size;
