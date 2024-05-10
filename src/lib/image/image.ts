@@ -233,6 +233,7 @@ export class Img extends Loader {
     this.element.onerror = null;
     // not really needed to have size separate from image props, but image can be cleared to free memory
     this.gotSize = true;
+    // element satisfies the Size interface
     this.bytesUncompressed = this.getBytesVideo(this.element);
     this.emit("size", {
       size: {
