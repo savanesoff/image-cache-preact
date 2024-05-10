@@ -1,5 +1,5 @@
 import { Memory } from "./memory";
-import { UNITS } from "@/units";
+import { UNITS } from "@/utils";
 
 describe("Memory", () => {
   describe("initial state", () => {
@@ -134,7 +134,7 @@ describe("Memory", () => {
       expect(freeSpace.bytes).toBe(size * UNITS[units] - addBytes);
       expect(freeSpace.units).toBe(freeSpace.bytes / UNITS[units]);
       expect(freeSpace.prs).toBe(
-        100 - (addBytes / (size * UNITS[units])) * 100
+        100 - (addBytes / (size * UNITS[units])) * 100,
       );
     });
 
@@ -154,27 +154,23 @@ describe("Memory", () => {
       expect(average.prs).toBe((addBytes / (size * UNITS[units])) * 100);
     });
 
-    it("should not overflow", () => {
-      const remainingBytes = memory.addBytes(size * UNITS[units]);
-      expect(remainingBytes).toBe(0);
-    });
-
-    it("should not add if overflow", () => {
-      const max = size * UNITS[units];
-      memory.addBytes(max);
-      const overflowBytes = memory.addBytes(addBytes);
-      expect(memory.getUsedSpace().bytes).toBe(max);
-      expect(memory.getFreeSpace().bytes).toBe(0);
-      expect(memory.getState().count).toBe(1);
-      expect(overflowBytes).toBe(-addBytes);
-    });
-
-    it("should emit overflow event", () => {
+    it("should not emit overflow", () => {
       const spy = vi.fn();
       memory.on("overflow", spy);
       memory.addBytes(size * UNITS[units]);
-      const overflowBytes = memory.addBytes(123 * UNITS[units]);
-      expect(spy).toHaveBeenCalledWith(memory, -overflowBytes);
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should emit overflow event", () => {
+      const max = size * UNITS[units];
+      const spy = vi.fn();
+      memory.on("overflow", spy);
+      memory.addBytes(max + addBytes);
+      expect(spy).toHaveBeenCalledWith({
+        type: "overflow",
+        target: memory,
+        bytes: -addBytes,
+      });
     });
 
     it("should not call overflow event if not overflow", () => {
@@ -206,7 +202,10 @@ describe("Memory", () => {
       const spy = vi.fn();
       memory.on("clear", spy);
       memory.clear();
-      expect(spy).toHaveBeenCalledWith(memory, undefined);
+      expect(spy).toHaveBeenCalledWith({
+        type: "clear",
+        target: memory,
+      });
     });
   });
 
