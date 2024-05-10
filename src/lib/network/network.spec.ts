@@ -1,6 +1,7 @@
-import { Loader } from "@/loader";
+import { Loader } from "@lib/loader";
 import { Network } from "./network";
 import "@/__mocks__/xhr";
+
 const createResource = (): Loader => {
   return new Loader({
     url: Math.random().toString(36).substring(7),
@@ -124,7 +125,7 @@ describe("Network", () => {
     network.on("pause", spy);
     network.pause();
     expect(spy).toHaveBeenCalledWith({
-      event: "pause",
+      type: "pause",
       target: network,
       loader: undefined,
     });
@@ -135,7 +136,7 @@ describe("Network", () => {
     network.on("resume", spy);
     network.resume();
     expect(spy).toHaveBeenCalledWith({
-      event: "resume",
+      type: "resume",
       target: network,
       loader: undefined,
     });
@@ -149,7 +150,7 @@ describe("Network", () => {
     const loader = network.inFlight.get(resource.url);
     loader?.emit("error");
     expect(spy).toHaveBeenCalledWith({
-      event: "error",
+      type: "error",
       target: network,
       loader,
     });
@@ -163,7 +164,7 @@ describe("Network", () => {
     const loader = network.inFlight.get(resource.url);
     loader?.emit("abort");
     expect(spy).toHaveBeenCalledWith({
-      event: "abort",
+      type: "abort",
       target: network,
       loader,
     });
@@ -177,7 +178,7 @@ describe("Network", () => {
     const loader = network.inFlight.get(resource.url);
     loader?.emit("timeout");
     expect(spy).toHaveBeenCalledWith({
-      event: "timeout",
+      type: "timeout",
       target: network,
       loader,
     });
