@@ -287,4 +287,43 @@ describe("Img", () => {
       expect(revokeSpy).toHaveBeenCalledWith(image.element.src);
     });
   });
+
+  describe("getBytesVideo", () => {
+    describe("gpuDataFull: false default", () => {
+      const size = {
+        width: Math.round(Math.random() * 100),
+        height: Math.round(Math.random() * 100),
+      };
+      it("should return byte for size", () => {
+        const expected =
+          size.width * size.height * IMAGE_TYPE_BYTES[image.type];
+        expect(image.getBytesVideo(size)).toEqual(expected);
+      });
+    });
+
+    describe("gpuDataFull: true", () => {
+      const size = {
+        width: Math.round(Math.random() * 100),
+        height: Math.round(Math.random() * 100),
+      };
+      beforeEach(() => {
+        image = new Img({
+          url: "test",
+          gpuDataFull: true,
+        });
+        // @ts-expect-error - readonly
+        image.element = size as unknown as HTMLImageElement;
+      });
+      it("should return byte for element size", () => {
+        const expected =
+          size.width * size.height * IMAGE_TYPE_BYTES[image.type];
+        expect(
+          image.getBytesVideo({
+            width: 0,
+            height: 0,
+          }),
+        ).toEqual(expected);
+      });
+    });
+  });
 });

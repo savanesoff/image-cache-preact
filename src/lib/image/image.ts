@@ -82,6 +82,7 @@ type ImageType = keyof typeof IMAGE_TYPE_BYTES;
 
 export type ImgProps = LoaderProps & {
   type?: ImageType;
+  gpuDataFull?: boolean;
 };
 
 /**
@@ -102,19 +103,29 @@ export class Img extends Loader {
   decoded = false;
   /** Size of the image in bytes, uncompressed */
   bytesUncompressed = 0;
-
-  type: ImageType = "RGB";
+  /** Image memory compression type */
+  readonly type: ImageType;
+  /**
+   * GPU memory allocation type.
+   * True - full image size pixel data moves to GPU.
+   * False - only the requested image size data moves to GPU.
+   */
+  readonly gpuDataFull: boolean;
 
   constructor({
     headers = {
       "Content-Type": "image/jpeg",
     },
+    type = "RGB",
+    gpuDataFull = false,
     ...props
   }: ImgProps) {
     super({
       headers,
       ...props,
     });
+    this.gpuDataFull = gpuDataFull;
+    this.type = type;
     this.element = new Image(); // need to get actual size of image
     this.on("loadend", this.#onLoadEnd); // called by a loader process
   }
@@ -206,7 +217,8 @@ export class Img extends Loader {
    */
   getBytesVideo(size: Size) {
     const bytesPerPixel = IMAGE_TYPE_BYTES[this.type]; // default to 4 if the image type is not in the map
-    return size.width * size.height * bytesPerPixel;
+    const gpuSize = this.gpuDataFull && this.element ? this.element : size;
+    return gpuSize.width * gpuSize.height * bytesPerPixel;
   }
 
   //--------------------------   PRIVATE METHODS   -----------------------------
