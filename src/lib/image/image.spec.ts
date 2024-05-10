@@ -1,7 +1,8 @@
-import { IMAGE_TYPE_BYTES, Img, Size } from "./image";
-import { RenderRequest } from "@lib/request";
+import { IMAGE_TYPE_BYTES, Img } from "./image";
+import { RenderRequest, RenderRequestEvent } from "@lib/request";
 import { Bucket } from "@lib/bucket";
 import { Controller } from "@lib/controller";
+import { MockInstance } from "vitest";
 
 vi.useFakeTimers();
 const createBucket = (): Bucket => {
@@ -13,11 +14,15 @@ const createBucket = (): Bucket => {
 const blobData = "blob:test";
 const size = Math.round(Math.random() * 100);
 
-const createRequest = (size: Size, bucket: Bucket): RenderRequest => {
+const createRequest = (): RenderRequest => {
+  const bucket = createBucket();
   return {
     emit: vi.fn(),
     bucket,
-    size,
+    size: { width: size, height: size },
+    on: vi.fn(),
+    off: vi.fn(),
+    isLocked: vi.fn(() => bucket.locked),
   } as unknown as RenderRequest;
 };
 
@@ -27,7 +32,9 @@ describe("Img", () => {
     image = new Img({
       url: "test",
     });
+    image.bytes = Math.round(Math.random() * 100);
     globalThis.URL.createObjectURL = vi.fn(() => blobData);
+    globalThis.URL.revokeObjectURL = vi.fn();
   });
   afterEach(() => {
     // vi.clearAllMocks();
@@ -85,6 +92,199 @@ describe("Img", () => {
       expect(image.bytesUncompressed).toBe(
         size * size * IMAGE_TYPE_BYTES[image.type],
       );
+    });
+  });
+
+  describe("on data load error", () => {
+    let errorEventSpy: () => void;
+    beforeEach(() => {
+      errorEventSpy = vi.fn();
+      image.blob = new Blob(); // when loader is done the blob is set
+      image.on("blob-error", errorEventSpy);
+      image.emit("loadend"); // called by loader
+      image.element.onerror?.(new Event("error")); // triggered by 'loadend' event
+    });
+
+    it("should emit error event", () => {
+      expect(errorEventSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should emit error event with correct props", () => {
+      expect(errorEventSpy).toHaveBeenCalledWith({
+        type: "blob-error",
+        target: image,
+      });
+    });
+
+    it("should have .gotSize set to false", () => {
+      expect(image.gotSize).toBe(false);
+    });
+
+    it("should remove .element.onload handler", () => {
+      expect(image.element.onload).toBeNull();
+    });
+
+    it("should remove .element.onerror handler", () => {
+      expect(image.element.onerror).toBeNull();
+    });
+  });
+
+  describe("registerRequest()", () => {
+    let request: RenderRequest;
+    let requestAddedSpy: () => void;
+    beforeEach(() => {
+      request = createRequest();
+      requestAddedSpy = vi.fn();
+      image.on("render-request-added", requestAddedSpy);
+      image.registerRequest(request);
+    });
+
+    it("should add request to requests", () => {
+      expect(image.renderRequests).toContain(request);
+    });
+
+    it("should emit request event", () => {
+      expect(requestAddedSpy).toHaveBeenCalledWith({
+        type: "render-request-added",
+        request,
+        target: image,
+      });
+    });
+
+    it("should call request.on", () => {
+      expect(request.on).toHaveBeenCalledWith("rendered", expect.any(Function));
+    });
+  });
+
+  describe("unregisterRequest()", () => {
+    let request: RenderRequest;
+    let requestRemovedSpy: () => void;
+    beforeEach(() => {
+      request = createRequest();
+      requestRemovedSpy = vi.fn();
+      image.on("render-request-removed", requestRemovedSpy);
+      image.registerRequest(request);
+      image.unregisterRequest(request);
+    });
+
+    it("should remove request from requests", () => {
+      expect(image.renderRequests).not.toContain(request);
+    });
+
+    it("should emit request event", () => {
+      expect(requestRemovedSpy).toHaveBeenCalledWith({
+        type: "render-request-removed",
+        request,
+        target: image,
+      });
+    });
+
+    it("should call request.off", () => {
+      expect(request.off).toHaveBeenCalledWith(
+        "rendered",
+        expect.any(Function),
+      );
+    });
+  });
+
+  describe("isLocked()", () => {
+    let request: RenderRequest;
+    beforeEach(() => {
+      request = createRequest();
+      image.registerRequest(request);
+    });
+
+    it("should return false if bucket is not locked", () => {
+      expect(image.isLocked()).toBe(false);
+    });
+
+    it("should return true if bucket is locked", () => {
+      request.bucket.locked = true;
+      expect(image.isLocked()).toBe(true);
+    });
+  });
+
+  describe("on request rendered", () => {
+    let request: RenderRequest;
+    let renderRequestHandler: (event: RenderRequestEvent<"rendered">) => void;
+    beforeEach(() => {
+      request = createRequest();
+      image.registerRequest(request);
+      vi.spyOn(request, "on").mockImplementation((event, handler) => {
+        if (event === "rendered") {
+          renderRequestHandler = handler;
+        }
+        return request; // Return the RenderRequest object
+      });
+      image.registerRequest(request);
+    });
+
+    it("should set decoded: true ", () => {
+      renderRequestHandler({
+        type: "rendered",
+        target: request,
+      });
+      expect(image.decoded).toBe(true);
+    });
+  });
+
+  describe("getBytesRam", () => {
+    it("should return 0 if not decoded", () => {
+      expect(image.getBytesRam()).toBe(image.bytes);
+    });
+
+    it("should return total of bytes for decoded image", () => {
+      image.decoded = true;
+      image.bytesUncompressed = Math.round(Math.random() * 100);
+      expect(image.getBytesRam()).toBe(image.bytesUncompressed + image.bytes);
+    });
+
+    it("should only return bytes if not decoded", () => {
+      image.bytesUncompressed = Math.round(Math.random() * 100);
+      expect(image.getBytesRam()).toBe(image.bytes);
+    });
+  });
+
+  describe("clear", () => {
+    let request: RenderRequest;
+    let clearEventSpy: () => void;
+    let removeAllListeners: MockInstance<
+      [type?: string | number | undefined],
+      Img
+    >;
+    let revokeSpy: MockInstance<[url: string], void>;
+    beforeEach(() => {
+      image.element.src = blobData;
+      request = createRequest();
+      clearEventSpy = vi.fn();
+      image.on("clear", clearEventSpy);
+      image.registerRequest(request);
+      removeAllListeners = vi.spyOn(image, "removeAllListeners");
+      revokeSpy = vi.spyOn(globalThis.URL, "revokeObjectURL");
+      image.clear();
+    });
+
+    it("should emit clear event", () => {
+      expect(clearEventSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should remove all requests", () => {
+      expect(image.renderRequests).toHaveLength(0);
+    });
+
+    it("should call request.off", () => {
+      expect(request.off).toHaveBeenCalledWith(
+        "rendered",
+        expect.any(Function),
+      );
+    });
+
+    it("should call removeAllListeners", () => {
+      expect(removeAllListeners).toHaveBeenCalledTimes(1);
+    });
+
+    it("should revoke object url", () => {
+      expect(revokeSpy).toHaveBeenCalledWith(image.element.src);
     });
   });
 });
