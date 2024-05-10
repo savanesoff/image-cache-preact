@@ -57,12 +57,26 @@ export type MemoryStats = {
 };
 
 /**
- * Represents a memory/size object in bytes.
- * Its and abstraction that represents memory usage.
+ * Represents a memory object.
  * Emits events when size is overflowed, available or cleared.
- */
-/**
- * Represents a Memory object that tracks the usage of memory.
+ * @extends Logger
+ * @event overflow - Emitted when the memory object is overflowed.
+ * @event clear - Emitted when the memory object is cleared.
+ * @event bytes-added - Emitted when bytes are added to the memory object.
+ * @event bytes-removed - Emitted when bytes are removed from the memory object.
+ * @event cleared - Emitted when the memory object is cleared.
+ * @example
+ * ```ts
+ * const memory = new Memory({ size: 1, units: "GB" });
+ * memory.on("overflow", ({ target }) => console.log("Memory overflowed", target));
+ * memory.on("clear", ({ target }) => console.log("Memory cleared", target));
+ * memory.on("bytes-added", ({ target }) => console.log("Bytes added", target));
+ * memory.on("bytes-removed", ({ target }) => console.log("Bytes removed", target));
+ * memory.on("cleared", ({ target }) => console.log("Memory cleared", target));
+ * memory.addBytes(1e9);
+ * memory.removeBytes(1e9);
+ * memory.clear();
+ * ```
  */
 export class Memory extends Logger {
   /** The number of bytes in the memory object */
