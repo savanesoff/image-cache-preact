@@ -13,12 +13,12 @@ describe("Loader", () => {
   it("should create an instance", () => {
     expect(
       new Loader({
-        url: "blah",
+        url: "https://test.com/image.jpg",
         retry: 0,
         headers: {
           "Content-Type": "image/jpeg",
         },
-      })
+      }),
     ).toBeTruthy();
   });
 
@@ -60,7 +60,7 @@ describe("Loader", () => {
     it("should set Content-Type header to loader mimeType", () => {
       const headers = Object.entries(loader.headers || {}) as [
         keyof Headers,
-        string
+        string,
       ][];
       headers.forEach(([key, value]) => {
         expect(XHR.setRequestHeader).toHaveBeenCalledWith(key, value);
@@ -102,7 +102,7 @@ describe("Loader", () => {
       loader.on("progress", progressEventSpy);
       // induce progress event
       loader.xhr?.onprogress?.(
-        new ProgressEvent("progress", { loaded: 1, total: 2 })
+        new ProgressEvent("progress", { loaded: 1, total: 2 }),
       );
       loader.on("error", () => null); // to prevent error thrown on no event listener
     });
