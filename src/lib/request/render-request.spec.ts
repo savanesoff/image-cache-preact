@@ -141,6 +141,15 @@ describe("RenderRequest", () => {
     });
   });
 
+  describe("onProcessing", () => {
+    it("should emit processing event", () => {
+      const request = createRequest();
+      const spy = vi.spyOn(RenderRequest.prototype, "emit");
+      request.onProcessing();
+      expect(spy).toHaveBeenCalledWith("processing");
+    });
+  });
+
   describe("clear", () => {
     let request: RenderRequest;
     beforeEach(() => {

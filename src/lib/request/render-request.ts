@@ -13,7 +13,11 @@ export type RenderRequestProps = ImgProps & {
   bucket: Bucket;
 };
 
-export type RenderRequestEventTypes = "rendered" | "clear" | "loadend";
+export type RenderRequestEventTypes =
+  | "rendered"
+  | "clear"
+  | "loadend"
+  | "processing";
 
 export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   type: T;
@@ -73,6 +77,10 @@ export class RenderRequest extends Logger {
   onRendered = () => {
     this.rendered = true;
     this.emit("rendered");
+  };
+
+  onProcessing = () => {
+    this.emit("processing");
   };
 
   /**
