@@ -70,7 +70,19 @@ export type ImgEventHandler<T extends ImgEventTypes> =
     ? LoaderEventHandler<T>
     : (event: ImgEvent<T>) => void;
 
-export type ImgProps = LoaderProps;
+export const IMAGE_TYPE_BYTES = {
+  Grayscale: 1, // JPEG, PNG, GIF
+  RGB: 3, // JPEG, PNG
+  RGBA: 4, // PNG, GIF
+  CMYK: 4, // TIFF
+  // add more image types as needed
+} as const;
+
+type ImageType = keyof typeof IMAGE_TYPE_BYTES;
+
+export type ImgProps = LoaderProps & {
+  type?: ImageType;
+};
 
 /**
  * Represents an image loader that loads image data via XMLHttpRequest.
@@ -84,10 +96,15 @@ export class Img extends Loader {
   readonly element: HTMLImageElement;
   /** Tracks render data for each image size */
   readonly renderRequests = new Set<RenderRequest>();
-
+  /** Indicates whether the image size has been determined */
   gotSize = false;
+  /** Indicates whether the image data has been decoded. Transferred into RAM */
   decoded = false;
+  /** Size of the image in bytes, uncompressed */
   bytesUncompressed = 0;
+
+  type: ImageType = "RGB";
+
   constructor({
     headers = {
       "Content-Type": "image/jpeg",
@@ -106,7 +123,7 @@ export class Img extends Loader {
    * Clears the image data from memory.
    * Emits a "clear" event when the image data is cleared.
    * Also removes all event listeners from the image.
-   * Unregisters all render requests for the image
+   * Unregister all render requests for the image
    */
   clear() {
     this.element.onload = null;
@@ -114,7 +131,9 @@ export class Img extends Loader {
     this.element.src = "";
     this.gotSize = false;
     this.bytesUncompressed = 0;
+    // release the blob data from memory
     URL.revokeObjectURL(this.element.src);
+    // clear all render requests
     for (const request of this.renderRequests) {
       this.unregisterRequest(request);
     }
@@ -132,7 +151,7 @@ export class Img extends Loader {
   }
 
   /**
-   * Unregisters a render request for the image.
+   * Unregister a render request for the image.
    */
   unregisterRequest(request: RenderRequest) {
     request.off("rendered", this.#onRendered);
@@ -141,7 +160,7 @@ export class Img extends Loader {
   }
 
   /**
-   * Returns true if the image is locked by any request
+   * Returns true if the image is locked by any render request
    */
   isLocked() {
     for (const request of this.renderRequests.values()) {
@@ -186,8 +205,8 @@ export class Img extends Loader {
    * Returns the size of the image in bytes as a 4 channel RGBA image
    */
   getBytesVideo(size: Size) {
-    // TODO: handle different image types
-    return size.width * size.height * 4;
+    const bytesPerPixel = IMAGE_TYPE_BYTES[this.type]; // default to 4 if the image type is not in the map
+    return size.width * size.height * bytesPerPixel;
   }
 
   //--------------------------   PRIVATE METHODS   -----------------------------
@@ -195,6 +214,7 @@ export class Img extends Loader {
   /**
    * Called when the image data is loaded
    * Creates a blob URL for the image data to get its size
+   * Because blob assignment is async, we need to wait for the image to load into memory
    */
   #onLoadEnd() {
     if (!this.blob) {
