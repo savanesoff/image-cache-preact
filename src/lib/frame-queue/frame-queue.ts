@@ -26,14 +26,14 @@
 import { Logger, LoggerProps } from "@lib/logger";
 import { RenderRequest } from "@lib/request";
 
-export type FrameQueueEventTypes = "rendered";
+export type FrameQueueEventTypes = "rendered" | "request-added" | "processed";
 /** FrameQueue event */
 export type FrameQueueEvent<T extends FrameQueueEventTypes> = {
   /** The type of the event */
   type: T;
   /** The target of the event */
   target: FrameQueue;
-};
+} & (T extends "request-added" ? { request: RenderRequest } : unknown);
 /** FrameQueue event handler */
 export type FrameQueueEventHandler<T extends FrameQueueEventTypes> = (
   event: FrameQueueEvent<T>,
@@ -99,8 +99,8 @@ export class FrameQueue extends Logger {
    */
   add(request: RenderRequest) {
     this.queue.add(request);
+    this.emit("request-added", { request });
     this.#next();
-    this.log.verbose(["added to queue"]);
   }
 
   //------------------------   PRIVATE METHODS   -------------------------------
@@ -118,23 +118,22 @@ export class FrameQueue extends Logger {
 
   /**
    * Processes the next render request in the queue.
-   * If there are no requests in the queue, it sets the scheduled flag to false.
-   * If there are requests in the queue, it processes the next request.
-   * If the request is processed, it sets the scheduled flag to false and emits a "processed" event.
-   * If the request is processed, it calls the onRendered method of the request.
-   * If the request is processed, it calls the next method to process the next request.
-   * If the request is processed, it logs the processed request and the queue size.
+   * Waits for the current request to be processed before processing the next one.
    */
   #next() {
     if (this.scheduled) return;
     this.scheduled = true;
-    const request = this.queue.values().next().value;
+    // get the request in the order they were added
+    const request = this.queue.values().next().value as
+      | RenderRequest
+      | undefined;
     if (!request) {
       this.scheduled = false;
       return;
     }
     this.log.info([`processing: ${this.queue.size}`]);
     const renderTime = this.#getRenderTime(request);
+    request.onProcessing();
     this.renderer({ request, renderTime });
     this.queue.delete(request);
 
@@ -216,8 +215,8 @@ export class FrameQueue extends Logger {
    */
   emit<T extends FrameQueueEventTypes>(
     type: T,
-    data: FrameQueueEvent<T>["target"],
+    data?: Omit<FrameQueueEvent<T>, "target" | "type">,
   ): boolean {
-    return super.emit(type, data);
+    return super.emit(type, { ...data, type, target: this });
   }
 }
