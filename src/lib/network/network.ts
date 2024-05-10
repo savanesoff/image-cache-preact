@@ -5,8 +5,8 @@
  * and it emits events to indicate the progress of the loading process.
  * It also limits the number of concurrent loaders to avoid overloading the network.
  */
-
-import { Loader, LoaderEvent, LoaderEventTypes, Logger } from "@lib";
+import { Loader, LoaderEvent, LoaderEventTypes } from "@lib/loader";
+import { Logger } from "@lib/logger";
 
 export type NetworkEventTypes = LoaderEventTypes | "pause" | "resume";
 
@@ -108,6 +108,7 @@ export class Network extends Logger {
       inFlight.abort();
     }
   }
+
   /**
    * Clears all network requests
    * Cancels all network requests
@@ -183,6 +184,7 @@ export class Network extends Logger {
         this.emit(type, loader);
     }
   };
+
   /**
    * Processes image
    */
