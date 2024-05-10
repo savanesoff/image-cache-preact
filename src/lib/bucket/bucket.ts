@@ -11,13 +11,9 @@
  * which involves adding or removing the `RenderRequest` from the set,
  * subscribing or unsubscribing to the "rendered" event, and adding or removing the image from the set of images.
  */
-import {
-  Img,
-  ImgEvent,
-  Controller,
-  RenderRequest,
-  RenderRequestEvent,
-} from "@lib";
+import { Img, ImgEvent } from "@lib/image";
+import { RenderRequest, RenderRequestEvent } from "@lib/request";
+import { Controller } from "@lib/controller";
 import { Logger } from "@lib/logger";
 import { now, UNITS } from "@utils";
 
