@@ -34,9 +34,39 @@ export type NetworkProps = {
   loaders?: number;
 };
 
+/**
+ * Network class that manages the loading of resources over the network.
+ * It maintains a queue of Loader instances, each representing a resource to be loaded.
+ * The Network class can pause and resume the loading process,
+ * and it emits events to indicate the progress of the loading process.
+ * It also limits the number of concurrent loaders to avoid overloading the network.
+ * @extends Logger
+ * @emits loadstart - When the loading process starts.
+ * @emits progress - When the loading process makes progress.
+ * @emits abort - When the loading process is aborted.
+ * @emits error - When the loading process encounters an error.
+ * @emits timeout - When the loading process times out.
+ * @emits loadend - When the loading process ends.
+ * @emits pause - When the loading process is paused.
+ * @emits resume - When the loading process is resumed.
+ * @example
+ * ```ts
+ * const network = new Network();
+ * network.on("loadstart", ({ target }) => console.log("Loading started", target));
+ * network.on("progress", ({ target }) => console.log("Loading in progress", target));
+ * network.on("abort", ({ target }) => console.log("Loading aborted", target));
+ * network.on("error", ({ target }) => console.log("Loading error", target));
+ * network.on("timeout", ({ target }) => console.log("Loading timeout", target));
+ * network.on("loadend", ({ target }) => console.log("Loading ended", target));
+ * network.on("pause", ({ target }) => console.log("Loading paused", target));
+ * network.on("resume", ({ target }) => console.log("Loading resumed", target));
+ * network.add(new Loader("https://example.com/image.jpg"));
+ * ```
+ */
 export class Network extends Logger {
   readonly inFlight = new Map<string, Loader>();
   readonly queue = new Map<string, Loader>();
+  /** Browser default */
   maxLoaders = 6;
   paused = false;
 
