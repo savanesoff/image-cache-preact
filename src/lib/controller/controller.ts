@@ -15,17 +15,11 @@
  * const image = new Img({ url: "http://example.com/image.jpg" });
  * controller.addImage(image); // Add an image to the cache and network queue
  */
-import {
-  Img,
-  ImgProps,
-  ImgEvent,
-  LogLevel,
-  Logger,
-  Memory,
-  Network,
-  FrameQueue,
-  FrameQueueProps,
-} from "@lib";
+import { Img, ImgProps, ImgEvent } from "@lib/image";
+import { Memory } from "@lib/memory";
+import { Network } from "@lib/network";
+import { Logger, LogLevel } from "@lib/logger";
+import { FrameQueue, FrameQueueProps } from "@lib/frame-queue";
 import { UnitsType } from "@utils";
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
@@ -113,10 +107,12 @@ export class Controller extends Logger {
     });
   }
 
-  //-----------------------   API   -----------------------
+  //-------------------------------   API   ------------------------------------
 
   /**
    * Adds an image to the cache and network queue
+   * If the image is already in the cache, it will not be added again
+   * If image does not exist in the cache, it will be created and added to the network queue
    * @param image
    * @returns the image object
    */
@@ -124,7 +120,7 @@ export class Controller extends Logger {
     return this.cache.get(props.url) || this.#createImage(props);
   }
 
-  //-----------------------   PRIVATE   -----------------------
+  //-------------------------------   PRIVATE   --------------------------------
 
   /**
    * Deletes an image from the cache
