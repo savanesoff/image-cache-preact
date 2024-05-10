@@ -1,4 +1,9 @@
-import { Logger, LogLevel } from "@lib";
+/**
+ * Represents a memory/size object in bytes.
+ * Its and abstraction that represents memory usage.
+ * Emits events when size is overflowed, available or cleared.
+ */
+import { Logger, LogLevel } from "@lib/logger";
 import { UNITS, UnitsType } from "@utils";
 
 /** Memory event types */
@@ -40,7 +45,7 @@ export type MemoryProps = {
 
 export type MemoryStatus = {
   bytes: number;
-  units: string;
+  units: number;
   prs: number;
 };
 
@@ -130,7 +135,7 @@ export class Memory extends Logger {
     const prsUsed = (unitUsed / this.size) * 100;
     return {
       bytes: this.getBytesSpace(),
-      units: `${(this.size - unitUsed).toFixed(3)}${this.units}`,
+      units: this.size - unitUsed,
       prs: 100 - prsUsed,
     };
   }
@@ -144,7 +149,7 @@ export class Memory extends Logger {
     const prsUsed = (unitUsed / this.size) * 100;
     return {
       bytes: this.bytes,
-      units: `${unitUsed.toFixed(3)}${this.units}`,
+      units: unitUsed,
       prs: prsUsed,
     };
   }
@@ -159,7 +164,7 @@ export class Memory extends Logger {
     const isZero = unitUsed === 0 || this.count === 0;
     return {
       bytes: !isZero ? this.bytes / this.count : 0,
-      units: `${!isZero ? unitUsed / this.count : 0}${this.units}`,
+      units: !isZero ? unitUsed / this.count : 0,
       prs: !isZero ? prsUsed / this.count : 0,
     };
   }
@@ -194,10 +199,7 @@ export class Memory extends Logger {
     this.bytes += bytes;
     this.emit("bytes-added", { bytes, remainingBytes });
     this.log.info(
-      [
-        `Added: ${this.#toUnits(bytes).toFixed(3)} ${this.units}`,
-        this.getStats(),
-      ],
+      [`Added: ${this.#toUnits(bytes)} ${this.units}`, this.getStats()],
       this.styles.info,
     );
     return remainingBytes;
@@ -234,10 +236,7 @@ export class Memory extends Logger {
     this.bytes -= bytes;
     this.emit("bytes-removed", { bytes });
     this.log.info(
-      [
-        `Removed: ${this.#toUnits(bytes).toFixed(3)} ${this.units}`,
-        this.getStats(),
-      ],
+      [`Removed: ${this.#toUnits(bytes)} ${this.units}`, this.getStats()],
       this.styles.info,
     );
 
