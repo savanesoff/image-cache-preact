@@ -4,7 +4,7 @@
  * have multiple requests associated with it, a bucket can have multiple images
  */
 import { Bucket } from "@lib/bucket";
-import { Img, ImgProps, Size } from "@lib/image";
+import { Img, ImgEvent, ImgProps, Size } from "@lib/image";
 import { Logger } from "@lib/logger";
 import { FrameQueue } from "@lib/frame-queue";
 
@@ -17,14 +17,17 @@ export type RenderRequestEventTypes =
   | "rendered"
   | "clear"
   | "loadend"
-  | "processing";
+  | "processing"
+  | "loadstart"
+  | "progress"
+  | "error";
 
 export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   type: T;
   target: RenderRequest;
-};
+} & (T extends "error" ? Omit<ImgEvent<"error">, "target"> : unknown);
 
-export type EventHandler<T extends RenderRequestEventTypes> = (
+export type RenderRequestEventHandler<T extends RenderRequestEventTypes> = (
   event: RenderRequestEvent<T>,
 ) => void;
 
@@ -55,12 +58,26 @@ export class RenderRequest extends Logger {
     this.bytesVideo = this.image.getBytesVideo(size);
     this.image.registerRequest(this);
     this.bucket.registerRequest(this);
+
+    this.image.on("loadstart", this.#onloadStart);
+    this.image.on("progress", this.#onProgress);
+    this.image.on("error", this.#onImageError);
     if (!this.image.loaded) {
       this.image.on("size", this.request);
     } else {
       this.request();
     }
   }
+
+  #onImageError = (event: ImgEvent<"error">) => {
+    this.emit("error", event);
+  };
+  #onProgress = (event: ImgEvent<"progress">) => {
+    this.emit("progress", event);
+  };
+  #onloadStart = (event: ImgEvent<"loadstart">) => {
+    this.emit("loadstart", event);
+  };
 
   /**
    * Requests the image to be rendered.
@@ -90,7 +107,11 @@ export class RenderRequest extends Logger {
     this.image.unregisterRequest(this);
     this.bucket.unregisterRequest(this);
     this.image.off("size", this.request);
+    this.image.off("loadstart", this.#onloadStart);
+    this.image.off("progress", this.#onProgress);
+    this.image.off("error", this.#onImageError);
     this.emit("clear");
+    this.removeAllListeners();
   }
 
   /**
@@ -109,7 +130,7 @@ export class RenderRequest extends Logger {
    */
   on<T extends RenderRequestEventTypes>(
     type: T,
-    handler: EventHandler<T>,
+    handler: RenderRequestEventHandler<T>,
   ): this {
     return super.on(type, handler);
   }
@@ -122,7 +143,7 @@ export class RenderRequest extends Logger {
    */
   off<T extends RenderRequestEventTypes>(
     type: T,
-    handler: EventHandler<T>,
+    handler: RenderRequestEventHandler<T>,
   ): this {
     return super.off(type, handler);
   }
