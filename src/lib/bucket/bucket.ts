@@ -11,7 +11,7 @@
  * which involves adding or removing the `RenderRequest` from the set,
  * subscribing or unsubscribing to the "rendered" event, and adding or removing the image from the set of images.
  */
-import { Img, ImgEvent } from "@lib/image";
+import { Img } from "@lib/image";
 import { RenderRequest, RenderRequestEvent } from "@lib/request";
 import { Controller } from "@lib/controller";
 import { Logger } from "@lib/logger";
@@ -25,16 +25,14 @@ export type BucketEventTypes =
   | "clear"
   | "loading"
   | "request-rendered"
-  | "request-loadend";
+  | "request-loadend"
+  | "render-progress";
 
 type ProgressEvent = {
   /** The progress of the loading operation */
   progress: number;
 };
-type ErrorEvent = {
-  /** The error message */
-  error: string;
-};
+
 type LoadEvent = {
   /** The loading state */
   loaded: boolean;
@@ -47,8 +45,6 @@ type RenderEvent = {
 type RequestRenderedEvent = {
   /** The request that was rendered */
   request: RenderRequest;
-  /** The progress of the rendering operation */
-  progress: number;
 };
 
 type RequestLoadEndEvent = {
@@ -61,12 +57,13 @@ export type BucketEvent<T extends BucketEventTypes> = {
   type: T;
   /** The target of the event */
   target: Bucket;
-} & (T extends "progress" ? ProgressEvent : unknown) &
-  (T extends "error" ? ErrorEvent : unknown) &
+} & (T extends "progress" | "render-progress" ? ProgressEvent : unknown) &
+  (T extends "error" ? RenderRequestEvent<"error"> : unknown) &
   (T extends "loadend" ? LoadEvent : unknown) &
   (T extends "rendered" ? RenderEvent : unknown) &
   (T extends "request-rendered" ? RequestRenderedEvent : unknown) &
-  (T extends "request-loadend" ? RequestLoadEndEvent : unknown);
+  (T extends "request-loadend" ? RequestLoadEndEvent : unknown) &
+  (T extends "loading" ? { request: RenderRequest } : unknown);
 
 export type BucketEventHandler<T extends BucketEventTypes> = (
   event: BucketEvent<T>,
@@ -87,7 +84,6 @@ export interface BucketProps {
  * Also tracks the loading state of the bucket and the progress of the loading operation.
  */
 export class Bucket extends Logger {
-  readonly images = new Set<Img>();
   readonly requests = new Set<RenderRequest>();
   readonly videoMemory = new Map<string, Set<Img>>();
 
@@ -101,7 +97,7 @@ export class Bucket extends Logger {
 
   constructor({ name, lock = false, controller }: BucketProps) {
     super({
-      name: `Bucket:${name}`,
+      name: name,
       logLevel: "verbose",
     });
     this.controller = controller;
@@ -110,36 +106,21 @@ export class Bucket extends Logger {
 
   registerRequest(request: RenderRequest) {
     this.requests.add(request);
-    request.on("rendered", this.#onRequestRendered);
+    request.on("loadstart", this.#onRequestLoadStart);
+    request.on("progress", this.#onRequestProgress);
+    request.on("error", this.#onRequestError);
     request.on("loadend", this.#onRequestLoadEnd);
-    this.#addImage(request.image);
+    request.on("rendered", this.#onRequestRendered);
   }
 
   unregisterRequest(request: RenderRequest) {
     this.requests.delete(request);
-    request.off("rendered", this.#onRequestRendered);
-    request.off("loadend", this.#onRequestLoadEnd);
-    this.#removeImage(request.image);
+    request.clear();
   }
 
-  #addImage(image: Img) {
-    this.images.add(image);
-    image.on("loadstart", this.#onImageLoadStart);
-    image.on("progress", this.#onImageProgress);
-    image.on("error", this.#onImageError);
-  }
-
-  #removeImage(image: Img) {
-    if (this.isImageUsed(image)) return;
-    this.images.delete(image);
-    image.off("loadstart", this.#onImageLoadStart);
-    image.off("progress", this.#onImageProgress);
-    image.off("error", this.#onImageError);
-  }
-
-  isImageUsed(image: Img) {
+  hasURL(url: string) {
     for (const request of this.requests) {
-      if (request.image === image) {
+      if (request.image.url === url) {
         return true;
       }
     }
@@ -147,9 +128,8 @@ export class Bucket extends Logger {
   }
 
   /**
-   * Store image size requests
+   * When a request is rendered, check if all requests are rendered
    * @param event
-   * @returns
    */
   #onRequestRendered = (event: RenderRequestEvent<"rendered">) => {
     this.rendered = true;
@@ -160,21 +140,13 @@ export class Bucket extends Logger {
       renderedRequests += request.rendered ? 1 : 0;
     }
 
-    const progress = parseFloat(
-      (renderedRequests / this.requests.size).toFixed(2),
-    );
-
-    this.emit("request-rendered", { request: event.target, progress });
-
+    this.emit("request-rendered", { request: event.target });
+    // current render progress
+    const progress = renderedRequests / this.requests.size;
+    this.emit("render-progress", { progress });
     this.log.verbose([`Request Rendered ${this.name}`, now(), event.target]);
-
     if (this.rendered) {
-      this.loadProgress = 1;
-      this.loading = false;
-      this.loaded = true;
-      this.emit("progress", { progress: this.loadProgress });
-      this.emit("loadend", { loaded: this.loaded });
-      this.emit("rendered", { rendered: this.rendered });
+      this.emit("rendered");
     }
   };
 
@@ -182,11 +154,11 @@ export class Bucket extends Logger {
    * Any image load event will reset the loading state
    * @param event
    */
-  #onImageLoadStart = (event: ImgEvent<"loadstart">) => {
+  #onRequestLoadStart = (event: RenderRequestEvent<"loadstart">) => {
     this.loading = true;
     this.loaded = false;
     this.rendered = false;
-    this.emit("loading", { image: event.target });
+    this.emit("loading", { request: event.target });
   };
 
   /**
@@ -194,14 +166,15 @@ export class Bucket extends Logger {
    * Instead, a getter should be used to calculate the current progress
    * @param event
    */
-  #onImageProgress = (event: ImgEvent<"progress">): void => {
+  #onRequestProgress = (event: RenderRequestEvent<"progress">): void => {
     this.loaded = false;
     this.loading = true;
     let progress = 0;
-    for (const image of this.images) {
+    const images = this.getImages();
+    for (const image of images) {
       progress += image.progress;
     }
-    this.loadProgress = parseFloat((progress / this.images.size).toFixed(2));
+    this.loadProgress = progress / images.size;
     this.emit("progress", { progress: this.loadProgress });
     this.log.verbose([
       `Progress ${this.name}: ${this.loadProgress}`,
@@ -218,7 +191,6 @@ export class Bucket extends Logger {
    */
   #onRequestLoadEnd = (event: RenderRequestEvent<"loadend">) => {
     this.loaded = true;
-    // this.log.verbose([`Image loaded ${this.name}`, now(), event]);
     for (const request of this.requests) {
       if (!request.image.loaded) {
         this.loaded = false;
@@ -229,7 +201,7 @@ export class Bucket extends Logger {
     this.emit("request-loadend", { request: event.target });
     if (this.loaded) {
       this.loadProgress = 1;
-      this.emit("loadend", { loaded: this.loaded });
+      this.emit("loadend");
       this.log.info([`Loaded ${this.name}`, now()]);
     }
   };
@@ -238,48 +210,72 @@ export class Bucket extends Logger {
    * When an image errors, emit the error event
    * @param event
    */
-  #onImageError = (event: ImgEvent<"error">) => {
-    this.emit("error", { error: event.statusText });
+  #onRequestError = (event: RenderRequestEvent<"error">) => {
+    this.emit("error", { statusText: event.statusText, status: event.status });
   };
 
   /**
-   * Calculate the video memory used by the bucket
-   * This is expensive and should be used sparingly
-   * @returns
+   * Calculate the video memory used by the bucket in bytes
    */
-  getBytesVideo() {
+  getVideoBytes() {
     let requested = 0;
     let used = 0;
     for (const request of this.requests) {
       requested += request.bytesVideo;
       used += request.rendered ? request.bytesVideo : 0;
     }
+
     return {
       requested,
       used,
-      requestedUnits: `${(requested / UNITS[this.controller.units]).toFixed(3)}${this.controller.units}`,
-      usedUnits: `${(used / UNITS[this.controller.units]).toFixed(3)}${this.controller.units}`,
+    };
+  }
+
+  /**
+   * Calculate the video memory used by the bucket in the current units
+   */
+  getVideoUnits() {
+    const bytes = this.getVideoBytes();
+    const ratio = UNITS[this.controller.units];
+    return {
+      requested: bytes.requested / ratio,
+      used: bytes.used / ratio,
+      ratio,
+      type: this.controller.units,
     };
   }
 
   /**
    * Calculate the ram used by the bucket
-   * @returns
    */
-  getBytesRam() {
+  getRamBytes() {
     let compressedBytes = 0;
     let uncompressedBytes = 0;
-    for (const image of this.images) {
+    const images = this.getImages();
+    for (const image of images) {
       compressedBytes += image.bytes;
       uncompressedBytes += image.bytesUncompressed;
     }
+
     return {
-      compressedBytes,
-      uncompressedBytes,
-      totalBytes: compressedBytes + uncompressedBytes,
-      compressedUnits: `${(compressedBytes / UNITS[this.controller.units]).toFixed(3)}${this.controller.units}`,
-      uncompressedUnits: `${(uncompressedBytes / UNITS[this.controller.units]).toFixed(3)}${this.controller.units}`,
-      totalUnits: `${((compressedBytes + uncompressedBytes) / UNITS[this.controller.units]).toFixed(3)}${this.controller.units}`,
+      compressed: compressedBytes,
+      uncompressed: uncompressedBytes,
+      total: compressedBytes + uncompressedBytes,
+    };
+  }
+
+  /**
+   * Calculate the ram used by the bucket in the current units
+   */
+  getRamUnits() {
+    const ratio = UNITS[this.controller.units];
+    const bytes = this.getRamBytes();
+    return {
+      compressed: bytes.compressed / ratio,
+      uncompressed: bytes.uncompressed / ratio,
+      total: bytes.total / ratio,
+      ratio,
+      type: this.controller.units,
     };
   }
 
@@ -291,16 +287,16 @@ export class Bucket extends Logger {
     for (const request of this.requests) {
       request.clear();
     }
-
+    this.requests.clear();
     this.emit("clear");
     this.removeAllListeners();
   };
 
   /**
-   * Get all images in the bucket
+   * Get all unique images in the bucket
    */
   getImages() {
-    return [...this.images];
+    return new Set(Array.from(this.requests).map((request) => request.image));
   }
 
   //-----------------------   EVENT METHODS   -----------------------
