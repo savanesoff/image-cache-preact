@@ -54,6 +54,12 @@ export type ControllerProps = FrameQueueProps & {
   units?: UnitsType;
   /** The log level for the controller */
   logLevel?: LogLevel;
+  /**
+   * GPU memory allocation type.
+   * True - full image size pixel data moves to GPU.
+   * False - only the requested image size data moves to GPU.
+   */
+  gpuDataFull?: boolean;
 };
 
 const styles = {
@@ -66,11 +72,11 @@ const styles = {
 export class Controller extends Logger {
   readonly ram: Memory;
   readonly video: Memory;
-  readonly updating = false;
   readonly cache = new Map<string, Img>();
   readonly frameQueue: FrameQueue;
   readonly network: Network;
   readonly units: UnitsType;
+  readonly gpuDataFull: boolean;
 
   constructor({
     ram = 2,
@@ -78,7 +84,8 @@ export class Controller extends Logger {
     loaders = 6,
     units = "GB",
     logLevel = "error",
-    hwRank,
+    hwRank = 1,
+    gpuDataFull = false,
     renderer,
   }: ControllerProps) {
     super({
@@ -87,6 +94,7 @@ export class Controller extends Logger {
       styles,
     });
     this.units = units;
+    this.gpuDataFull = gpuDataFull;
     this.frameQueue = new FrameQueue({
       logLevel,
       hwRank,
