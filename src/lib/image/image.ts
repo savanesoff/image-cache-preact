@@ -18,6 +18,7 @@
  * When the same image is used again, the browser can skip the loading and decoding steps and directly use the cached bitmap.
  */
 
+import { ImageType } from "@/utils/image-type";
 import {
   LoaderEventHandler,
   Loader,
@@ -55,7 +56,7 @@ type Events<T extends ImgEventTypes> = {
     | "render-request-rendered"
     | "render-request-removed"
     | "render-request-added"
-    ? { request: RenderRequest }
+    ? { request: RenderRequest; bytes: number }
     : unknown) &
   (T extends "blob-error" ? { error: string } : unknown);
 
@@ -70,7 +71,7 @@ export type ImgEventHandler<T extends ImgEventTypes> =
     ? LoaderEventHandler<T>
     : (event: ImgEvent<T>) => void;
 
-export const IMAGE_TYPE_BYTES = {
+export const IMAGE_COLOR_TYPE = {
   Grayscale: 1, // JPEG, PNG, GIF
   RGB: 3, // JPEG, PNG
   RGBA: 4, // PNG, GIF
@@ -78,10 +79,10 @@ export const IMAGE_TYPE_BYTES = {
   // add more image types as needed
 } as const;
 
-type ImageType = keyof typeof IMAGE_TYPE_BYTES;
+type ImageColorType = keyof typeof IMAGE_COLOR_TYPE;
 
 export type ImgProps = LoaderProps & {
-  type?: ImageType;
+  type?: ImageColorType;
   gpuDataFull?: boolean;
 };
 
@@ -104,7 +105,8 @@ export class Img extends Loader {
   /** Size of the image in bytes, uncompressed */
   bytesUncompressed = 0;
   /** Image memory compression type */
-  readonly type: ImageType;
+  readonly type: ImageColorType;
+  mimeType: ImageType;
   /**
    * GPU memory allocation type.
    * True - full image size pixel data moves to GPU.
@@ -125,7 +127,9 @@ export class Img extends Loader {
       ...props,
     });
     this.gpuDataFull = gpuDataFull;
+    // TODO auto detect image type from headers or url
     this.type = type;
+    this.mimeType = "image/jpeg";
     this.element = new Image(); // need to get actual size of image
     this.on("loadend", this.#onLoadEnd); // called by a loader process
   }
@@ -158,7 +162,7 @@ export class Img extends Loader {
   registerRequest(request: RenderRequest) {
     this.renderRequests.add(request);
     request.on("rendered", this.#onRendered);
-    this.emit("render-request-added", { request });
+    this.emit("render-request-added", { request, bytes: request.bytesVideo });
   }
 
   /**
@@ -167,7 +171,7 @@ export class Img extends Loader {
   unregisterRequest(request: RenderRequest) {
     request.off("rendered", this.#onRendered);
     this.renderRequests.delete(request);
-    this.emit("render-request-removed", { request });
+    this.emit("render-request-removed", { request, bytes: request.bytesVideo });
   }
 
   /**
@@ -216,7 +220,7 @@ export class Img extends Loader {
    * Returns the size of the image in bytes as a 4 channel RGBA image
    */
   getBytesVideo(size: Size) {
-    const bytesPerPixel = IMAGE_TYPE_BYTES[this.type]; // default to 4 if the image type is not in the map
+    const bytesPerPixel = IMAGE_COLOR_TYPE[this.type]; // default to 4 if the image type is not in the map
     const gpuSize = this.gpuDataFull && this.element ? this.element : size;
     return gpuSize.width * gpuSize.height * bytesPerPixel;
   }
@@ -234,6 +238,7 @@ export class Img extends Loader {
     }
     this.element.onload = this.#onBlobAssigned;
     this.element.onerror = this.#onBlobError;
+    // this.mimeType = await getImageType(this.blob);
     this.element.src = URL.createObjectURL(this.blob);
   }
 
@@ -247,6 +252,7 @@ export class Img extends Loader {
     this.gotSize = true;
     // element satisfies the Size interface
     this.bytesUncompressed = this.getBytesVideo(this.element);
+
     this.emit("size", {
       size: {
         width: this.element.width,
@@ -268,8 +274,16 @@ export class Img extends Loader {
    * Called when the image is rendered
    */
   #onRendered = (event: RenderRequestEvent<"rendered">) => {
+    // for each render request, we need to calculate the size of the image in video memory
+    // however, we only need to decode the image once in the gpuDataFull mode
+    const bytes = this.decoded ? 0 : this.getBytesVideo(event.target.size);
+
+    this.emit("render-request-rendered", {
+      request: event.target,
+      bytes,
+    });
+
     this.decoded = true;
-    this.emit("render-request-rendered", { request: event.target });
   };
 
   //--------------------------   EVENT HANDLERS   --------------------==--------

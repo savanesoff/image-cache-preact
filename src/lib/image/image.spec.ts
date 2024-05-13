@@ -1,4 +1,4 @@
-import { IMAGE_TYPE_BYTES, Img } from "./image";
+import { IMAGE_COLOR_TYPE, Img } from "./image";
 import { RenderRequest, RenderRequestEvent } from "@lib/request";
 import { Bucket } from "@lib/bucket";
 import { Controller } from "@lib/controller";
@@ -18,6 +18,7 @@ const createRequest = (): RenderRequest => {
   const bucket = createBucket();
   return {
     emit: vi.fn(),
+    bytesVideo: Math.round(Math.random() * 100),
     bucket,
     size: { width: size, height: size },
     on: vi.fn(),
@@ -38,7 +39,7 @@ describe("Img", () => {
   });
   afterEach(() => {
     // vi.clearAllMocks();
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should be defined", () => {
@@ -90,7 +91,7 @@ describe("Img", () => {
 
     it("should have bytesUncompressed set", () => {
       expect(image.bytesUncompressed).toBe(
-        size * size * IMAGE_TYPE_BYTES[image.type],
+        size * size * IMAGE_COLOR_TYPE[image.type],
       );
     });
   });
@@ -148,6 +149,7 @@ describe("Img", () => {
         type: "render-request-added",
         request,
         target: image,
+        bytes: request.bytesVideo,
       });
     });
 
@@ -176,6 +178,7 @@ describe("Img", () => {
         type: "render-request-removed",
         request,
         target: image,
+        bytes: request.bytesVideo,
       });
     });
 
@@ -210,6 +213,8 @@ describe("Img", () => {
     beforeEach(() => {
       request = createRequest();
       image.registerRequest(request);
+      image.element.width = size;
+      image.element.height = size;
       vi.spyOn(request, "on").mockImplementation((event, handler) => {
         if (event === "rendered") {
           renderRequestHandler = handler;
@@ -225,6 +230,42 @@ describe("Img", () => {
         target: request,
       });
       expect(image.decoded).toBe(true);
+    });
+
+    it('should emit "render-request-rendered" event with video bytes', () => {
+      const renderRequestRenderedSpy = vi.fn();
+      image.on("render-request-rendered", renderRequestRenderedSpy);
+      renderRequestHandler({
+        type: "rendered",
+        target: request,
+      });
+      expect(renderRequestRenderedSpy).toHaveBeenCalledWith({
+        type: "render-request-rendered",
+        target: image,
+        request,
+        bytes: image.getBytesVideo(request.size),
+      });
+    });
+
+    it(`should emit "render-request-rendered" event with video bytes as zero for subsequent actions`, () => {
+      const renderRequestRenderedSpy = vi.fn();
+      image.on("render-request-rendered", renderRequestRenderedSpy);
+      // @ts-expect-error - readonly
+      image.gpuDataFull = true;
+      renderRequestHandler({
+        type: "rendered",
+        target: request,
+      });
+      renderRequestHandler({
+        type: "rendered",
+        target: request,
+      });
+      expect(renderRequestRenderedSpy).toHaveBeenCalledWith({
+        type: "render-request-rendered",
+        target: image,
+        request,
+        bytes: 0,
+      });
     });
   });
 
@@ -296,7 +337,7 @@ describe("Img", () => {
       };
       it("should return byte for size", () => {
         const expected =
-          size.width * size.height * IMAGE_TYPE_BYTES[image.type];
+          size.width * size.height * IMAGE_COLOR_TYPE[image.type];
         expect(image.getBytesVideo(size)).toEqual(expected);
       });
     });
@@ -316,7 +357,7 @@ describe("Img", () => {
       });
       it("should return byte for element size", () => {
         const expected =
-          size.width * size.height * IMAGE_TYPE_BYTES[image.type];
+          size.width * size.height * IMAGE_COLOR_TYPE[image.type];
         expect(
           image.getBytesVideo({
             width: 0,
