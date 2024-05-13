@@ -28,22 +28,15 @@ export type BucketProviderProps = Partial<
 /**
  * Provides a bucket to its children.
  */
-export function BucketProvider({
-  children,
-  lock = false,
-  name = "Unknown",
-  ...props
-}: BucketProviderProps) {
+export function BucketProvider({ children, ...props }: BucketProviderProps) {
   const { controller } = useController();
   const bucket = useMemo(
     () =>
       new Bucket({
         controller,
-        lock,
-        name,
         ...props,
       }),
-    [controller, lock, name, props],
+    [controller, props],
   );
 
   useEffect(() => {

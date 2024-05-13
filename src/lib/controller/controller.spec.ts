@@ -134,16 +134,16 @@ describe("Controller", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    it('should emit "cache-update" event', () => {
+    it('should emit "update" event', () => {
       const spy = vi.fn();
-      controller.on("cache-update", spy);
+      controller.on("update", spy);
       controller.getImage({ url: "https://url.com" });
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    it('should emit "cache-update" event only once', () => {
+    it('should emit "update" event only once', () => {
       const spy = vi.fn();
-      controller.on("cache-update", spy);
+      controller.on("update", spy);
       controller.getImage({ url: "https://url.com" });
       controller.getImage({ url: "https://url.com" });
       expect(spy).toHaveBeenCalledTimes(1);
@@ -181,11 +181,11 @@ describe("Controller", () => {
       // emulate not enough memory
       vi.spyOn(controller.ram, "addBytes").mockReturnValue(-1);
       const spy = vi.fn();
-      controller.on("image-deleted", spy);
+      controller.on("image-removed", spy);
       image.emit("loadend", { bytes });
 
       expect(spy).toHaveBeenCalledWith({
-        type: "image-deleted",
+        type: "image-removed",
         target: controller,
         image,
       });

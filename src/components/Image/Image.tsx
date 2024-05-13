@@ -40,12 +40,10 @@ export type ImageProviderProps = ImgProps &
  * @returns The image provider.
  */
 export const ImageProvider = ({
-  url,
-  headers,
-  retry,
   children,
   height,
   width,
+  ...props
 }: ImageProviderProps) => {
   const { bucket } = useBucket();
   const [image, setImage] = useState<Img | null>(null);
@@ -54,12 +52,11 @@ export const ImageProvider = ({
     () =>
       new RenderRequest({
         size: { height, width },
-        url,
+
         bucket,
-        headers,
-        retry,
+        ...props,
       }),
-    [height, width, url, bucket, headers, retry],
+    [height, width, bucket, props],
   );
 
   useEffect(() => {

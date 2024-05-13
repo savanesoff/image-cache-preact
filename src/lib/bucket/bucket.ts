@@ -71,7 +71,7 @@ export type BucketEventHandler<T extends BucketEventTypes> = (
 
 export interface BucketProps {
   /** The name of the bucket */
-  name: string;
+  name?: string;
   /** Whether the bucket is locked */
   lock?: boolean;
   /** The controller instance */
@@ -86,7 +86,7 @@ export interface BucketProps {
 export class Bucket extends Logger {
   readonly requests = new Set<RenderRequest>();
   readonly videoMemory = new Map<string, Set<Img>>();
-
+  static bucketNumber = 0;
   rendered = false;
   loading = false;
   loaded = false;
@@ -97,7 +97,7 @@ export class Bucket extends Logger {
 
   constructor({ name, lock = false, controller }: BucketProps) {
     super({
-      name: name,
+      name: name || (Bucket.bucketNumber++).toString(),
       logLevel: "verbose",
     });
     this.controller = controller;

@@ -26,9 +26,9 @@ import { UnitsType } from "@utils";
 export type ControllerEventTypes =
   | "ram-overflow"
   | "video-overflow"
-  | "cache-update"
+  | "update"
   | "image-added"
-  | "image-deleted";
+  | "image-removed";
 
 /** Controller event */
 export type ControllerEvent<T extends ControllerEventTypes> = {
@@ -39,7 +39,7 @@ export type ControllerEvent<T extends ControllerEventTypes> = {
 } & (T extends "ram-overflow" | "video-overflow"
   ? { bytes: number }
   : unknown) &
-  (T extends "image-added" | "image-deleted" ? { image: Img } : unknown);
+  (T extends "image-added" | "image-removed" ? { image: Img } : unknown);
 
 /** Controller event handler */
 export type ControllerEventHandler<T extends ControllerEventTypes> = (
@@ -141,8 +141,8 @@ export class Controller extends Logger {
   #deleteImage(image: Img) {
     this.cache.delete(image.url);
     image.clear();
-    this.emit("image-deleted", { image });
-    this.emit("cache-update");
+    this.emit("image-removed", { image });
+    this.emit("update");
   }
 
   /**
@@ -161,7 +161,7 @@ export class Controller extends Logger {
     image.on("render-request-removed", this.#onRenderRequestRemoved);
     this.network.add(image); // request load immediately
     this.emit("image-added", { image });
-    this.emit("cache-update");
+    this.emit("update");
     return image;
   }
 

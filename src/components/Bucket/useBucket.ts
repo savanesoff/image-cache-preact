@@ -42,19 +42,19 @@ export const useBucket = ({
   }
 
   useEffect(() => {
-    if (onProgress) context.bucket.on("progress", onProgress);
-    if (onError) context.bucket.on("error", onError);
-    if (onLoadend) context.bucket.on("loadend", onLoadend);
-    if (onRendered) context.bucket.on("rendered", onRendered);
-    if (onRequestRendered)
+    onProgress && context.bucket.on("progress", onProgress);
+    onError && context.bucket.on("error", onError);
+    onLoadend && context.bucket.on("loadend", onLoadend);
+    onRendered && context.bucket.on("rendered", onRendered);
+    onRequestRendered &&
       context.bucket.on("request-rendered", onRequestRendered);
 
     return () => {
-      if (onProgress) context.bucket.off("progress", onProgress);
-      if (onError) context.bucket.off("error", onError);
-      if (onLoadend) context.bucket.off("loadend", onLoadend);
-      if (onRendered) context.bucket.off("rendered", onRendered);
-      if (onRequestRendered)
+      onProgress && context.bucket.off("progress", onProgress);
+      onError && context.bucket.off("error", onError);
+      onLoadend && context.bucket.off("loadend", onLoadend);
+      onRendered && context.bucket.off("rendered", onRendered);
+      onRequestRendered &&
         context.bucket.off("request-rendered", onRequestRendered);
     };
   }, [

@@ -51,16 +51,16 @@ export const useImage = ({
   const request = context.request;
   const image = context.request.image;
   useEffect(() => {
-    if (onProgress) image.on("progress", onProgress);
-    if (onError) image.on("error", onError);
-    if (onLoadend) image.on("loadend", onLoadend);
-    if (onRendered) request.on("rendered", onRendered);
+    onProgress && image.on("progress", onProgress);
+    onError && image.on("error", onError);
+    onLoadend && image.on("loadend", onLoadend);
+    onRendered && request.on("rendered", onRendered);
 
     return () => {
-      if (onProgress) image.off("progress", onProgress);
-      if (onError) image.off("error", onError);
-      if (onLoadend) image.off("loadend", onLoadend);
-      if (onRendered) request.off("rendered", onRendered);
+      onProgress && image.off("progress", onProgress);
+      onError && image.off("error", onError);
+      onLoadend && image.off("loadend", onLoadend);
+      onRendered && request.off("rendered", onRendered);
     };
   }, [image, onProgress, onError, onLoadend, onRendered, request]);
 
