@@ -26,7 +26,7 @@ import { UnitsType } from "@utils";
 export type ControllerEventTypes =
   | "ram-overflow"
   | "video-overflow"
-  | "cache-updated"
+  | "cache-update"
   | "image-added"
   | "image-deleted";
 
@@ -36,7 +36,10 @@ export type ControllerEvent<T extends ControllerEventTypes> = {
   type: T;
   /** The target of the event */
   target: Controller;
-} & (T extends "ram-overflow" | "video-overflow" ? { bytes: number } : unknown);
+} & (T extends "ram-overflow" | "video-overflow"
+  ? { bytes: number }
+  : unknown) &
+  (T extends "image-added" | "image-deleted" ? { image: Img } : unknown);
 
 /** Controller event handler */
 export type ControllerEventHandler<T extends ControllerEventTypes> = (
@@ -139,7 +142,7 @@ export class Controller extends Logger {
     this.cache.delete(image.url);
     image.clear();
     this.emit("image-deleted", { image });
-    this.emit("ccache-updated", { cache: this.cache });
+    this.emit("cache-update");
   }
 
   /**
@@ -150,32 +153,34 @@ export class Controller extends Logger {
    * @returns
    */
   #createImage(props: ImgProps): Img {
-    const image = new Img(props);
+    const image = new Img({ gpuDataFull: this.gpuDataFull, ...props });
     this.cache.set(image.url, image); // TODO blob is network data, once we get image size any render of size will consume raw width/height data for ram
     image.on("loadend", this.#onImageLoadend);
     image.on("size", this.#onImageDecoded);
-    image.on("render-request-added", this.#onRenderRequestAdded);
+    image.on("render-request-rendered", this.#onRenderRequestAdded);
     image.on("render-request-removed", this.#onRenderRequestRemoved);
     this.network.add(image); // request load immediately
     this.emit("image-added", { image });
-    this.emit("ccache-updated", { cache: this.cache });
+    this.emit("cache-update");
     return image;
   }
 
   /**
    * Adds video bytes of a render request to the video memory
+   * not in gpuDataFull mode not every render request will consume video memory
+   * as a result, subsequent render request of the same image will have 0 bytes
    * @param event
    */
-  #onRenderRequestAdded = (event: ImgEvent<"render-request-added">) => {
-    this.#addVideoBytes(event.request.bytesVideo);
+  #onRenderRequestAdded = ({ bytes }: ImgEvent<"render-request-rendered">) => {
+    this.#addVideoBytes(bytes);
   };
 
   /**
    * Removes video bytes of a render request from the video memory
    * @param event
    */
-  #onRenderRequestRemoved = (event: ImgEvent<"render-request-removed">) => {
-    this.video.removeBytes(event.request.bytesVideo);
+  #onRenderRequestRemoved = ({ bytes }: ImgEvent<"render-request-removed">) => {
+    this.video.removeBytes(bytes);
   };
 
   //-----------------------   VIDEO MEMORY MANAGEMENT   -----------------------
@@ -189,8 +194,7 @@ export class Controller extends Logger {
     const remainingBytes = this.video.addBytes(bytes);
     const overflow = remainingBytes < 0;
     const overflowBytes = Math.abs(remainingBytes);
-
-    console.log("video bytes", this.video.getStats());
+    // this.log.info(["video", this.video.getStats()]);
     if (overflow && this.#requestVideo(overflowBytes) === false) {
       this.emit("video-overflow", { bytes: overflowBytes });
     }
@@ -223,8 +227,8 @@ export class Controller extends Logger {
    * Adds image blob ram data to the ram
    * @param event
    */
-  #onImageLoadend = (event: ImgEvent<"loadend">) => {
-    this.#addRamBytes(event.target.bytes);
+  #onImageLoadend = ({ bytes }: ImgEvent<"loadend">) => {
+    this.#addRamBytes(bytes);
   };
 
   /**
@@ -267,5 +271,46 @@ export class Controller extends Logger {
       }
     }
     return false;
+  }
+
+  //------------------------------    EVENTS    ------------------------------
+  /**
+   * Adds an event listener to the controller
+   * @param type
+   * @param handler
+   */
+  on<T extends ControllerEventTypes>(
+    type: T,
+    handler: ControllerEventHandler<T>,
+  ): this {
+    return super.on(type, handler);
+  }
+
+  /**
+   * Removes an event listener from the controller
+   * @param type
+   * @param handler
+   */
+  off<T extends ControllerEventTypes>(
+    type: T,
+    handler: ControllerEventHandler<T>,
+  ): this {
+    return super.off(type, handler);
+  }
+
+  /**
+   * Emits an event of the specified type
+   * @param type
+   * @param props
+   */
+  emit<T extends ControllerEventTypes>(
+    type: T,
+    data?: Omit<ControllerEvent<T>, "type" | "target">,
+  ): boolean {
+    return super.emit(type, {
+      ...data,
+      type,
+      target: this,
+    });
   }
 }
