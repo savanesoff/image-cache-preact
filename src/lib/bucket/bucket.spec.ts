@@ -406,10 +406,24 @@ describe("Bucket", () => {
       expect(bucket.requests).not.toContain(request);
     });
 
-    it("should call request.clear()", () => {
+    it("should unregister request listeners", () => {
       request.clear = vi.fn();
+      request.off = vi.fn();
       bucket.unregisterRequest(request);
-      expect(request.clear).toHaveBeenCalled();
+      expect(request.off).toHaveBeenCalledWith(
+        "loadstart",
+        expect.any(Function),
+      );
+      expect(request.off).toHaveBeenCalledWith(
+        "progress",
+        expect.any(Function),
+      );
+      expect(request.off).toHaveBeenCalledWith("error", expect.any(Function));
+      expect(request.off).toHaveBeenCalledWith("loadend", expect.any(Function));
+      expect(request.off).toHaveBeenCalledWith(
+        "rendered",
+        expect.any(Function),
+      );
     });
   });
 

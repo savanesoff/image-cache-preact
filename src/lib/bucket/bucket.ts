@@ -115,7 +115,11 @@ export class Bucket extends Logger {
 
   unregisterRequest(request: RenderRequest) {
     this.requests.delete(request);
-    request.clear();
+    request.off("loadstart", this.#onRequestLoadStart);
+    request.off("progress", this.#onRequestProgress);
+    request.off("error", this.#onRequestError);
+    request.off("loadend", this.#onRequestLoadEnd);
+    request.off("rendered", this.#onRequestRendered);
   }
 
   hasURL(url: string) {
