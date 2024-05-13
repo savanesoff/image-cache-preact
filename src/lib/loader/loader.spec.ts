@@ -2,7 +2,7 @@ import { Loader } from "./loader";
 import { XHR } from "@/__mocks__/xhr";
 
 afterEach(() => {
-  vi.resetAllMocks();
+  vi.clearAllMocks();
   Loader.timeout = 0; // reset static timeout count
   Loader.aborted = 0; // reset static aborted count
   Loader.errored = 0; // reset static errored count

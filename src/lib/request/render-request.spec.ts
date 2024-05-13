@@ -85,7 +85,7 @@ const createRequest = ({
 
 describe("RenderRequest", () => {
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
   it("should create an instance", () => {
     expect(createRequest()).toBeTruthy();
