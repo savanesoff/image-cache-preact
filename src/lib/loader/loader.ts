@@ -66,7 +66,8 @@ export type LoaderEvent<T extends LoaderEventTypes> = {
   target: Loader;
 } & (T extends "progress" ? ProgressEventLoader : unknown) &
   (T extends "error" ? ErrorEventLoader : unknown) &
-  (T extends "retry" ? RetryEventLoader : unknown);
+  (T extends "retry" ? RetryEventLoader : unknown) &
+  (T extends "loadend" ? { bytes: number } : unknown);
 
 /** Loader event handler */
 export type LoaderEventHandler<T extends LoaderEventTypes> = (
@@ -263,7 +264,7 @@ export class Loader extends Logger {
     this.progress = 1;
     Loader.loaded++;
     this.log.verbose(["Loaded", this.url]);
-    this.emit("loadend");
+    this.emit("loadend", { bytes: this.bytes });
   };
 
   /**
