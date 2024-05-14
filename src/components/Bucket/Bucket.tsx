@@ -10,7 +10,7 @@
  * The `BucketProvider` component also uses the `useEffect` hook to clear the `Bucket` when the component is unmounted.
  */
 import { Bucket, BucketProps } from "@lib";
-import { createContext, ReactNode, useEffect, useMemo } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { useController } from "@components";
 
 export type BucketContextType = {
@@ -28,21 +28,17 @@ export type BucketProviderProps = Partial<
 /**
  * Provides a bucket to its children.
  */
-export function BucketProvider({ children, ...props }: BucketProviderProps) {
+export function BucketProvider({ children, lock, name }: BucketProviderProps) {
   const { controller } = useController();
-  const bucket = useMemo(
-    () =>
-      new Bucket({
-        controller,
-        ...props,
-      }),
-    [controller, props],
-  );
+  const [bucket, setBucket] = useState<Bucket | null>(null);
 
   useEffect(() => {
-    return () => bucket.clear();
-  }, [bucket]);
+    const newBucket = new Bucket({ name, lock, controller });
+    setBucket(newBucket);
+    return () => newBucket.clear();
+  }, [controller, lock, name]);
 
+  if (!bucket) return null;
   return (
     <BucketContext.Provider value={{ bucket }}>
       {children}

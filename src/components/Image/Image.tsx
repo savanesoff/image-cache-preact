@@ -16,12 +16,11 @@
  * In this example, `MyComponent` and its descendants can use the `useContext` hook to access the `ImageContext`,
  * which contains the `Img` instance and the `RenderRequest` for the image.
  */
-import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { useBucket } from "@components";
-import { RenderRequest, Img, ImgProps, Size } from "@lib";
+import { RenderRequest, ImgProps, Size } from "@lib";
 
 export type ImageContextType = {
-  image: Img | null;
   request: RenderRequest;
 };
 
@@ -43,31 +42,34 @@ export const ImageProvider = ({
   children,
   height,
   width,
-  ...props
+  url,
+  gpuDataFull,
+  headers,
+  retry,
+  type,
 }: ImageProviderProps) => {
   const { bucket } = useBucket();
-  const [image, setImage] = useState<Img | null>(null);
-  // create render request
-  const request = useMemo(
-    () =>
-      new RenderRequest({
-        size: { height, width },
-
-        bucket,
-        ...props,
-      }),
-    [height, width, bucket, props],
-  );
+  const [request, setRequest] = useState<RenderRequest | null>(null);
 
   useEffect(() => {
-    request.on("rendered", (event) => {
-      setImage(event.target.image);
+    const newRequest = new RenderRequest({
+      size: { height, width },
+      bucket,
+      url,
+      gpuDataFull,
+      headers,
+      type,
+      retry,
     });
-    return () => request.clear();
-  }, [request]);
+    setRequest(newRequest);
+  }, [height, width, bucket, url, gpuDataFull, headers, retry, type]);
+
+  if (!request) {
+    return null; // or some loading state
+  }
 
   return (
-    <ImageContext.Provider value={{ image, request }}>
+    <ImageContext.Provider value={{ request }}>
       {children}
     </ImageContext.Provider>
   );

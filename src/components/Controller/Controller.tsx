@@ -2,7 +2,7 @@
  * The `ControllerProvider` component is a React context provider for a `Controller` instance.
  * It provides a `ControllerContext` that contains a `Controller` instance.
  */
-import { createContext, ReactNode, useMemo } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { ControllerProps, Controller } from "@lib";
 
 export type ControllerContextType = {
@@ -23,12 +23,49 @@ export type ControllerProviderProps = ControllerProps & {
  */
 export function ControllerProvider({
   children,
-  ...props
+  gpuDataFull,
+  hwRank,
+  loaders,
+  logLevel,
+  name,
+  ram,
+  renderer,
+  units,
+  video,
+  styles,
 }: ControllerProviderProps) {
-  const controller = useMemo(() => {
-    return new Controller(props);
-  }, [props]);
+  const [controller, setController] = useState<Controller | null>(null);
+  useEffect(() => {
+    const newController = new Controller({
+      gpuDataFull,
+      hwRank,
+      loaders,
+      logLevel,
+      name,
+      ram,
+      renderer,
+      units,
+      video,
+      styles,
+    });
+    setController(newController);
+    return () => newController.clear();
+  }, [
+    gpuDataFull,
+    hwRank,
+    loaders,
+    logLevel,
+    name,
+    ram,
+    renderer,
+    units,
+    video,
+    styles,
+  ]);
 
+  if (!controller) {
+    return null; // or some loading state
+  }
   return (
     <ControllerContext.Provider value={{ controller }}>
       {children}
