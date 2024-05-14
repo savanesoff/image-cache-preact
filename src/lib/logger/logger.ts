@@ -73,6 +73,7 @@ export class Logger extends EventEmitter {
     this.level = logLevel || this.level;
     this.name = name || this.name;
     this.styles = { ...this.styles, ...styles };
+    this.setMaxListeners(1000);
   }
 
   setLogLevel(level: LogLevel) {
