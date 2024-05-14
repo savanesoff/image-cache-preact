@@ -37,6 +37,23 @@ export const useController = ({
     onImageRemoved && controller.on("image-removed", onImageRemoved);
     onUpdate && controller.on("update", onUpdate);
 
+    // by the time this effect runs, the video might have already been loaded
+    if (controller.video.getFreeSpace().prs < 0) {
+      onVideoOverflow?.({
+        type: "video-overflow",
+        target: controller,
+        bytes: controller.video.getStats().used.bytes,
+      });
+    }
+
+    if (controller.ram.getFreeSpace().prs < 0) {
+      onRamOverflow?.({
+        type: "ram-overflow",
+        target: controller,
+        bytes: controller.ram.getStats().used.bytes,
+      });
+    }
+
     return () => {
       onRamOverflow && controller.off("ram-overflow", onRamOverflow);
       onVideoOverflow && controller.off("video-overflow", onVideoOverflow);
