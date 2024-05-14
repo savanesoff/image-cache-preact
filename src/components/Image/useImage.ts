@@ -50,11 +50,33 @@ export const useImage = ({
   }
   const request = context.request;
   const image = context.request.image;
+
   useEffect(() => {
     onProgress && image.on("progress", onProgress);
     onError && image.on("error", onError);
     onLoadend && image.on("loadend", onLoadend);
     onRendered && request.on("rendered", onRendered);
+
+    // this ensures that the loadend event is fired if the image is already loaded
+    if (request.image.loaded) {
+      onLoadend?.({
+        type: "loadend",
+        target: request.image,
+        bytes: request.image.bytes,
+      });
+      onProgress?.({
+        type: "progress",
+        target: request.image,
+        progress: 1,
+      });
+    }
+
+    if (request.rendered) {
+      onRendered?.({
+        type: "rendered",
+        target: request,
+      });
+    }
 
     return () => {
       onProgress && image.off("progress", onProgress);
