@@ -2,7 +2,7 @@ import { HTMLAttributes } from "react";
 import config from "@demo/config.json";
 import { PosterPage } from "@demo/components";
 
-const urls = new Array(10)
+const urls = new Array(40)
   .fill(0)
   .map(() => `${config.image}?hash=${Math.random()}`);
 /**
@@ -13,6 +13,7 @@ export const PostersRail = () => {
     <Rail>
       {/* Lock the first page */}
       <PosterPage name="Poser page main" lock urls={urls} />
+      {/* <PosterPage name="Poser page main" urls={urls} /> */}
       {/* <PosterPage name="Poser page main" urls={urlsMain} /> */}
     </Rail>
   );
@@ -25,7 +26,7 @@ const Rail = ({ children }: RailProps) => {
   return (
     <div
       data-testid="rail"
-      className="no-scrollbar h-[260px] w-auto overflow-x-auto  overflow-y-visible bg-slate-900"
+      className="no-scrollbar flex h-[260px]  flex-row overflow-x-auto overflow-y-visible bg-slate-900"
     >
       {children}
     </div>

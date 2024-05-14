@@ -17,13 +17,7 @@ export const Posters = ({
   ...props
 }: PosterProps) => {
   return (
-    <div
-      className={cn(
-        " no-scrollbar flex w-auto flex-row space-x-2 overflow-x-auto",
-        className,
-      )}
-      {...props}
-    >
+    <div className={cn("flex flex-row space-x-2 ", className)} {...props}>
       {urls.map((url, index) => (
         <ImageProvider key={index} url={url} width={width} height={height}>
           <Poster index={index} />

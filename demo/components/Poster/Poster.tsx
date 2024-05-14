@@ -22,6 +22,16 @@ export const Poster = ({ className, index, ...props }: PosterProps) => {
       focusSelf();
     }
   }, [focusSelf, index]);
+
+  useEffect(() => {
+    if (focused) {
+      ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    }
+  }, [focused, ref, request]);
   return (
     <div
       ref={ref}
