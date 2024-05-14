@@ -1,17 +1,18 @@
 import { useContext, useEffect } from "react";
 import { ControllerContext, ControllerContextType } from "./Controller";
+import { ControllerEvent } from "@/lib";
 
 type UseControllerProps = {
   /** Event handler for RAM overflow */
-  onRamOverflow?: () => void;
+  onRamOverflow?: (event: ControllerEvent<"ram-overflow">) => void;
   /** Event handler for video memory overflow */
-  onVideoOverflow?: () => void;
+  onVideoOverflow?: (event: ControllerEvent<"video-overflow">) => void;
   /** Event handler for image added */
-  onImageAdded?: () => void;
+  onImageAdded?: (event: ControllerEvent<"image-added">) => void;
   /** Event handler for image removed */
-  onImageRemoved?: () => void;
+  onImageRemoved?: (event: ControllerEvent<"image-removed">) => void;
   /** Event handler for cache update */
-  onUpdate?: () => void;
+  onUpdate?: (event: ControllerEvent<"update">) => void;
 };
 /**
  * The useController hook provides a way to access the `Controller` instance from the `ControllerProvider`.
