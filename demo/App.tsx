@@ -26,10 +26,11 @@ function App() {
       </div>
       <ControllerProvider
         loaders={6}
-        ram={5} // 100GB 50GB (system) -> 50GB
-        video={0.5} // Defragmentation -> 1GB
+        ram={3}
+        video={4}
         units="GB"
-        hwRank={0.96} // 0-1
+        hwRank={0.8} // 0-1
+        gpuDataFull={true}
       >
         {/* <CacheVOD /> */}
         <View />
