@@ -49,13 +49,13 @@ export class RenderRequest extends Logger {
    * @param props - Additional properties for the request.
    */
   constructor({ size, bucket, ...props }: RenderRequestProps) {
-    super({ name: "RenderRequest" });
+    super({ name: "RenderRequest", logLevel: "verbose" });
     this.size = size;
     this.rendered = false;
     this.bucket = bucket;
     this.frameQueue = this.bucket.controller.frameQueue;
     this.image = this.bucket.controller.getImage(props);
-    this.bytesVideo = this.image.getBytesVideo(size);
+    this.bytesVideo = this.image.getBytesVideo(size, true);
     this.image.registerRequest(this);
     this.bucket.registerRequest(this);
 
@@ -83,6 +83,7 @@ export class RenderRequest extends Logger {
    * Requests the image to be rendered.
    */
   request = () => {
+    this.log.verbose(["Requesting render"]);
     // request render
     this.emit("loadend");
     this.frameQueue.add(this);
