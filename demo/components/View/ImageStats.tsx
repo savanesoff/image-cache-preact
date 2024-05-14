@@ -9,5 +9,5 @@ export const ImageStats = () => {
   }, []);
   useController({ onImageAdded });
 
-  return <StatusBadge text={`Img: ${count}`} />;
+  return <StatusBadge text={`I: ${count}`} />;
 };

@@ -20,11 +20,9 @@ export const VideoUsage = () => {
   }, [controller, onBytesAdded]);
 
   return (
-    <>
-      <StatusBadge
-        status="warn"
-        text={`Video: ${stats.used.units} / ${stats.state.size}${stats.state.units} [${stats.used.prs.toFixed(2)}%]`}
-      />
-    </>
+    <StatusBadge
+      status="warn"
+      text={`VID: ${stats.used.units.toFixed(2)} / ${stats.state.size}${stats.state.units} [${stats.used.prs.toFixed(2)}%]`}
+    />
   );
 };

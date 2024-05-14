@@ -23,18 +23,18 @@ function App() {
         className={cn(
           "bg-slate-900",
           "text-slate-300",
-          "p-4",
+          "p-2",
           "w-full",
-          "text-2xl",
+          "text-xl",
         )}
       >
         React Image Cache Demo
       </div>
       <ControllerProvider
         loaders={6}
-        ram={3}
-        video={4}
-        units="GB"
+        ram={3000}
+        video={5000}
+        units="MB"
         hwRank={0.8} // 0-1
         gpuDataFull={true}
       >

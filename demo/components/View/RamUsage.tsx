@@ -20,10 +20,8 @@ export const RamUsage = () => {
   }, [controller, onBytesAdded]);
 
   return (
-    <>
-      <StatusBadge
-        text={`RAM: ${stats.used.units} / ${stats.state.size}${stats.state.units} [${stats.used.prs.toFixed(2)}%]`}
-      />
-    </>
+    <StatusBadge
+      text={`RAM: ${stats.used.units.toFixed(2)} / ${stats.state.size}${stats.state.units} [${stats.used.prs.toFixed(2)}%]`}
+    />
   );
 };
