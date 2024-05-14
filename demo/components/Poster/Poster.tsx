@@ -32,14 +32,13 @@ export const Poster = ({ className, ...props }: PosterProps) => {
         "bg-slate-800",
         `max-w-[${request?.size.width}px]`,
         `w-[${request?.size.width}px]`,
+        "flex flex-col space-y-1",
         className,
       )}
       {...props}
     >
-      <div className={cn("flex flex-col gap-1 p-1 text-[10px]", className)}>
-        <PosterLoadStatus />
-        <PosterRenderStatus />
-      </div>
+      <PosterLoadStatus />
+      <PosterRenderStatus />
       <div
         className="transition-opacity duration-1000 ease-in-out"
         style={{

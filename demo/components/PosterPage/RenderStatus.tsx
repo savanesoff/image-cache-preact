@@ -8,14 +8,14 @@ export const PageRenderStatus = () => {
   const onRendered = useCallback(() => {
     setRendered(true);
   }, []);
-  const onRequestRendered = useCallback(
-    (event: BucketEvent<"request-rendered">) => {
+  const onRenderProgress = useCallback(
+    (event: BucketEvent<"render-progress">) => {
       setProgress(Math.round(event.progress * 100));
     },
     [],
   );
 
-  useBucket({ onRendered, onRequestRendered });
+  useBucket({ onRenderProgress, onRendered });
   return (
     <StatusBadge
       status={rendered ? "on" : "off"}

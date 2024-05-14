@@ -11,7 +11,6 @@ const urls = new Array(10)
 export const PostersRail = () => {
   return (
     <div>
-      <div className="text-slate-400">Poster rail</div>
       <Rail>
         {/* Lock the first page */}
         <PosterPage name="Poser page main" lock urls={urls} />
@@ -25,5 +24,7 @@ type RailProps = HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode;
 };
 const Rail = ({ children }: RailProps) => {
-  return <div className="flex w-auto overflow-x-scroll">{children}</div>;
+  return (
+    <div className="flex w-auto overflow-x-scroll bg-slate-900">{children}</div>
+  );
 };

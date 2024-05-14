@@ -14,8 +14,8 @@ export const StatusBadge = ({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-md bg-slate-700 px-2 py-1",
-        " text-inherit text-slate-400",
+        "flex items-center justify-center rounded-md bg-slate-700 px-2 py-0 text-sm",
+        " text-inherit text-slate-300",
         status === "on" && "bg-green-700  text-green-200",
         status === "error" && "bg-red-700 text-red-100",
         status === "warn" && "bg-yellow-700 text-orange-100",

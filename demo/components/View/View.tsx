@@ -9,7 +9,7 @@ import { useCallback, useState } from "react";
  */
 export const View = () => {
   return (
-    <div className={cn("p-4", "bg-slate-600", "w-full")}>
+    <div className={cn("p-4", "bg-slate-600", "w-full space-y-2")}>
       <CacheStats />
       <PostersRail />
       {/* <PostersRail /> */}

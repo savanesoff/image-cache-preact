@@ -22,8 +22,7 @@ export const PosterLoadStatus = ({ ...props }: LoadStatusProps) => {
   return (
     <StatusBadge
       status={loaded ? "on" : "off"}
-      text={loaded ? "loaded" : `loading: ${progress}%`}
-      className="p-1"
+      text={`${progress}%`}
       {...props}
     />
   );
