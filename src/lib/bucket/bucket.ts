@@ -98,7 +98,7 @@ export class Bucket extends Logger {
   constructor({ name, lock = false, controller }: BucketProps) {
     super({
       name: name || (Bucket.bucketNumber++).toString(),
-      logLevel: "verbose",
+      logLevel: "error",
     });
     this.controller = controller;
     this.locked = lock;
@@ -226,7 +226,7 @@ export class Bucket extends Logger {
     let used = 0;
     for (const request of this.requests) {
       requested += request.bytesVideo;
-      used += request.rendered ? request.bytesVideo : 0;
+      used += request.rendered ? request.image.getBytesVideo(request.size) : 0;
     }
 
     return {
