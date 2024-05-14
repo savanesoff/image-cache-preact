@@ -219,9 +219,10 @@ export class Img extends Loader {
   /**
    * Returns the size of the image in bytes as a 4 channel RGBA image
    */
-  getBytesVideo(size: Size) {
+  getBytesVideo(size: Size, requested = false) {
     const bytesPerPixel = IMAGE_COLOR_TYPE[this.type]; // default to 4 if the image type is not in the map
-    const gpuSize = this.gpuDataFull && this.element ? this.element : size;
+    const gpuSize =
+      !requested && this.gpuDataFull && this.element ? this.element : size;
     return gpuSize.width * gpuSize.height * bytesPerPixel;
   }
 
