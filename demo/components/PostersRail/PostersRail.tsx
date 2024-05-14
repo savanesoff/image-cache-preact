@@ -25,6 +25,8 @@ type RailProps = HTMLAttributes<HTMLDivElement> & {
 };
 const Rail = ({ children }: RailProps) => {
   return (
-    <div className="flex w-auto overflow-x-scroll bg-slate-900">{children}</div>
+    <div className="no-scrollbar flex w-auto overflow-x-scroll bg-slate-900">
+      {children}
+    </div>
   );
 };
