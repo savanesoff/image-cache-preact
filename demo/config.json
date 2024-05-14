@@ -1,3 +1,5 @@
 {
-  "image": "http://localhost:8080/test-4k.jpg"
+  "image": "http://localhost:8080/test-4k.jpg",
+  "topics": 2,
+  "perPage": 10
 }

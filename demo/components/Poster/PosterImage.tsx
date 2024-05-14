@@ -1,12 +1,17 @@
 import { useImage, useBucket } from "@/components";
 import { RenderRequestEvent } from "@/lib";
 import { cn } from "@demo/utils";
+import { Asset } from "@demo/utils/assets.endpoint";
 import { useState, useCallback } from "react";
 
+type PosterImageProps = {
+  focused?: boolean;
+  asset: Asset;
+};
 /**
  * Renders the poster image using the useImage hook.
  */
-export const PosterImage = ({ focused = false }) => {
+export const PosterImage = ({ focused = false, asset }: PosterImageProps) => {
   const [url, setUrl] = useState<string | null>(null);
   const onImageRendered = useCallback(
     (event: RenderRequestEvent<"rendered">) => {
@@ -50,17 +55,18 @@ export const PosterImage = ({ focused = false }) => {
 
       <div
         className={cn(
-          "absolute bottom-0 left-0 top-auto h-0 w-full bg-green-700",
+          "absolute bottom-0 left-0  top-full w-full overflow-hidden bg-slate-900",
           "duration-400 transition-all ease-in-out",
           "flex items-center justify-center text-xl text-slate-50",
-          "opacity-0",
-          focused && "h-1/2 opacity-90",
+          "h-1/2 p-2 opacity-0",
+          focused && "top-1/2 opacity-80",
         )}
         style={{
           position: "absolute",
         }}
       >
-        Details
+        <div className="text-xs">{asset.title}</div>
+        {/* <div className="text-xs">{asset.description}</div> */}
       </div>
     </div>
   );

@@ -5,16 +5,18 @@ import { PosterLoadStatus } from "./LoadStatus";
 import { PosterRenderStatus } from "./RenderStatus";
 import { PosterImage } from "./PosterImage";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { Asset } from "@demo/utils/assets.endpoint";
 
 export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   index: number;
+  asset: Asset;
 };
 
 /**
  * Poster component to display the image.
  * Uses the useImage hook to load the image.
  */
-export const Poster = ({ className, index, ...props }: PosterProps) => {
+export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
   const { request } = useImage();
   const { ref, focused, focusSelf } = useFocusable();
   useEffect(() => {
@@ -46,7 +48,7 @@ export const Poster = ({ className, index, ...props }: PosterProps) => {
     >
       <PosterLoadStatus />
       <PosterRenderStatus />
-      <PosterImage focused={focused} />
+      <PosterImage focused={focused} asset={asset} />
     </div>
   );
 };

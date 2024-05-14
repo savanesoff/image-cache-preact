@@ -1,34 +1,47 @@
-import { HTMLAttributes } from "react";
-import config from "@demo/config.json";
 import { PosterPage } from "@demo/components";
+import { cn } from "@demo/utils";
+import { Topic } from "@demo/utils/assets.endpoint";
+import {
+  FocusContext,
+  useFocusable,
+} from "@noriginmedia/norigin-spatial-navigation";
 
-const urls = new Array(40)
-  .fill(0)
-  .map(() => `${config.image}?hash=${Math.random()}`);
+type PosterRailProps = {
+  topic: Topic;
+  fromPage?: number;
+  assetCount?: number;
+};
 /**
  * An example of poster rail that fetches data and renders cached posters
  */
-export const PostersRail = () => {
-  return (
-    <Rail>
-      {/* Lock the first page */}
-      <PosterPage name="Poser page main" lock urls={urls} />
-      {/* <PosterPage name="Poser page main" urls={urls} /> */}
-      {/* <PosterPage name="Poser page main" urls={urlsMain} /> */}
-    </Rail>
-  );
-};
+export const PostersRail = ({
+  topic,
+  fromPage = 0,
+  assetCount = 10,
+}: PosterRailProps) => {
+  const { ref, focusKey, hasFocusedChild } = useFocusable({
+    isFocusBoundary: true,
+    focusBoundaryDirections: ["left", "right"],
+    trackChildren: true,
+  });
 
-type RailProps = HTMLAttributes<HTMLDivElement> & {
-  children: React.ReactNode;
-};
-const Rail = ({ children }: RailProps) => {
   return (
-    <div
-      data-testid="rail"
-      className="no-scrollbar flex h-[260px]  flex-row overflow-x-auto overflow-y-visible bg-slate-900"
-    >
-      {children}
-    </div>
+    <FocusContext.Provider value={focusKey}>
+      <div
+        ref={ref}
+        data-testid="rail"
+        className={cn(
+          "no-scrollbar flex h-[245px] flex-row overflow-y-hidden overflow-x-scroll bg-slate-900",
+          hasFocusedChild && "bg-orange-800",
+        )}
+        title={topic.description}
+      >
+        {/* <div>{topic.title}</div> */}
+        {/* Lock the first page */}
+        <PosterPage name="Poser page main" topic={topic} pageNumber={0} />
+        {/* <PosterPage name="Poser page main" urls={urls} /> */}
+        {/* <PosterPage name="Poser page main" urls={urlsMain} /> */}
+      </div>
+    </FocusContext.Provider>
   );
 };
