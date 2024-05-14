@@ -3,6 +3,9 @@ import { RenderRequestEvent } from "@/lib";
 import { cn } from "@demo/utils";
 import { useState, useCallback } from "react";
 
+/**
+ * Renders the poster image using the useImage hook.
+ */
 export const PosterImage = () => {
   const [url, setUrl] = useState<string | null>(null);
   const onImageRendered = useCallback(
@@ -25,11 +28,11 @@ export const PosterImage = () => {
       style={{
         width: request.size.width,
         height: request.size.height,
+        // for cobalt
         minWidth: request.size.width,
         minHeight: request.size.height,
         maxWidth: request.size.width,
         maxHeight: request.size.height,
-        // opacity: show ? 1 : 0,
       }}
     >
       <div
