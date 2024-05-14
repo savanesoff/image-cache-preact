@@ -577,6 +577,7 @@ describe("Bucket", () => {
     it("should have correct used data", () => {
       bucket.requests.forEach((request) => {
         request.rendered = Math.random() > 0.5;
+        request.image.getBytesVideo = vi.fn(() => request.bytesVideo);
       });
       const used = Array.from(bucket.requests).reduce(
         (acc, request) => acc + (request.rendered ? request.bytesVideo : 0),
@@ -622,6 +623,7 @@ describe("Bucket", () => {
     it("should have correct used data", () => {
       bucket.requests.forEach((request) => {
         request.rendered = Math.random() > 0.5;
+        request.image.getBytesVideo = vi.fn(() => request.bytesVideo);
       });
       const used =
         Array.from(bucket.requests).reduce(

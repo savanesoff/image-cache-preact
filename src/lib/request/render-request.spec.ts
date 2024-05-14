@@ -118,7 +118,10 @@ describe("RenderRequest", () => {
   it("should have bytesVideo of size assigned", () => {
     const request = createRequest();
     expect(request.bytesVideo).toBe(mockBytesVideo);
-    expect(request.image.getBytesVideo).toHaveBeenCalledWith(request.size);
+    expect(request.image.getBytesVideo).toHaveBeenCalledWith(
+      request.size,
+      true,
+    );
   });
 
   it("should register request on image", () => {

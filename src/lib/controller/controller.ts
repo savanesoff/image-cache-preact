@@ -87,7 +87,7 @@ export class Controller extends Logger {
     video = 1,
     loaders = 6,
     units = "GB",
-    logLevel = "info",
+    logLevel = "error",
     hwRank = 1,
     gpuDataFull = false,
     renderer,
