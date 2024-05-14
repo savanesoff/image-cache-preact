@@ -8,9 +8,9 @@ export const VideoUsage = () => {
 
   const { bucket } = useBucket();
   const onRequestRendered = useCallback(() => {
-    const data = bucket.getBytesVideo();
-    setRequested(data.requestedUnits);
-    setUsed(data.usedUnits);
+    const data = bucket.getVideoUnits();
+    setRequested(data.requested.toFixed(3) + data.type);
+    setUsed(data.used.toFixed(3) + data.type);
   }, [bucket]);
   useBucket({ onRequestRendered });
   return <StatusBadge status="warn" text={`Video r:${requested} u:${used}`} />;

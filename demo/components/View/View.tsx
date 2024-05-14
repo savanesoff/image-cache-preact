@@ -11,8 +11,8 @@ export const View = () => {
   return (
     <div className={cn("p-4", "bg-slate-600", "w-full")}>
       <CacheStats />
-      {/* <PostersRail /> */}
       <PostersRail />
+      {/* <PostersRail /> */}
       <ToggleRail />
     </div>
   );

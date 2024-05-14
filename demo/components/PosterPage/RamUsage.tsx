@@ -9,10 +9,10 @@ export const RamUsage = () => {
 
   const { bucket } = useBucket();
   const onRequestRendered = useCallback(() => {
-    const data = bucket.getBytesRam();
-    setCompressed(data.compressedUnits);
-    setUncompressed(data.uncompressedUnits);
-    setTotal(data.totalUnits);
+    const data = bucket.getRamUnits();
+    setCompressed(data.compressed.toFixed(3) + data.type);
+    setUncompressed(data.uncompressed.toFixed(3) + data.type);
+    setTotal(data.total.toFixed(3) + data.type);
   }, [bucket]);
   useBucket({ onRequestRendered });
   return (

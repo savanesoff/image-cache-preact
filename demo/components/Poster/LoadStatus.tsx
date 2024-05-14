@@ -18,6 +18,7 @@ export const PosterLoadStatus = ({ ...props }: LoadStatusProps) => {
     setProgress(Math.round(event.progress * 100));
   }, []);
   useImage({ onLoadend, onProgress });
+
   return (
     <StatusBadge
       status={loaded ? "on" : "off"}

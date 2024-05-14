@@ -1,5 +1,5 @@
-import { HTMLAttributes, useCallback, useState } from "react";
-import { ImageProvider, useBucket } from "@cache";
+import { HTMLAttributes } from "react";
+import { ImageProvider } from "@cache";
 import { Poster } from "@demo/components";
 import { cn } from "@demo/utils";
 
@@ -16,17 +16,11 @@ export const Posters = ({
   className,
   ...props
 }: PosterProps) => {
-  const [show, setShow] = useState(false);
-  const onRendered = useCallback(() => {
-    setShow(true);
-  }, []);
-  useBucket({ onRendered });
-
   return (
     <div className={cn("flex gap-2", className)} {...props}>
       {urls.map((url, index) => (
         <ImageProvider key={index} url={url} width={width} height={height}>
-          <Poster show={show} />
+          <Poster />
         </ImageProvider>
       ))}
     </div>
