@@ -24,6 +24,8 @@ export type UseBucketProps = {
   onRendered?: (event: BucketEvent<"rendered">) => void;
   /** The request-rendered event handler. */
   onRequestRendered?: (event: BucketEvent<"request-rendered">) => void;
+  /** The render-progress event handler. */
+  onRenderProgress?: (event: BucketEvent<"render-progress">) => void;
 };
 
 /**
@@ -35,6 +37,7 @@ export const useBucket = ({
   onLoadend,
   onRendered,
   onRequestRendered,
+  onRenderProgress,
 }: UseBucketProps = {}): BucketContextType => {
   const context = useContext(BucketContext);
   if (!context) {
@@ -48,6 +51,7 @@ export const useBucket = ({
     onRendered && context.bucket.on("rendered", onRendered);
     onRequestRendered &&
       context.bucket.on("request-rendered", onRequestRendered);
+    onRenderProgress && context.bucket.on("render-progress", onRenderProgress);
 
     if (context.bucket.loaded) {
       onLoadend?.({ type: "loadend", target: context.bucket, loaded: true });
@@ -59,6 +63,7 @@ export const useBucket = ({
         rendered: true,
       });
     }
+
     return () => {
       onProgress && context.bucket.off("progress", onProgress);
       onError && context.bucket.off("error", onError);
@@ -66,6 +71,8 @@ export const useBucket = ({
       onRendered && context.bucket.off("rendered", onRendered);
       onRequestRendered &&
         context.bucket.off("request-rendered", onRequestRendered);
+      onRenderProgress &&
+        context.bucket.off("render-progress", onRenderProgress);
     };
   }, [
     context.bucket,
@@ -74,6 +81,7 @@ export const useBucket = ({
     onLoadend,
     onRendered,
     onRequestRendered,
+    onRenderProgress,
   ]);
   return context;
 };
