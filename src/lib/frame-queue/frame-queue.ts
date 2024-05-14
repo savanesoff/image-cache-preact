@@ -100,6 +100,7 @@ export class FrameQueue extends Logger {
   add(request: RenderRequest) {
     this.queue.add(request);
     this.emit("request-added", { request });
+    this.log.info([`added: ${this.queue.size}`]);
     this.#next();
   }
 
@@ -129,6 +130,14 @@ export class FrameQueue extends Logger {
       | undefined;
     if (!request) {
       this.scheduled = false;
+      return;
+    }
+    if (request.image.gpuDataFull && request.image.decoded) {
+      this.scheduled = false;
+      this.queue.delete(request);
+      request.onProcessing();
+      request.onRendered();
+      setTimeout(() => this.#next(), 0);
       return;
     }
     this.log.info([`processing: ${this.queue.size}`]);
