@@ -49,6 +49,16 @@ export const useBucket = ({
     onRequestRendered &&
       context.bucket.on("request-rendered", onRequestRendered);
 
+    if (context.bucket.loaded) {
+      onLoadend?.({ type: "loadend", target: context.bucket, loaded: true });
+    }
+    if (context.bucket.rendered) {
+      onRendered?.({
+        type: "rendered",
+        target: context.bucket,
+        rendered: true,
+      });
+    }
     return () => {
       onProgress && context.bucket.off("progress", onProgress);
       onError && context.bucket.off("error", onError);
