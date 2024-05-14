@@ -26,7 +26,8 @@ export type BucketEventTypes =
   | "loading"
   | "request-rendered"
   | "request-loadend"
-  | "render-progress";
+  | "render-progress"
+  | "update";
 
 type ProgressEvent = {
   /** The progress of the loading operation */
@@ -63,7 +64,8 @@ export type BucketEvent<T extends BucketEventTypes> = {
   (T extends "rendered" ? RenderEvent : unknown) &
   (T extends "request-rendered" ? RequestRenderedEvent : unknown) &
   (T extends "request-loadend" ? RequestLoadEndEvent : unknown) &
-  (T extends "loading" ? { request: RenderRequest } : unknown);
+  (T extends "loading" ? { request: RenderRequest } : unknown) &
+  (T extends "update" ? { requests: number; images: number } : unknown);
 
 export type BucketEventHandler<T extends BucketEventTypes> = (
   event: BucketEvent<T>,
@@ -111,6 +113,10 @@ export class Bucket extends Logger {
     request.on("error", this.#onRequestError);
     request.on("loadend", this.#onRequestLoadEnd);
     request.on("rendered", this.#onRequestRendered);
+    this.emit("update", {
+      requests: this.requests.size,
+      images: this.getImages().size,
+    });
   }
 
   unregisterRequest(request: RenderRequest) {
@@ -120,6 +126,10 @@ export class Bucket extends Logger {
     request.off("error", this.#onRequestError);
     request.off("loadend", this.#onRequestLoadEnd);
     request.off("rendered", this.#onRequestRendered);
+    this.emit("update", {
+      requests: this.requests.size,
+      images: this.getImages().size,
+    });
   }
 
   hasURL(url: string) {
