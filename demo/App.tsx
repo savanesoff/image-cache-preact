@@ -5,9 +5,15 @@ import { ControllerProvider } from "@cache";
 import { View } from "@demo/components";
 
 devtoolsFPS.config({
-  bufferSize: window.innerWidth,
-  width: window.innerWidth,
-  height: 140,
+  bufferSize: 200,
+  width: 200,
+  height: 50,
+  style: {
+    // position: "fixed",
+    bottom: `0`,
+    right: `0`,
+    zIndex: `9999`,
+  },
 });
 
 function App() {
