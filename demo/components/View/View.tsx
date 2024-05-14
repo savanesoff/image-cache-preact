@@ -2,19 +2,28 @@ import { cn } from "@demo/utils";
 import { PostersRail } from "@demo/components";
 import { CacheStats } from "./CacheStats";
 import { useCallback, useState } from "react";
+import {
+  useFocusable,
+  FocusContext,
+} from "@noriginmedia/norigin-spatial-navigation";
 
 /**
  * Example of an app view that uses the PostersRail component.
  * Like VOD.
  */
 export const View = () => {
+  const { ref, focusKey } = useFocusable();
+
   return (
-    <div className={cn("p-4", "bg-slate-600", "w-full space-y-2")}>
-      <CacheStats />
-      <PostersRail />
-      {/* <PostersRail /> */}
-      <ToggleRail />
-    </div>
+    <FocusContext.Provider value={focusKey}>
+      <div className={cn("p-4", "bg-slate-600", "w-full space-y-2")} ref={ref}>
+        <CacheStats />
+
+        <PostersRail />
+        {/* <PostersRail /> */}
+        <ToggleRail />
+      </div>
+    </FocusContext.Provider>
   );
 };
 

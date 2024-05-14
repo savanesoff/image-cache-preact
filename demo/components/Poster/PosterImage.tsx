@@ -6,7 +6,7 @@ import { useState, useCallback } from "react";
 /**
  * Renders the poster image using the useImage hook.
  */
-export const PosterImage = () => {
+export const PosterImage = ({ focused = false }) => {
   const [url, setUrl] = useState<string | null>(null);
   const onImageRendered = useCallback(
     (event: RenderRequestEvent<"rendered">) => {
@@ -24,7 +24,7 @@ export const PosterImage = () => {
 
   return (
     <div
-      className={cn("bg-cyan-900", url && "bg-orange-500")}
+      className={cn("bg-cyan-900", url && "relative bg-orange-500 ")}
       style={{
         width: request.size.width,
         height: request.size.height,
@@ -33,6 +33,7 @@ export const PosterImage = () => {
         minHeight: request.size.height,
         maxWidth: request.size.width,
         maxHeight: request.size.height,
+        position: "relative",
       }}
     >
       <div
@@ -46,6 +47,21 @@ export const PosterImage = () => {
           backgroundSize: `${request?.size.width}px ${request?.size.height}px`,
         }}
       />
+
+      <div
+        className={cn(
+          "absolute bottom-0 left-0 top-auto h-0 w-full bg-green-700",
+          "duration-400 transition-all ease-in-out",
+          "flex items-center justify-center text-xl text-slate-50",
+          "opacity-0",
+          focused && "h-1/2 opacity-90",
+        )}
+        style={{
+          position: "absolute",
+        }}
+      >
+        Details
+      </div>
     </div>
   );
 };

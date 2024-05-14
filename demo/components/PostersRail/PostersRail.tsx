@@ -1,5 +1,5 @@
 import { HTMLAttributes } from "react";
-import config from "../../config.json";
+import config from "@demo/config.json";
 import { PosterPage } from "@demo/components";
 
 const urls = new Array(10)
@@ -10,13 +10,11 @@ const urls = new Array(10)
  */
 export const PostersRail = () => {
   return (
-    <div>
-      <Rail>
-        {/* Lock the first page */}
-        <PosterPage name="Poser page main" lock urls={urls} />
-        {/* <PosterPage name="Poser page main" urls={urlsMain} /> */}
-      </Rail>
-    </div>
+    <Rail>
+      {/* Lock the first page */}
+      <PosterPage name="Poser page main" lock urls={urls} />
+      {/* <PosterPage name="Poser page main" urls={urlsMain} /> */}
+    </Rail>
   );
 };
 
@@ -25,7 +23,10 @@ type RailProps = HTMLAttributes<HTMLDivElement> & {
 };
 const Rail = ({ children }: RailProps) => {
   return (
-    <div className="no-scrollbar flex w-auto overflow-x-scroll bg-slate-900">
+    <div
+      data-testid="rail"
+      className="no-scrollbar h-[260px] w-auto overflow-x-auto  overflow-y-visible bg-slate-900"
+    >
       {children}
     </div>
   );

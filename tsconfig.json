@@ -32,7 +32,7 @@
       "@demo/components": ["demo/components"],
       "@demo/components/*": ["demo/components/*"],
       "@demo/utils": ["demo/utils"],
-      "@demo": ["demo"]
+      "@demo/*": ["demo/*"]
     }
   },
   "include": ["src", "demo"],

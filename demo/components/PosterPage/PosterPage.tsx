@@ -26,8 +26,11 @@ export const PosterPage = ({
 }: PosterPageProps) => {
   return (
     <BucketProvider name={name} lock={lock}>
-      <div className={cn("flex flex-col gap-2", className)} {...props}>
-        <div className="flex flex-row items-center gap-2 bg-slate-800 p-2 text-sm text-slate-400">
+      <div
+        className={cn("flex flex-col items-stretch space-y-2", className)}
+        {...props}
+      >
+        <div className="flex w-full flex-row items-center space-x-2 bg-slate-800 p-2 text-sm text-slate-400">
           <div>Page</div>
           <StatusBadge text={`count: ${urls.length}`} />
           <PageLoadStatus />

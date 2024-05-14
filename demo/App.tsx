@@ -3,6 +3,22 @@ import { cn } from "./utils";
 import { ControllerProvider } from "@cache";
 
 import { View } from "@demo/components";
+import { init } from "@noriginmedia/norigin-spatial-navigation";
+
+init({
+  // options
+  shouldFocusDOMNode: true,
+  shouldUseNativeEvents: true,
+  useGetBoundingClientRect: true,
+});
+
+// setKeyMap({
+//   left: 9001, // or 'ArrowLeft'
+//   up: 9002, // or 'ArrowUp'
+//   right: 9003, // or 'ArrowRight'
+//   down: 9004, // or 'ArrowDown'
+//   enter: 9005, // or 'Enter'
+// });
 
 devtoolsFPS.config({
   bufferSize: 200,

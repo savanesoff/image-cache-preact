@@ -17,10 +17,16 @@ export const Posters = ({
   ...props
 }: PosterProps) => {
   return (
-    <div className={cn("flex gap-2", className)} {...props}>
+    <div
+      className={cn(
+        " no-scrollbar flex w-auto flex-row space-x-2 overflow-x-auto",
+        className,
+      )}
+      {...props}
+    >
       {urls.map((url, index) => (
         <ImageProvider key={index} url={url} width={width} height={height}>
-          <Poster />
+          <Poster index={index} />
         </ImageProvider>
       ))}
     </div>

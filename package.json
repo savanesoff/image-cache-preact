@@ -11,12 +11,14 @@
     "test": "vitest --watch"
   },
   "dependencies": {
+    "clsx": "^2.1.0",
     "events": "^3.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.2.2"
   },
   "devDependencies": {
+    "@noriginmedia/norigin-spatial-navigation": "^2.1.0",
     "@types/events": "^3.0.0",
     "@types/json-schema": "^7.0.11",
     "@types/react": "^18.0.28",
@@ -25,7 +27,6 @@
     "@typescript-eslint/parser": "^5.57.1",
     "@vitejs/plugin-react-swc": "^3.0.0",
     "autoprefixer": "^10.4.19",
-    "clsx": "^2.1.0",
     "devtools-fps": "^2.0.2",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^9.1.0",

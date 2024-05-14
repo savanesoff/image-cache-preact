@@ -1,21 +1,30 @@
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useEffect } from "react";
 import { useImage } from "@cache";
 import { cn } from "@demo/utils";
 import { PosterLoadStatus } from "./LoadStatus";
 import { PosterRenderStatus } from "./RenderStatus";
 import { PosterImage } from "./PosterImage";
+import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 
-export type PosterProps = HTMLAttributes<HTMLDivElement>;
+export type PosterProps = HTMLAttributes<HTMLDivElement> & {
+  index: number;
+};
 
 /**
  * Poster component to display the image.
  * Uses the useImage hook to load the image.
  */
-export const Poster = ({ className, ...props }: PosterProps) => {
+export const Poster = ({ className, index, ...props }: PosterProps) => {
   const { request } = useImage();
-
+  const { ref, focused, focusSelf } = useFocusable();
+  useEffect(() => {
+    if (index === 0) {
+      focusSelf();
+    }
+  }, [focusSelf, index]);
   return (
     <div
+      ref={ref}
       className={cn(
         "bg-slate-800",
         `max-w-[${request.size.width}px]`,
@@ -27,7 +36,7 @@ export const Poster = ({ className, ...props }: PosterProps) => {
     >
       <PosterLoadStatus />
       <PosterRenderStatus />
-      <PosterImage />
+      <PosterImage focused={focused} />
     </div>
   );
 };
