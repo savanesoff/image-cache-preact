@@ -28,7 +28,8 @@ export type ControllerEventTypes =
   | "video-overflow"
   | "update"
   | "image-added"
-  | "image-removed";
+  | "image-removed"
+  | "clear";
 
 /** Controller event */
 export type ControllerEvent<T extends ControllerEventTypes> = {
@@ -86,7 +87,7 @@ export class Controller extends Logger {
     video = 1,
     loaders = 6,
     units = "GB",
-    logLevel = "error",
+    logLevel = "info",
     hwRank = 1,
     gpuDataFull = false,
     renderer,
@@ -131,6 +132,16 @@ export class Controller extends Logger {
     return this.cache.get(props.url) || this.#createImage(props);
   }
 
+  clear() {
+    this.cache.forEach((image) => image.clear());
+    this.cache.clear();
+    this.network.clear();
+    this.ram.clear();
+    this.video.clear();
+    this.emit("clear");
+    this.removeAllListeners();
+  }
+
   //-------------------------------   PRIVATE   --------------------------------
 
   /**
@@ -153,7 +164,7 @@ export class Controller extends Logger {
    * @returns
    */
   #createImage(props: ImgProps): Img {
-    const image = new Img({ gpuDataFull: this.gpuDataFull, ...props });
+    const image = new Img({ ...props, gpuDataFull: this.gpuDataFull });
     this.cache.set(image.url, image); // TODO blob is network data, once we get image size any render of size will consume raw width/height data for ram
     image.on("loadend", this.#onImageLoadend);
     image.on("size", this.#onImageDecoded);
@@ -191,10 +202,11 @@ export class Controller extends Logger {
    * @param bytes
    */
   #addVideoBytes(bytes: number) {
+    if (bytes <= 0) return;
     const remainingBytes = this.video.addBytes(bytes);
     const overflow = remainingBytes < 0;
     const overflowBytes = Math.abs(remainingBytes);
-    // this.log.info(["video", this.video.getStats()]);
+
     if (overflow && this.#requestVideo(overflowBytes) === false) {
       this.emit("video-overflow", { bytes: overflowBytes });
     }
