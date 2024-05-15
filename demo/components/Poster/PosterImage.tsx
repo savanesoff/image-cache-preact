@@ -7,11 +7,16 @@ import { useState, useCallback } from "react";
 type PosterImageProps = {
   focused?: boolean;
   asset: Asset;
+  index?: number;
 };
 /**
  * Renders the poster image using the useImage hook.
  */
-export const PosterImage = ({ focused = false, asset }: PosterImageProps) => {
+export const PosterImage = ({
+  focused = false,
+  asset,
+  index,
+}: PosterImageProps) => {
   const [url, setUrl] = useState<string | null>(null);
   const onImageRendered = useCallback(
     (event: RenderRequestEvent<"rendered">) => {
@@ -65,6 +70,7 @@ export const PosterImage = ({ focused = false, asset }: PosterImageProps) => {
           position: "absolute",
         }}
       >
+        <div className="text-xs">{index}</div>
         <div className="text-xs">{asset.title}</div>
         {/* <div className="text-xs">{asset.description}</div> */}
       </div>
