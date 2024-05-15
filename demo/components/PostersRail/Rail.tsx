@@ -19,7 +19,7 @@ export const Rail = ({
     <div
       data-testid="rail"
       className={cn(
-        "no-scrollbar flex h-[210px] flex-row space-x-2 overflow-y-hidden overflow-x-scroll bg-slate-900",
+        "no-scrollbar flex h-[186px] flex-row space-x-2 overflow-y-hidden overflow-x-scroll bg-slate-900",
         focused && "bg-fuchsia-950",
         className,
       )}

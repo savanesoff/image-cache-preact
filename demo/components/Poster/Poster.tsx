@@ -54,8 +54,10 @@ export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
       )}
       {...props}
     >
-      <PosterLoadStatus />
-      <PosterRenderStatus />
+      <div className={"flex flex-row justify-around space-x-1"}>
+        <PosterLoadStatus />
+        <PosterRenderStatus />
+      </div>
       <PosterImage focused={focused} asset={asset} index={index} />
     </div>
   );

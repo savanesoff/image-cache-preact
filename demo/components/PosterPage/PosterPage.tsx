@@ -96,7 +96,7 @@ export const PosterPage = ({
             headers={{
               "Content-Type": asset.mimeType,
             }}
-            width={100}
+            width={120}
             height={160}
           >
             <Poster index={index} asset={asset} />

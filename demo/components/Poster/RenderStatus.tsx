@@ -11,8 +11,8 @@ export const PosterRenderStatus = () => {
   useImage({ onRendered });
   return (
     <StatusBadge
-      status={rendered ? "on" : "off"}
-      text={rendered ? "rendered" : `rendering...`}
+      status={rendered ? "warn" : "off"}
+      text={rendered ? "100%" : `0%`}
     />
   );
 };
