@@ -13,7 +13,7 @@ export const VideoUsage = () => {
   return (
     <StatusBadge
       status="warn"
-      text={`VID (${data?.type}) r:${data?.requested.toFixed(3)} u:${data?.used.toFixed(3)}`}
+      text={`VID (${data?.type}) r:${data?.requested.toFixed(2)} u:${data?.used.toFixed(2)}`}
     />
   );
 };

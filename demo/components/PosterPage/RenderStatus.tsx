@@ -3,24 +3,20 @@ import { useCallback, useState } from "react";
 import { StatusBadge } from "../StatusBadge";
 
 export const PageRenderStatus = () => {
-  const [rendered, setRendered] = useState(false);
   const [progress, setProgress] = useState(0);
-  const onRendered = useCallback(() => {
-    setRendered(true);
-  }, []);
+
   const onRenderProgress = useCallback(
     (event: BucketEvent<"render-progress">) => {
       setProgress(Math.round(event.progress * 100));
-      setRendered(false);
     },
     [],
   );
 
-  useBucket({ onRenderProgress, onRendered });
+  useBucket({ onRenderProgress });
   return (
     <StatusBadge
-      status={rendered ? "on" : "off"}
-      text={rendered ? "rendered" : `r: ${progress}%`}
+      status={progress === 100 ? "warn" : "off"}
+      text={`render ${progress}%`}
     />
   );
 };

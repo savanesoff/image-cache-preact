@@ -12,7 +12,7 @@ export const RamUsage = () => {
   useBucket({ onRequestRendered });
   return (
     <StatusBadge
-      text={`RAM (${data?.type}) c:${data?.compressed.toFixed(3)} u:${data?.uncompressed.toFixed(3)} t:${data?.total.toFixed(3)}`}
+      text={`RAM (${data?.type}) c:${data?.compressed.toFixed(2)} u:${data?.uncompressed.toFixed(2)} t:${data?.total.toFixed(2)}`}
     />
   );
 };
