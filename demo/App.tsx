@@ -9,7 +9,7 @@ init({
   // options
   shouldFocusDOMNode: true,
   shouldUseNativeEvents: true,
-  useGetBoundingClientRect: true,
+  // useGetBoundingClientRect: true,
 });
 
 // setKeyMap({
