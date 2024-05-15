@@ -10,6 +10,7 @@ export const PageLoadStatus = () => {
 
   const [progress, setProgress] = useState(0);
   const onProgress = useCallback((event: BucketEvent<"progress">) => {
+    setLoaded(false);
     setProgress(Math.round(event.progress * 100));
   }, []);
   useBucket({ onLoadend, onProgress });

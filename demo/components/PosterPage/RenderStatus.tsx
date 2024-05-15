@@ -11,6 +11,7 @@ export const PageRenderStatus = () => {
   const onRenderProgress = useCallback(
     (event: BucketEvent<"render-progress">) => {
       setProgress(Math.round(event.progress * 100));
+      setRendered(false);
     },
     [],
   );
