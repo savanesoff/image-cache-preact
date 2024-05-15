@@ -6,5 +6,6 @@
   },
 
   "topics": 2,
-  "perPage": 10
+  "perPage": 10,
+  "pages": 10
 }

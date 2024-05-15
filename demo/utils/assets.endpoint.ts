@@ -80,7 +80,7 @@ export const fetchTopics = async ({
     title: lorem.generateWords(1),
     description: lorem.generateParagraphs(1),
     id: Math.random().toString(36).substring(7),
-    pages: 3, //1 + Math.ceil(Math.random() * 20),
+    pages: config.pages,
     perPage,
   }));
 };
