@@ -79,7 +79,7 @@ export const IMAGE_COLOR_TYPE = {
   // add more image types as needed
 } as const;
 
-type ImageColorType = keyof typeof IMAGE_COLOR_TYPE;
+export type ImageColorType = keyof typeof IMAGE_COLOR_TYPE;
 
 export type ImgProps = LoaderProps & {
   type?: ImageColorType;

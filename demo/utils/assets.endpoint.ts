@@ -1,3 +1,4 @@
+import { ImageColorType, MIMEType } from "@/lib";
 import config from "@demo/config.json";
 import { LoremIpsum } from "lorem-ipsum";
 
@@ -21,6 +22,8 @@ export type Asset = {
   url: string;
   title: string;
   description: string;
+  mimeType: MIMEType;
+  colorType: ImageColorType;
 };
 
 export type AssetPage = {
@@ -41,7 +44,9 @@ export const fetchAssets = async ({
   }
 
   const newData = new Array(topic.perPage).fill(0).map(() => ({
-    url: `${config.image}?hash=${Math.random()}`,
+    url: `${config.image.baseUrl}?hash=${Math.random()}`,
+    mimeType: config.image.mimeType as MIMEType,
+    colorType: config.image.colorType as ImageColorType,
     title: lorem.generateSentences(1),
     description: lorem.generateParagraphs(1),
   }));
@@ -75,7 +80,7 @@ export const fetchTopics = async ({
     title: lorem.generateWords(1),
     description: lorem.generateParagraphs(1),
     id: Math.random().toString(36).substring(7),
-    pages: 1 + Math.ceil(Math.random() * 20),
+    pages: 3, //1 + Math.ceil(Math.random() * 20),
     perPage,
   }));
 };

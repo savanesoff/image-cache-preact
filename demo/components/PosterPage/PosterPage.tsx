@@ -89,7 +89,16 @@ export const PosterPage = ({
       {!pageData && <div>{fetchStatus}</div>}
       {pageData &&
         pageData.assets.map((asset, index) => (
-          <ImageProvider key={index} url={asset.url} width={100} height={160}>
+          <ImageProvider
+            key={index}
+            url={asset.url}
+            type={asset.colorType}
+            headers={{
+              "Content-Type": asset.mimeType,
+            }}
+            width={100}
+            height={160}
+          >
             <Poster index={index} asset={asset} />
           </ImageProvider>
         ))}
