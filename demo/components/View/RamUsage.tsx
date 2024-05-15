@@ -21,7 +21,7 @@ export const RamUsage = () => {
 
   return (
     <StatusBadge
-      text={`RAM: ${stats.used.units.toFixed(2)} / ${stats.state.size}${stats.state.units} [${stats.used.prs.toFixed(2)}%]`}
+      text={`RAM (${stats.state.units}) ${stats.used.units.toFixed(2)}/${stats.state.size} [${stats.used.prs.toFixed(2)}%]`}
     />
   );
 };

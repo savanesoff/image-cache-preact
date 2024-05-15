@@ -22,7 +22,7 @@ export const VideoUsage = () => {
   return (
     <StatusBadge
       status="warn"
-      text={`VID: ${stats.used.units.toFixed(2)} / ${stats.state.size}${stats.state.units} [${stats.used.prs.toFixed(2)}%]`}
+      text={`VID (${stats.state.units}) ${stats.used.units.toFixed(2)}/${stats.state.size} [${stats.used.prs.toFixed(2)}%]`}
     />
   );
 };

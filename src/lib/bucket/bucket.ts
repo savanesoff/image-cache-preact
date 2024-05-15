@@ -53,6 +53,32 @@ type RequestLoadEndEvent = {
   request: RenderRequest;
 };
 
+export type BucketRamBytes = {
+  compressed: number;
+  uncompressed: number;
+  total: number;
+};
+
+export type BucketVideoBytes = {
+  requested: number;
+  used: number;
+};
+
+export type BucketVideoUnits = {
+  requested: number;
+  used: number;
+  ratio: number;
+  type: string;
+};
+
+export type BucketRamUnits = {
+  compressed: number;
+  uncompressed: number;
+  total: number;
+  ratio: number;
+  type: string;
+};
+
 export type BucketEvent<T extends BucketEventTypes> = {
   /** The type of the event */
   type: T;
@@ -231,7 +257,7 @@ export class Bucket extends Logger {
   /**
    * Calculate the video memory used by the bucket in bytes
    */
-  getVideoBytes() {
+  getVideoBytes(): BucketVideoBytes {
     let requested = 0;
     let used = 0;
     for (const request of this.requests) {
@@ -248,7 +274,7 @@ export class Bucket extends Logger {
   /**
    * Calculate the video memory used by the bucket in the current units
    */
-  getVideoUnits() {
+  getVideoUnits(): BucketVideoUnits {
     const bytes = this.getVideoBytes();
     const ratio = UNITS[this.controller.units];
     return {
@@ -262,7 +288,7 @@ export class Bucket extends Logger {
   /**
    * Calculate the ram used by the bucket
    */
-  getRamBytes() {
+  getRamBytes(): BucketRamBytes {
     let compressedBytes = 0;
     let uncompressedBytes = 0;
     const images = this.getImages();
@@ -281,7 +307,7 @@ export class Bucket extends Logger {
   /**
    * Calculate the ram used by the bucket in the current units
    */
-  getRamUnits() {
+  getRamUnits(): BucketRamUnits {
     const ratio = UNITS[this.controller.units];
     const bytes = this.getRamBytes();
     return {
