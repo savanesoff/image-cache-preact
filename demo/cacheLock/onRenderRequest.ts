@@ -13,7 +13,7 @@ export const onRenderRequest = ({
   const style = {
     width: `${target.size.width}px`,
     height: `${target.size.height}px`,
-    opacity: "0.01",
+    opacity: "0.001",
     position: "absolute",
     top: "0",
     left:
