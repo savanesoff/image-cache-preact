@@ -12,6 +12,10 @@ export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   asset: Asset;
 };
 
+const initialFocus = {
+  state: false,
+};
+
 /**
  * Poster component to display the image.
  * Uses the useImage hook to load the image.
@@ -19,11 +23,6 @@ export type PosterProps = HTMLAttributes<HTMLDivElement> & {
 export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
   const { request } = useImage();
   const { ref, focused, focusSelf } = useFocusable();
-  useEffect(() => {
-    if (index === 0) {
-      focusSelf();
-    }
-  }, [focusSelf, index]);
 
   useEffect(() => {
     if (focused) {
@@ -34,6 +33,14 @@ export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
       });
     }
   }, [focused, ref, request]);
+
+  useEffect(() => {
+    if (initialFocus.state === false) {
+      initialFocus.state = true;
+      focusSelf();
+    }
+  }, [focusSelf]);
+
   return (
     <div
       ref={ref}
@@ -41,6 +48,7 @@ export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
         "bg-slate-800",
         `max-w-[${request.size.width}px]`,
         `w-[${request.size.width}px]`,
+        `min-w-[${request.size.width}px]`,
         "flex flex-col space-y-1",
         className,
       )}
@@ -48,7 +56,7 @@ export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
     >
       <PosterLoadStatus />
       <PosterRenderStatus />
-      <PosterImage focused={focused} asset={asset} />
+      <PosterImage focused={focused} asset={asset} index={index} />
     </div>
   );
 };
