@@ -1,13 +1,10 @@
 import { cn } from "@demo/utils";
-import { PostersRail } from "@demo/components";
 import { CacheStats } from "./CacheStats";
-import { useEffect, useState } from "react";
 import {
   useFocusable,
   FocusContext,
 } from "@noriginmedia/norigin-spatial-navigation";
-import { fetchTopics, Topic } from "@demo/utils/assets.endpoint";
-import config from "@demo/config.json";
+import { RailsView } from "./RailsView";
 
 /**
  * Example of an app view that uses the PostersRail component.
@@ -20,35 +17,9 @@ export const View = () => {
     <FocusContext.Provider value={focusKey}>
       <div className={cn("p-4", "bg-slate-600", "w-full space-y-2")} ref={ref}>
         <CacheStats />
-        <Rails />
+        <RailsView />
       </div>
     </FocusContext.Provider>
-  );
-};
-
-const Rails = () => {
-  const [data, setData] = useState<Topic[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchTopics({ count: config.topics });
-      setData(data);
-    };
-    fetchData();
-  }, []);
-
-  return (
-    <>
-      {data.length === 0 && <div>Loading...</div>}
-      {data.map((topic) => (
-        <PostersRail
-          key={topic.id}
-          topic={topic}
-          fromPage={0}
-          assetCount={config.perPage}
-        />
-      ))}
-    </>
   );
 };
 
