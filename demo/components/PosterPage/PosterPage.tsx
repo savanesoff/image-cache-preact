@@ -1,7 +1,14 @@
-import { HTMLAttributes, useEffect, useState } from "react";
-import { Posters } from "./Posters";
-import { BucketProviderProps } from "@cache";
+import {
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { BucketProviderProps, ImageProvider } from "@cache";
 import { AssetPage, fetchAssets, Topic } from "@demo/utils/assets.endpoint";
+import { cn } from "@demo/utils";
+import { Poster } from "../Poster/Poster";
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
   Exclude<BucketProviderProps, "children"> & {
@@ -16,24 +23,76 @@ export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
 export const PosterPage = ({
   topic,
   pageNumber,
+  className,
   ...props
 }: PosterPageProps) => {
   const [pageData, setPageData] = useState<AssetPage>();
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchAssets({
-        topic,
-        page: pageNumber,
-      });
+  const [fetchStatus, setFetchStatus] = useState<
+    "idle" | "loading" | "loaded" | "error"
+  >("idle");
+  const ref = useRef<HTMLDivElement>(null);
+
+  const fetchData = useCallback(async () => {
+    setFetchStatus("loading");
+    const data = await fetchAssets({
+      topic,
+      page: pageNumber,
+    });
+    if (data) {
       setPageData(data);
-    };
-    fetchData();
+      setFetchStatus("loaded");
+    } else {
+      setFetchStatus("error");
+    }
   }, [topic, pageNumber]);
 
-  if (!pageData) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (pageNumber === 0) {
+      fetchData();
+    }
+  }, [fetchData, pageNumber]);
+
+  useEffect(() => {
+    const target = ref.current;
+    if (!target || fetchStatus !== "idle" || pageNumber === 0) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchData();
+        }
+      },
+      {
+        // root: target.parentElement,
+        rootMargin: "200px", // Adjust this value to change the margin
+        threshold: 0,
+      },
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.unobserve(target);
+    };
+  }, [pageNumber, fetchStatus, fetchData, ref]);
+
   return (
-    <Posters assets={pageData.assets} width={100} height={160} {...props} />
+    <div
+      ref={ref}
+      className={cn(
+        "flex min-w-full flex-shrink-0 flex-grow flex-row space-x-2 overflow-y-clip",
+        className,
+      )}
+      {...props}
+    >
+      {!pageData && <div>{fetchStatus}</div>}
+      {pageData &&
+        pageData.assets.map((asset, index) => (
+          <ImageProvider key={index} url={asset.url} width={100} height={160}>
+            <Poster index={index} asset={asset} />
+          </ImageProvider>
+        ))}
+    </div>
   );
 };
