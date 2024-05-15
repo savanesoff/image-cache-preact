@@ -16,7 +16,7 @@ export const PageLoadStatus = () => {
   return (
     <StatusBadge
       status={loaded ? "on" : "off"}
-      text={loaded ? "loaded" : `loading: ${progress}%`}
+      text={loaded ? "loaded" : `l: ${progress}%`}
     />
   );
 };
