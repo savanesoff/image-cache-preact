@@ -28,6 +28,7 @@ export type Asset = {
 
 export type AssetPage = {
   page: number;
+  topic: Topic;
   assets: Asset[];
 };
 const cache = new Map<string, AssetPage>();
@@ -54,6 +55,7 @@ export const fetchAssets = async ({
   const newPage = {
     page,
     assets: newData,
+    topic,
   };
 
   cache.set(key, newPage);
@@ -65,6 +67,8 @@ type FetchTopicsParams = {
   count: number;
   perPage?: number;
 };
+
+const topicCache = new Map<number, Topic>();
 export type Topic = {
   id: string;
   title: string;
@@ -76,11 +80,19 @@ export const fetchTopics = async ({
   count = 10,
   perPage = 10,
 }: FetchTopicsParams): Promise<Topic[]> => {
-  return new Array(count).fill(0).map(() => ({
-    title: lorem.generateWords(1),
-    description: lorem.generateParagraphs(1),
-    id: Math.random().toString(36).substring(7),
-    pages: config.pages,
-    perPage,
-  }));
+  return new Array(count).fill(0).map((_, index) => {
+    if (topicCache.has(index)) {
+      return topicCache.get(index) as Topic; // Cast the value to the Topic type
+    }
+    const data = {
+      title: lorem.generateWords(1),
+      description: lorem.generateParagraphs(1),
+      id: Math.random().toString(36).substring(7),
+      pages: config.pages,
+      perPage,
+    };
+
+    topicCache.set(index, data);
+    return data;
+  });
 };
