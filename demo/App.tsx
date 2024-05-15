@@ -4,6 +4,8 @@ import { ControllerProvider } from "@cache";
 
 import { View } from "@demo/components";
 import { init } from "@noriginmedia/norigin-spatial-navigation";
+import { CacheLock } from "./cacheLock";
+import { useCallback, useState } from "react";
 
 init({
   // options
@@ -34,6 +36,11 @@ devtoolsFPS.config({
 });
 
 function App() {
+  const [lockReady, setLockReady] = useState(false);
+  const onCacheLockReady = useCallback(() => {
+    console.log("CacheLock ready");
+    setLockReady(true);
+  }, []);
   return (
     <div className={cn("bg-slate-500", "text-white", "w-full", "h-screen")}>
       <div
@@ -56,7 +63,8 @@ function App() {
         gpuDataFull={true}
       >
         {/* <CacheVOD /> */}
-        <View />
+        {lockReady && <View />}
+        <CacheLock onRendered={onCacheLockReady} />
       </ControllerProvider>
     </div>
   );

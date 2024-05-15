@@ -1,6 +1,6 @@
 {
   "image": {
-    "baseUrl": "http://localhost:8080/test-small.png",
+    "baseUrl": "http://localhost:8080/test-4k.jpg",
     "mimeType": "image/png",
     "colorType": "RGBA"
   },
