@@ -10,6 +10,7 @@ init({
   shouldFocusDOMNode: true,
   shouldUseNativeEvents: true,
   // useGetBoundingClientRect: true,
+  throttle: 160,
 });
 
 // setKeyMap({
