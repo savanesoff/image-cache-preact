@@ -38,7 +38,6 @@ devtoolsFPS.config({
 function App() {
   const [lockReady, setLockReady] = useState(false);
   const onCacheLockReady = useCallback(() => {
-    console.log("CacheLock ready");
     setLockReady(true);
   }, []);
   return (
