@@ -14,25 +14,37 @@ import { useContext, useEffect } from "react";
 import { ImageContext, ImageContextType } from "@components";
 import { ImgEvent, RenderRequestEvent } from "@lib";
 
-export type UseImageEventTypes = "progress" | "loadend" | "error" | "rendered";
+export type UseImageEventTypes =
+  | "progress"
+  | "loadend"
+  | "error"
+  | "rendered"
+  | "render";
 /**
  * The useImage hook provides a way to listen to events emitted by the image loader.
  */
 export type UseImageEvent<T extends UseImageEventTypes> =
-  T extends Exclude<T, "rendered">
+  T extends Exclude<T, "rendered" | "render">
     ? ImgEvent<T>
-    : T extends "rendered"
-      ? RenderRequestEvent<T>
-      : never;
+    : RenderRequestEvent<T>;
 
 /**
  * The useImage hook provides a way to listen to events emitted by the image loader.
  */
-export type useImageProps = {
+export type UseImageProps = {
+  /** A function that will be called when the load "progress" event is emitted. */
   onProgress?: (event: UseImageEvent<"progress">) => void;
+  /** A function that will be called when the load "error" event is emitted. */
   onError?: (event: UseImageEvent<"error">) => void;
+  /** A function that will be called when the load "loadend" event is emitted. */
   onLoadend?: (event: UseImageEvent<"loadend">) => void;
+  /** A function that will be called when the "rendered" event is emitted. */
   onRendered?: (event: UseImageEvent<"rendered">) => void;
+  /**
+   * A function that will be called when the "render" event is emitted.
+   * Return true if you're rendering the image!
+   */
+  onRender?: (event: UseImageEvent<"render">) => void;
 };
 
 /**
@@ -43,7 +55,8 @@ export const useImage = ({
   onError,
   onLoadend,
   onRendered,
-}: useImageProps = {}): ImageContextType => {
+  onRender,
+}: UseImageProps = {}): ImageContextType => {
   const context = useContext(ImageContext);
   if (!context) {
     throw new Error("useImage must be used within a ImageProvider");
@@ -56,6 +69,7 @@ export const useImage = ({
     onError && image.on("error", onError);
     onLoadend && image.on("loadend", onLoadend);
     onRendered && request.on("rendered", onRendered);
+    onRender && request.on("render", onRender);
 
     // this ensures that the loadend event is fired if the image is already loaded
     if (request.image.loaded) {
@@ -83,8 +97,9 @@ export const useImage = ({
       onError && image.off("error", onError);
       onLoadend && image.off("loadend", onLoadend);
       onRendered && request.off("rendered", onRendered);
+      onRender && request.off("render", onRender);
     };
-  }, [image, onProgress, onError, onLoadend, onRendered, request]);
+  }, [image, onProgress, onError, onLoadend, onRendered, request, onRender]);
 
   return context;
 };

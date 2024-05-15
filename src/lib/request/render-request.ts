@@ -6,7 +6,8 @@
 import { Bucket } from "@lib/bucket";
 import { Img, ImgEvent, ImgProps, Size } from "@lib/image";
 import { Logger } from "@lib/logger";
-import { FrameQueue } from "@lib/frame-queue";
+import { FrameQueue, RendererProps } from "@lib/frame-queue";
+import { renderer } from "./renderer";
 
 export type RenderRequestProps = ImgProps & {
   size: Size;
@@ -20,12 +21,16 @@ export type RenderRequestEventTypes =
   | "processing"
   | "loadstart"
   | "progress"
-  | "error";
+  | "error"
+  | "render";
 
 export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   type: T;
   target: RenderRequest;
-} & (T extends "error" ? Omit<ImgEvent<"error">, "target"> : unknown);
+} & (T extends "error" ? Omit<ImgEvent<"error">, "target"> : unknown) &
+  (T extends "progress" ? Omit<ImgEvent<"progress">, "target"> : unknown) &
+  (T extends "render" ? RendererProps : unknown) &
+  (T extends "loadstart" ? Omit<ImgEvent<"loadstart">, "target"> : unknown);
 
 export type RenderRequestEventHandler<T extends RenderRequestEventTypes> = (
   event: RenderRequestEvent<T>,
@@ -90,18 +95,6 @@ export class RenderRequest extends Logger {
   };
 
   /**
-   * Event handler for when the image has been rendered.
-   */
-  onRendered = () => {
-    this.rendered = true;
-    this.emit("rendered");
-  };
-
-  onProcessing = () => {
-    this.emit("processing");
-  };
-
-  /**
    * Clears the render request.
    */
   clear() {
@@ -121,6 +114,26 @@ export class RenderRequest extends Logger {
    */
   isLocked() {
     return this.bucket.locked;
+  }
+
+  /**
+   * The default render function.
+   * @param props
+   */
+  render({ renderTime }: RendererProps) {
+    this.emit("processing");
+    const isRendered = renderTime === 0;
+    // if renderer provided, call it
+    if (!isRendered && this.bucket.controller.renderer) {
+      this.bucket.controller.renderer({ request: this, renderTime });
+    } else if (!isRendered && this.emit("render", { renderTime }) !== true) {
+      renderer({ request: this, renderTime });
+    }
+
+    setTimeout(() => {
+      this.rendered = true;
+      this.emit("rendered");
+    }, renderTime);
   }
 
   /**

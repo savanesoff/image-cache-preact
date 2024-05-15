@@ -9,6 +9,7 @@ import { BucketProviderProps, ImageProvider } from "@cache";
 import { AssetPage, fetchAssets, Topic } from "@demo/utils/assets.endpoint";
 import { cn } from "@demo/utils";
 import { Poster } from "../Poster/Poster";
+import config from "@demo/config.json";
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
   Exclude<BucketProviderProps, "children"> & {
@@ -96,8 +97,8 @@ export const PosterPage = ({
             headers={{
               "Content-Type": asset.mimeType,
             }}
-            width={120}
-            height={160}
+            width={config.image.renderWidth}
+            height={config.image.renderHeight}
           >
             <Poster index={index} asset={asset} pageNumber={pageNumber} />
           </ImageProvider>

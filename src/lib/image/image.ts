@@ -226,6 +226,28 @@ export class Img extends Loader {
     return gpuSize.width * gpuSize.height * bytesPerPixel;
   }
 
+  /**
+   * Determines if the image is decoded for the specified size.
+   * If the image is in gpuDataFull mode, it will return true if the image is decoded.
+   * Else, it will return true if the image is decoded for the specified size.
+   * @param size
+   */
+  isDecoded(size: Size) {
+    if (this.gpuDataFull) {
+      return this.decoded;
+    }
+    for (const req of this.renderRequests) {
+      if (
+        this.decoded &&
+        req.rendered &&
+        req.size.width === size.width &&
+        req.size.height === size.height
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
   //--------------------------   PRIVATE METHODS   -----------------------------
 
   /**

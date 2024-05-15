@@ -4,8 +4,12 @@ import {
   ImageProvider,
   useBucket,
   UseBucketProps,
+  useImage,
+  UseImageProps,
 } from "@/components";
 import { useLockerAssets } from "./useLockerAssets";
+import { onRenderRequest } from "./onRenderRequest";
+import config from "@demo/config.json";
 
 export const CacheLock = (props: UseBucketProps) => {
   // fetch all topics first page and cash it
@@ -21,6 +25,7 @@ export const CacheLock = (props: UseBucketProps) => {
 type AssetLockerProps = UseBucketProps & {
   assetPages: AssetPage[];
 };
+
 const AssetLocker = ({ assetPages, ...props }: AssetLockerProps) => {
   useBucket(props);
   return (
@@ -34,11 +39,18 @@ const AssetLocker = ({ assetPages, ...props }: AssetLockerProps) => {
             headers={{
               "Content-Type": asset.mimeType,
             }}
-            width={120}
-            height={160}
-          />
+            width={config.image.renderWidth}
+            height={config.image.renderHeight}
+          >
+            <LockerImage />
+          </ImageProvider>
         )),
       )}
     </>
   );
+};
+
+const LockerImage = (props?: UseImageProps) => {
+  useImage({ onRender: onRenderRequest, ...props });
+  return null;
 };

@@ -21,6 +21,7 @@ import { Network } from "@lib/network";
 import { Logger, LogLevel } from "@lib/logger";
 import { FrameQueue, FrameQueueProps } from "@lib/frame-queue";
 import { UnitsType } from "@utils";
+import { renderer } from "../request";
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerEventTypes =
@@ -64,6 +65,8 @@ export type ControllerProps = FrameQueueProps & {
    * False - only the requested image size data moves to GPU.
    */
   gpuDataFull?: boolean;
+  /** The renderer function */
+  renderer?: typeof renderer;
 };
 
 const styles = {
@@ -81,6 +84,7 @@ export class Controller extends Logger {
   readonly network: Network;
   readonly units: UnitsType;
   readonly gpuDataFull: boolean;
+  readonly renderer?: typeof renderer;
 
   constructor({
     ram = 2,
@@ -99,10 +103,10 @@ export class Controller extends Logger {
     });
     this.units = units;
     this.gpuDataFull = gpuDataFull;
+    this.renderer = renderer;
     this.frameQueue = new FrameQueue({
       logLevel,
       hwRank,
-      renderer,
     });
     this.network = new Network({ loaders });
     this.ram = new Memory({

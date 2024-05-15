@@ -40,8 +40,6 @@ export type FrameQueueEventHandler<T extends FrameQueueEventTypes> = (
 ) => void;
 
 export type RendererProps = {
-  /** The render request to process */
-  request: RenderRequest;
   /** The estimated render time for the request depending on the image size and HW rank */
   renderTime: number;
 };
@@ -53,8 +51,6 @@ export type RenderFunction = (props: RendererProps) => void;
 export type FrameQueueProps = LoggerProps & {
   /** The hardware rank number between 0 and 1, where 1 is the fastest */
   hwRank?: number;
-  /** The renderer function to process the render request */
-  renderer?: RenderFunction;
 };
 
 /**
@@ -68,29 +64,24 @@ export class FrameQueue extends Logger {
   /** Set of render requests */
   readonly queue = new Set<RenderRequest>();
   /**
-   * The number of bytes per frame ratio estimate. This value determines how fast a platform
-   * can render a frame based on the number of bytes in the image.
+   * The number of bytes per frame ratio estimate.
+   * This value determines how fast a platform can render a frame based on
+   * the number of bytes in the image.
    * Where bytes refers to the uncompressed image size.
-   * The value is set to 50000 bytes per frame, which is an estimate for a typical platform,
    * and can be adjusted based on the platform's performance.
-   * Typical platforms can render 50000 bytes per frame at 60fps.
    */
   static readonly bytesPerFrameRatio = 50000;
-  /** The renderer function to process the render request */
-  readonly renderer: RenderFunction;
 
   constructor({
     name = "Frame queue",
     logLevel = "verbose",
     hwRank = 1,
-    renderer,
   }: FrameQueueProps) {
     super({
       name,
       logLevel,
     });
     this.hwRank = hwRank;
-    this.renderer = renderer || this.#renderer;
   }
 
   /**
@@ -111,10 +102,11 @@ export class FrameQueue extends Logger {
    * @param request
    */
   #getRenderTime(request: RenderRequest) {
-    return (
-      (request.image.bytesUncompressed / FrameQueue.bytesPerFrameRatio) *
-      (1 - this.hwRank)
-    );
+    const time = request.image.isDecoded(request.size)
+      ? 0
+      : (request.image.bytesUncompressed / FrameQueue.bytesPerFrameRatio) *
+        (1 - this.hwRank);
+    return time;
   }
 
   /**
@@ -132,59 +124,20 @@ export class FrameQueue extends Logger {
       this.scheduled = false;
       return;
     }
-    if (request.image.gpuDataFull && request.image.decoded) {
-      this.scheduled = false;
-      this.queue.delete(request);
-      request.onProcessing();
-      request.onRendered();
-      setTimeout(() => this.#next(), 0);
-      return;
-    }
+
     this.log.info([`processing: ${this.queue.size}`]);
     const renderTime = this.#getRenderTime(request);
-    request.onProcessing();
-    this.renderer({ request, renderTime });
     this.queue.delete(request);
+    request.render({ renderTime });
 
     setTimeout(() => {
       this.scheduled = false;
-      request.onRendered();
       this.#next();
       this.log.verbose([
         `processed`,
         request,
         `queue size: ${this.queue.size}`,
       ]);
-    }, renderTime);
-  }
-
-  /**
-   * The default renderer function.
-   * @param props
-   */
-  #renderer({ request, renderTime }: RendererProps) {
-    // create div of w/h set opacity to 0.1 append to body, ren remove on next frame
-    const div = document.createElement("div");
-    const style = {
-      width: `${request.size.width}px`,
-      height: `${request.size.height}px`,
-      opacity: "0.01",
-      position: "absolute",
-      top: "0",
-      left:
-        Math.round(Math.random() * (window.innerWidth - request.size.width)) +
-        "px",
-      backgroundImage: `url(${request.image.url})`,
-      // backgroundSize: "cover",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "top left",
-      backgroundSize: `${request.size.width}px ${request.size.height}px`,
-    };
-    Object.assign(div.style, style);
-    document.body.appendChild(div);
-
-    setTimeout(() => {
-      document.body.removeChild(div);
     }, renderTime);
   }
 

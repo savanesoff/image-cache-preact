@@ -31,7 +31,6 @@ export const useLockerAssets = () => {
       });
       const resolvedAssets = await Promise.all(assetPromises);
       setAssetPages(resolvedAssets);
-      console.log("All topics are fetched and cached", resolvedAssets);
     };
 
     fetchData();
