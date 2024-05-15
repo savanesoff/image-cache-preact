@@ -8,6 +8,7 @@ type PosterImageProps = {
   focused?: boolean;
   asset: Asset;
   index?: number;
+  pageNumber?: number;
 };
 /**
  * Renders the poster image using the useImage hook.
@@ -16,6 +17,7 @@ export const PosterImage = ({
   focused = false,
   asset,
   index,
+  pageNumber,
 }: PosterImageProps) => {
   const [url, setUrl] = useState<string | null>(null);
   const onImageRendered = useCallback(
@@ -62,7 +64,7 @@ export const PosterImage = ({
         className={cn(
           "absolute bottom-0 left-0  top-full w-full overflow-hidden bg-slate-900",
           "duration-400 transition-all ease-in-out",
-          "flex items-center justify-center text-xl text-slate-50",
+          "flex flex-col items-start justify-start text-xl text-slate-50",
           "h-1/2 p-2 opacity-0",
           focused && "top-1/2 opacity-80",
         )}
@@ -70,8 +72,10 @@ export const PosterImage = ({
           position: "absolute",
         }}
       >
-        <div className="text-xs">{index}</div>
-        <div className="text-xs">{asset.title}</div>
+        <div className="text-sm">
+          i:{index} p:{pageNumber}
+        </div>
+        <div className="text-xs">Title {asset.title}</div>
         {/* <div className="text-xs">{asset.description}</div> */}
       </div>
     </div>

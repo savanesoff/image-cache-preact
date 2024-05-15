@@ -10,6 +10,7 @@ import { Asset } from "@demo/utils/assets.endpoint";
 export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   index: number;
   asset: Asset;
+  pageNumber: number;
 };
 
 const initialFocus = {
@@ -20,7 +21,13 @@ const initialFocus = {
  * Poster component to display the image.
  * Uses the useImage hook to load the image.
  */
-export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
+export const Poster = ({
+  className,
+  index,
+  asset,
+  pageNumber,
+  ...props
+}: PosterProps) => {
   const { request } = useImage();
   const { ref, focused, focusSelf } = useFocusable();
 
@@ -58,7 +65,12 @@ export const Poster = ({ className, index, asset, ...props }: PosterProps) => {
         <PosterLoadStatus />
         <PosterRenderStatus />
       </div>
-      <PosterImage focused={focused} asset={asset} index={index} />
+      <PosterImage
+        focused={focused}
+        asset={asset}
+        index={index}
+        pageNumber={pageNumber}
+      />
     </div>
   );
 };

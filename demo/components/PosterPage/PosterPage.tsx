@@ -99,7 +99,7 @@ export const PosterPage = ({
             width={120}
             height={160}
           >
-            <Poster index={index} asset={asset} />
+            <Poster index={index} asset={asset} pageNumber={pageNumber} />
           </ImageProvider>
         ))}
     </div>
