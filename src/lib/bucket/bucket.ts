@@ -15,7 +15,7 @@ import { Img } from "@lib/image";
 import { RenderRequest, RenderRequestEvent } from "@lib/request";
 import { Controller } from "@lib/controller";
 import { Logger } from "@lib/logger";
-import { now, UNITS } from "@utils";
+import { now, UNITS, UnitsType } from "@utils";
 
 export type BucketEventTypes =
   | "progress"
@@ -54,29 +54,43 @@ type RequestLoadEndEvent = {
 };
 
 export type BucketRamBytes = {
+  /** The compressed RAM bytes used by the bucket */
   compressed: number;
+  /** The uncompressed RAM bytes used by the bucket */
   uncompressed: number;
+  /** The total RAM bytes used by the bucket */
   total: number;
 };
 
 export type BucketVideoBytes = {
+  /** The requested video memory bytes used by the bucket (not rendered) */
   requested: number;
+  /** The used video memory bytes used by the bucket (rendered) */
   used: number;
 };
 
 export type BucketVideoUnits = {
+  /** The requested video memory units used by the bucket (not rendered) */
   requested: number;
+  /** The used video memory units used by the bucket (rendered) */
   used: number;
+  /** The ratio of the units to bytes */
   ratio: number;
-  type: string;
+  /** The type of units. */
+  type: UnitsType;
 };
 
 export type BucketRamUnits = {
+  /** The compressed RAM units used by the bucket */
   compressed: number;
+  /** The uncompressed RAM units used by the bucket */
   uncompressed: number;
+  /** The total RAM units used by the bucket */
   total: number;
+  /** The ratio of the units to bytes */
   ratio: number;
-  type: string;
+  /** The type of units. */
+  type: UnitsType;
 };
 
 export type BucketEvent<T extends BucketEventTypes> = {
