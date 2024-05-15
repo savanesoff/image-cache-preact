@@ -7,7 +7,7 @@
     "renderHeight": 160
   },
 
-  "topics": 2,
-  "perPage": 10,
+  "topics": 3,
+  "perPage": 30,
   "pages": 10
 }

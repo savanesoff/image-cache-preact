@@ -78,7 +78,6 @@ export type Topic = {
 };
 export const fetchTopics = async ({
   count = 10,
-  perPage = 10,
 }: FetchTopicsParams): Promise<Topic[]> => {
   return new Array(count).fill(0).map((_, index) => {
     if (topicCache.has(index)) {
@@ -89,7 +88,7 @@ export const fetchTopics = async ({
       description: lorem.generateParagraphs(1),
       id: Math.random().toString(36).substring(7),
       pages: config.pages,
-      perPage,
+      perPage: config.perPage,
     };
 
     topicCache.set(index, data);
