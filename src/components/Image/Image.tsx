@@ -30,7 +30,7 @@ export const ImageContext = createContext<ImageContextType>(
 
 export type ImageProviderProps = ImgProps &
   Size & {
-    children: ReactNode;
+    children?: ReactNode;
   };
 
 /**
