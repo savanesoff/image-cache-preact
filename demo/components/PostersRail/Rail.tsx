@@ -1,6 +1,6 @@
 import { cn } from "@demo/utils";
 import { Topic } from "@demo/utils/assets.endpoint";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useMemo } from "react";
 import { PosterPage } from "../PosterPage";
 
 export type RailProps = HTMLAttributes<HTMLDivElement> & {
@@ -15,6 +15,10 @@ export const Rail = ({
   className,
   ...props
 }: RailProps) => {
+  const pages = useMemo(
+    () => Array.from({ length: topic.pages }),
+    [topic.pages],
+  );
   return (
     <div
       data-testid="rail"
@@ -26,7 +30,7 @@ export const Rail = ({
       title={topic.description}
       {...props}
     >
-      {Array.from({ length: topic.pages }).map((_, index) => (
+      {pages.map((_, index) => (
         <PosterPage
           key={index}
           name="Poser page main"
