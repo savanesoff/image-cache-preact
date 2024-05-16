@@ -89,6 +89,7 @@ export const useImage = ({
       onRendered?.({
         type: "rendered",
         target: request,
+        url: request.image.url,
       });
     }
 
