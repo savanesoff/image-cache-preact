@@ -16,9 +16,17 @@
  * In this example, `MyComponent` and its descendants can use the `useContext` hook to access the `ImageContext`,
  * which contains the `Img` instance and the `RenderRequest` for the image.
  */
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useBucket } from "@components";
 import { RenderRequest, ImgProps, Size } from "@lib";
+import { useVisibilityObserver } from "@/utils/useVisibilityObserver";
 
 export type ImageContextType = {
   request: RenderRequest;
@@ -49,9 +57,35 @@ export const ImageProvider = ({
   type,
 }: ImageProviderProps) => {
   const { bucket } = useBucket();
+  const ref = useRef<HTMLDivElement>(null);
   const [request, setRequest] = useState<RenderRequest | null>(null);
+  const { visible } = useVisibilityObserver({
+    ref,
+    rootMargin: "100px",
+  });
+  const [cleared, setCleared] = useState(false);
+
+  const onCleared = useCallback(() => {
+    setCleared(true);
+  }, []);
 
   useEffect(() => {
+    if (cleared && visible) {
+      setCleared(false);
+    }
+  }, [cleared, visible]);
+
+  /**
+   * Lock the request when it is visible,
+   * so that it can't be cleared while it is still visible.
+   */
+  useEffect(() => {
+    if (!request) return;
+    request.locked = visible;
+  }, [request, visible]);
+
+  useEffect(() => {
+    if (cleared) return;
     const newRequest = new RenderRequest({
       size: { height, width },
       bucket,
@@ -62,18 +96,30 @@ export const ImageProvider = ({
       retry,
     });
     setRequest(newRequest);
+    newRequest.on("clear", onCleared);
     return () => {
       newRequest.clear();
     };
-  }, [height, width, bucket, url, gpuDataFull, headers, retry, type]);
-
-  if (!request) {
-    return null; // or some loading state
-  }
+  }, [
+    height,
+    width,
+    bucket,
+    url,
+    gpuDataFull,
+    headers,
+    retry,
+    type,
+    cleared,
+    onCleared,
+  ]);
 
   return (
-    <ImageContext.Provider value={{ request }}>
-      {children}
-    </ImageContext.Provider>
+    <div data-cache-id={url} ref={ref}>
+      {request && (
+        <ImageContext.Provider value={{ request }}>
+          {children}
+        </ImageContext.Provider>
+      )}
+    </div>
   );
 };

@@ -278,13 +278,18 @@ export class Controller extends Logger {
    */
   #requestRam(bytes: number): boolean {
     let clearedBytes = 0;
-    for (const image of this.cache.values()) {
-      if (image.isLocked()) continue;
-      clearedBytes += image.getBytesRam();
-      this.#deleteImage(image);
-      if (clearedBytes >= bytes) {
-        return true;
+    const iterator = this.cache.values();
+    let result = iterator.next();
+    while (!result.done) {
+      const image = result.value;
+      if (!image.isLocked()) {
+        clearedBytes += image.getBytesRam();
+        this.#deleteImage(image);
+        if (clearedBytes >= bytes) {
+          return true;
+        }
       }
+      result = iterator.next();
     }
     return false;
   }

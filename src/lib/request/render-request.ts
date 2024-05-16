@@ -113,7 +113,7 @@ export class RenderRequest extends Logger {
    * @returns True if the render request is locked, false otherwise.
    */
   isLocked() {
-    return this.bucket.locked;
+    return this.locked || this.bucket.locked;
   }
 
   /**
