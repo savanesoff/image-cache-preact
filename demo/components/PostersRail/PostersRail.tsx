@@ -30,12 +30,12 @@ export const PostersRail = ({
 
   return (
     <FocusContext.Provider value={focusKey}>
-      <BucketProvider name={topic.title}>
-        <div className={cn("flex flex-col", className)} {...props} ref={ref}>
+      <div className={cn("flex flex-col", className)} {...props} ref={ref}>
+        <BucketProvider name={topic.title}>
           <RailHeader topic={topic} focused={hasFocusedChild} />
           <Rail topic={topic} fromPage={fromPage} focused={hasFocusedChild} />
-        </div>
-      </BucketProvider>
+        </BucketProvider>
+      </div>
     </FocusContext.Provider>
   );
 };
