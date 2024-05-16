@@ -2,11 +2,17 @@ import {
   HTMLAttributes,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { BucketProviderProps, ImageProvider } from "@cache";
-import { AssetPage, fetchAssets, Topic } from "@demo/utils/assets.endpoint";
+import {
+  Asset,
+  AssetPage,
+  fetchAssets,
+  Topic,
+} from "@demo/utils/assets.endpoint";
 import { cn } from "@demo/utils";
 import { Poster } from "../Poster/Poster";
 import config from "@demo/config.json";
@@ -47,6 +53,11 @@ export const PosterPage = ({
     }
   }, [topic, pageNumber]);
 
+  /**
+   * Fetch initial data when the page number is 0
+   * The page number is 0 when the component is first rendered
+   * All other pages are fetched when the page is scrolled into view
+   */
   useEffect(() => {
     if (pageNumber === 0) {
       fetchData();
@@ -88,21 +99,49 @@ export const PosterPage = ({
       {...props}
     >
       {!pageData && <div>{fetchStatus}</div>}
-      {pageData &&
-        pageData.assets.map((asset, index) => (
-          <ImageProvider
-            key={index}
-            url={asset.url}
-            type={asset.colorType}
-            headers={{
-              "Content-Type": asset.mimeType,
-            }}
-            width={config.image.renderWidth}
-            height={config.image.renderHeight}
-          >
-            <Poster index={index} asset={asset} pageNumber={pageNumber} />
-          </ImageProvider>
-        ))}
+      {pageData?.assets.map((asset, index) => (
+        <ImageContent
+          key={asset.title}
+          asset={asset}
+          index={index}
+          pageNumber={pageNumber}
+        />
+      ))}
     </div>
+  );
+};
+
+/**
+ * Since headers are created on the fly, we need to memoize them
+ * @param param0
+ * @returns
+ */
+const ImageContent = ({
+  asset,
+  index,
+  pageNumber,
+}: {
+  asset: Asset;
+  index: number;
+  pageNumber: number;
+}) => {
+  const headers = useMemo(
+    () => ({
+      "Content-Type": asset.mimeType,
+    }),
+    [asset.mimeType],
+  );
+
+  return (
+    <ImageProvider
+      key={index}
+      url={asset.url}
+      type={asset.colorType}
+      headers={headers}
+      width={config.image.renderWidth}
+      height={config.image.renderHeight}
+    >
+      <Poster index={index} asset={asset} pageNumber={pageNumber} />
+    </ImageProvider>
   );
 };
