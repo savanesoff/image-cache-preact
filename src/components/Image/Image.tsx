@@ -30,6 +30,9 @@ import { useVisibilityObserver } from "@/utils/useVisibilityObserver";
 
 export type ImageContextType = {
   request: RenderRequest;
+  height: number;
+  width: number;
+  url: string | null;
 };
 
 export const ImageContext = createContext<ImageContextType>(
@@ -56,18 +59,28 @@ export const ImageProvider = ({
   retry,
   type,
 }: ImageProviderProps) => {
-  const { bucket } = useBucket();
-  const ref = useRef<HTMLDivElement>(null);
   const [request, setRequest] = useState<RenderRequest | null>(null);
+  const [cleared, setCleared] = useState(false);
+  const [renderUrl, setRenderUrl] = useState<string | null>(null);
+  // need to track visibility of the image to handle clearing
+  const ref = useRef<HTMLDivElement>(null);
   const { visible } = useVisibilityObserver({
     ref,
-    rootMargin: "100px",
+    rootMargin: "200px",
   });
-  const [cleared, setCleared] = useState(false);
+
+  const { bucket } = useBucket();
 
   const onCleared = useCallback(() => {
     setCleared(true);
+    // revoke the url when cleared
+    setRenderUrl(null);
   }, []);
+
+  // provide url to children when rendered
+  const onRendered = useCallback(() => {
+    setRenderUrl(url);
+  }, [url]);
 
   useEffect(() => {
     if (cleared && visible) {
@@ -97,6 +110,7 @@ export const ImageProvider = ({
     });
     setRequest(newRequest);
     newRequest.on("clear", onCleared);
+    newRequest.on("rendered", onRendered);
     return () => {
       newRequest.clear();
     };
@@ -111,12 +125,15 @@ export const ImageProvider = ({
     type,
     cleared,
     onCleared,
+    onRendered,
   ]);
 
   return (
     <div data-cache-id={url} ref={ref}>
       {request && (
-        <ImageContext.Provider value={{ request }}>
+        <ImageContext.Provider
+          value={{ request, url: renderUrl, height, width }}
+        >
           {children}
         </ImageContext.Provider>
       )}

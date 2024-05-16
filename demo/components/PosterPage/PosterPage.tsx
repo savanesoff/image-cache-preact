@@ -77,7 +77,7 @@ export const PosterPage = ({
       },
       {
         // root: target.parentElement,
-        rootMargin: "200px", // Adjust this value to change the margin
+        rootMargin: "200px",
         threshold: 0,
       },
     );

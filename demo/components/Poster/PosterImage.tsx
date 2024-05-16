@@ -1,5 +1,4 @@
 import { useImage, useBucket } from "@/components";
-import { RenderRequestEvent } from "@/lib";
 import { cn } from "@demo/utils";
 import { Asset } from "@demo/utils/assets.endpoint";
 import { useState, useCallback } from "react";
@@ -19,32 +18,26 @@ export const PosterImage = ({
   index,
   pageNumber,
 }: PosterImageProps) => {
-  const [url, setUrl] = useState<string | null>(null);
-  const onImageRendered = useCallback(
-    ({ url }: RenderRequestEvent<"rendered">) => {
-      setUrl(url);
-    },
-    [],
-  );
-  const { request } = useImage({ onRendered: onImageRendered });
-
+  const { url, width, height } = useImage();
   const [show, setShow] = useState(false);
+
   const onBucketReady = useCallback(() => {
     setShow(true);
   }, []);
+
   useBucket({ onRendered: onBucketReady });
 
   return (
     <div
       className={cn("bg-cyan-900", url && "relative bg-orange-500 ")}
       style={{
-        width: request.size.width,
-        height: request.size.height,
+        width,
+        height,
         // for cobalt
-        minWidth: request.size.width,
-        minHeight: request.size.height,
-        maxWidth: request.size.width,
-        maxHeight: request.size.height,
+        minWidth: width,
+        minHeight: height,
+        maxWidth: width,
+        maxHeight: height,
         position: "relative",
       }}
     >
@@ -56,7 +49,7 @@ export const PosterImage = ({
         )}
         style={{
           backgroundImage: `url(${url})`,
-          backgroundSize: `${request?.size.width}px ${request?.size.height}px`,
+          backgroundSize: `${width}px ${height}px`,
         }}
       />
 

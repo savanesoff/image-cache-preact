@@ -28,7 +28,7 @@ export const Poster = ({
   pageNumber,
   ...props
 }: PosterProps) => {
-  const { request } = useImage();
+  const { width } = useImage();
   const { ref, focused, focusSelf } = useFocusable();
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export const Poster = ({
         inline: "center",
       });
     }
-  }, [focused, ref, request]);
+  }, [focused, ref]);
 
   useEffect(() => {
     if (initialFocus.state === false) {
@@ -53,9 +53,9 @@ export const Poster = ({
       ref={ref}
       className={cn(
         "bg-slate-800",
-        `max-w-[${request.size.width}px]`,
-        `w-[${request.size.width}px]`,
-        `min-w-[${request.size.width}px]`,
+        `max-w-[${width}px]`,
+        `w-[${width}px]`,
+        `min-w-[${width}px]`,
         "flex flex-col space-y-1",
         className,
       )}
