@@ -172,7 +172,7 @@ export class Controller extends Logger {
     this.cache.set(image.url, image); // TODO blob is network data, once we get image size any render of size will consume raw width/height data for ram
     image.on("loadend", this.#onImageLoadend);
     image.on("size", this.#onImageDecoded);
-    image.on("render-request-rendered", this.#onRenderRequestAdded);
+    image.on("render-request-rendered", this.#onRenderRequestRendered);
     image.on("render-request-removed", this.#onRenderRequestRemoved);
     this.network.add(image); // request load immediately
     this.emit("image-added", { image });
@@ -186,7 +186,9 @@ export class Controller extends Logger {
    * as a result, subsequent render request of the same image will have 0 bytes
    * @param event
    */
-  #onRenderRequestAdded = ({ bytes }: ImgEvent<"render-request-rendered">) => {
+  #onRenderRequestRendered = ({
+    bytes,
+  }: ImgEvent<"render-request-rendered">) => {
     this.#addVideoBytes(bytes);
   };
 
