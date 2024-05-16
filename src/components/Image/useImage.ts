@@ -44,7 +44,7 @@ export type UseImageProps = {
    * A function that will be called when the "render" event is emitted.
    * Return true if you're rendering the image!
    */
-  onRender?: (event: UseImageEvent<"render">) => void;
+  onRender?: (event: UseImageEvent<"render">) => boolean;
 };
 
 /**

@@ -31,4 +31,5 @@ export const onRenderRequest = ({
   setTimeout(() => {
     // document.body.removeChild(div);
   }, renderTime);
+  return true;
 };
