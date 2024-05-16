@@ -21,8 +21,8 @@ export const PosterImage = ({
 }: PosterImageProps) => {
   const [url, setUrl] = useState<string | null>(null);
   const onImageRendered = useCallback(
-    (event: RenderRequestEvent<"rendered">) => {
-      setUrl(event.target.image.url);
+    ({ url }: RenderRequestEvent<"rendered">) => {
+      setUrl(url);
     },
     [],
   );
