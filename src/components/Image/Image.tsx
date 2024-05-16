@@ -62,6 +62,9 @@ export const ImageProvider = ({
       retry,
     });
     setRequest(newRequest);
+    return () => {
+      newRequest.clear();
+    };
   }, [height, width, bucket, url, gpuDataFull, headers, retry, type]);
 
   if (!request) {
