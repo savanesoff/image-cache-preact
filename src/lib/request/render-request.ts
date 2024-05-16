@@ -54,7 +54,7 @@ export class RenderRequest extends Logger {
    * @param props - Additional properties for the request.
    */
   constructor({ size, bucket, ...props }: RenderRequestProps) {
-    super({ name: "RenderRequest", logLevel: "verbose" });
+    super({ name: "RenderRequest", logLevel: "warn" });
     this.size = size;
     this.rendered = false;
     this.bucket = bucket;
@@ -122,6 +122,7 @@ export class RenderRequest extends Logger {
    */
   render({ renderTime }: RendererProps) {
     this.emit("processing");
+    // render time of 0 means the image is already rendered
     const isRendered = renderTime === 0;
     // if renderer provided, call it
     if (!isRendered && this.bucket.controller.renderer) {
