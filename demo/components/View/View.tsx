@@ -1,5 +1,4 @@
 import { cn } from "@demo/utils";
-import { CacheStats } from "./CacheStats";
 import {
   useFocusable,
   FocusContext,
@@ -15,7 +14,6 @@ export const View = () => {
   return (
     <FocusContext.Provider value={focusKey}>
       <div className={cn("p-4", "bg-slate-600", "w-full space-y-2")} ref={ref}>
-        <CacheStats />
         <RailsView />
       </div>
     </FocusContext.Provider>

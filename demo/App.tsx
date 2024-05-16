@@ -6,6 +6,7 @@ import { View } from "@demo/components";
 import { init } from "@noriginmedia/norigin-spatial-navigation";
 import { CacheLock } from "./cacheLock";
 import { useCallback, useState } from "react";
+import { CacheStats } from "./components/View/CacheStats";
 
 init({
   // options
@@ -55,13 +56,13 @@ function App() {
       </div>
       <ControllerProvider
         loaders={6}
-        ram={3000}
+        ram={300}
         video={5000}
         units="MB"
         hwRank={0.8} // 0-1
         gpuDataFull={true}
       >
-        {/* <CacheVOD /> */}
+        <CacheStats />
         {lockReady && <View />}
         <CacheLock onRendered={onCacheLockReady} />
       </ControllerProvider>
