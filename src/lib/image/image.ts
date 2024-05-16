@@ -150,7 +150,7 @@ export class Img extends Loader {
     URL.revokeObjectURL(this.element.src);
     // clear all render requests
     for (const request of this.renderRequests) {
-      this.unregisterRequest(request);
+      request.clear();
     }
     this.emit("clear");
     this.removeAllListeners();
@@ -162,17 +162,22 @@ export class Img extends Loader {
   registerRequest(request: RenderRequest) {
     this.renderRequests.add(request);
     request.on("rendered", this.#onRendered);
+    request.on("clear", this.#onRequestClear);
     this.emit("render-request-added", { request, bytes: request.bytesVideo });
   }
 
   /**
    * Unregister a render request for the image.
    */
-  unregisterRequest(request: RenderRequest) {
-    request.off("rendered", this.#onRendered);
-    this.renderRequests.delete(request);
-    this.emit("render-request-removed", { request, bytes: request.bytesVideo });
-  }
+  #onRequestClear = (event: RenderRequestEvent<"clear">) => {
+    event.target.off("rendered", this.#onRendered);
+    event.target.off("clear", this.#onRequestClear);
+    this.renderRequests.delete(event.target);
+    this.emit("render-request-removed", {
+      request: event.target,
+      bytes: event.target.bytesVideo,
+    });
+  };
 
   /**
    * Returns true if the image is locked by any render request
