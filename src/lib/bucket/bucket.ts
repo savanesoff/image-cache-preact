@@ -153,24 +153,26 @@ export class Bucket extends Logger {
     request.on("error", this.#onRequestError);
     request.on("loadend", this.#onRequestLoadEnd);
     request.on("rendered", this.#onRequestRendered);
+    request.on("clear", this.#onRequestClear);
     this.emit("update", {
       requests: this.requests.size,
       images: this.getImages().size,
     });
   }
 
-  unregisterRequest(request: RenderRequest) {
-    this.requests.delete(request);
-    request.off("loadstart", this.#onRequestLoadStart);
-    request.off("progress", this.#onRequestProgress);
-    request.off("error", this.#onRequestError);
-    request.off("loadend", this.#onRequestLoadEnd);
-    request.off("rendered", this.#onRequestRendered);
+  #onRequestClear = (event: RenderRequestEvent<"clear">) => {
+    this.requests.delete(event.target);
+    event.target.off("loadstart", this.#onRequestLoadStart);
+    event.target.off("progress", this.#onRequestProgress);
+    event.target.off("error", this.#onRequestError);
+    event.target.off("loadend", this.#onRequestLoadEnd);
+    event.target.off("rendered", this.#onRequestRendered);
+    event.target.off("clear", this.#onRequestClear);
     this.emit("update", {
       requests: this.requests.size,
       images: this.getImages().size,
     });
-  }
+  };
 
   hasURL(url: string) {
     for (const request of this.requests) {
