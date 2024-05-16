@@ -278,7 +278,7 @@ export class Bucket extends Logger {
     let used = 0;
     for (const request of this.requests) {
       requested += request.bytesVideo;
-      used += request.rendered ? request.image.getBytesVideo(request.size) : 0;
+      used += request.rendered ? request.bytesVideo : 0;
     }
 
     return {

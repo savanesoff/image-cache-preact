@@ -224,10 +224,9 @@ export class Img extends Loader {
   /**
    * Returns the size of the image in bytes as a 4 channel RGBA image
    */
-  getBytesVideo(size: Size, requested = false) {
+  getBytesVideo(size: Size) {
     const bytesPerPixel = IMAGE_COLOR_TYPE[this.type]; // default to 4 if the image type is not in the map
-    const gpuSize =
-      !requested && this.gpuDataFull && this.element ? this.element : size;
+    const gpuSize = this.gpuDataFull && this.element ? this.element : size;
     return gpuSize.width * gpuSize.height * bytesPerPixel;
   }
 
@@ -304,7 +303,7 @@ export class Img extends Loader {
   #onRendered = (event: RenderRequestEvent<"rendered">) => {
     // for each render request, we need to calculate the size of the image in video memory
     // however, we only need to decode the image once in the gpuDataFull mode
-    const bytes = this.decoded ? 0 : this.getBytesVideo(event.target.size);
+    const bytes = this.decoded ? 0 : event.target.bytesVideo;
 
     this.emit("render-request-rendered", {
       request: event.target,

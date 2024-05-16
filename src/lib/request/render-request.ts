@@ -30,7 +30,8 @@ export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
 } & (T extends "error" ? Omit<ImgEvent<"error">, "target"> : unknown) &
   (T extends "progress" ? Omit<ImgEvent<"progress">, "target"> : unknown) &
   (T extends "render" ? RendererProps : unknown) &
-  (T extends "loadstart" ? Omit<ImgEvent<"loadstart">, "target"> : unknown);
+  (T extends "loadstart" ? Omit<ImgEvent<"loadstart">, "target"> : unknown) &
+  (T extends "rendered" ? { url: string | null } : unknown);
 
 export type RenderRequestEventHandler<T extends RenderRequestEventTypes> = (
   event: RenderRequestEvent<T>,
@@ -44,8 +45,9 @@ export class RenderRequest extends Logger {
   rendered: boolean;
   image: Img;
   bucket: Bucket;
-  bytesVideo: number;
+  bytesVideo = 0;
   readonly frameQueue: FrameQueue;
+  locked = false;
 
   /**
    * Constructs a new RenderRequest instance.
@@ -60,10 +62,8 @@ export class RenderRequest extends Logger {
     this.bucket = bucket;
     this.frameQueue = this.bucket.controller.frameQueue;
     this.image = this.bucket.controller.getImage(props);
-    this.bytesVideo = this.image.getBytesVideo(size, true);
     this.image.registerRequest(this);
     this.bucket.registerRequest(this);
-
     this.image.on("loadstart", this.#onloadStart);
     this.image.on("progress", this.#onProgress);
     this.image.on("error", this.#onImageError);
@@ -89,6 +89,8 @@ export class RenderRequest extends Logger {
    */
   request = () => {
     this.log.verbose(["Requesting render"]);
+
+    this.bytesVideo = this.image.getBytesVideo(this.size);
     // request render
     this.emit("loadend");
     this.frameQueue.add(this);
@@ -98,12 +100,11 @@ export class RenderRequest extends Logger {
    * Clears the render request.
    */
   clear() {
-    this.image.unregisterRequest(this);
-    this.bucket.unregisterRequest(this);
     this.image.off("size", this.request);
     this.image.off("loadstart", this.#onloadStart);
     this.image.off("progress", this.#onProgress);
     this.image.off("error", this.#onImageError);
+    this.emit("rendered", { url: null });
     this.emit("clear");
     this.removeAllListeners();
   }
@@ -133,7 +134,7 @@ export class RenderRequest extends Logger {
 
     setTimeout(() => {
       this.rendered = true;
-      this.emit("rendered");
+      this.emit("rendered", { url: this.image.url });
     }, renderTime);
   }
 
