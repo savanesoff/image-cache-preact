@@ -6,7 +6,7 @@
  * It also manages the video memory, keeping track of the total bytes used.
  *
  * The `Controller` class provides methods to add an image to the cache and network queue (`addImage`),
- * add and remove video bytes of a render request (`#onRenderRequestAdded` and `#onRenderRequestRemoved`),
+ * add and remove video bytes of a render request (`#onRenderRequestRendered` and `#onRenderRequestRemoved`),
  * and add bytes to the video memory (`#addVideoBytes`).
  *
  * Usage:
@@ -155,6 +155,7 @@ export class Controller extends Logger {
    */
   #deleteImage(image: Img) {
     this.cache.delete(image.url);
+    this.ram.removeBytes(image.getBytesRam());
     image.clear();
     this.emit("image-removed", { image });
     this.emit("update");
