@@ -1,7 +1,7 @@
 import { useImage, useBucket } from "@/components";
 import { cn } from "@demo/utils";
 import { Asset } from "@demo/utils/assets.endpoint";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 type PosterImageProps = {
   focused?: boolean;
@@ -26,6 +26,12 @@ export const PosterImage = ({
   }, []);
 
   useBucket({ onRendered: onBucketReady });
+
+  const hash = useMemo(() => {
+    // get url ?hash url param value
+    const hash = url?.split("?hash=")[1];
+    return hash;
+  }, [url]);
 
   return (
     <div
@@ -68,6 +74,7 @@ export const PosterImage = ({
         <div className="text-sm">
           i:{index} p:{pageNumber}
         </div>
+        <div className="text-xs">Hash {hash}</div>
         <div className="text-xs">Title {asset.title}</div>
         {/* <div className="text-xs">{asset.description}</div> */}
       </div>
