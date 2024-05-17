@@ -16,14 +16,6 @@ init({
   throttle: 160,
 });
 
-// setKeyMap({
-//   left: 9001, // or 'ArrowLeft'
-//   up: 9002, // or 'ArrowUp'
-//   right: 9003, // or 'ArrowRight'
-//   down: 9004, // or 'ArrowDown'
-//   enter: 9005, // or 'Enter'
-// });
-
 devtoolsFPS.config({
   bufferSize: 200,
   width: 200,
