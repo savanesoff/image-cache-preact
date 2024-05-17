@@ -42,6 +42,10 @@ export type VisibilityObserverProps = {
    * The default is 0 (meaning as soon as even one pixel is visible, the callback will be run).
    */
   threshold?: number | number[];
+  /** Callback when the element becomes visible */
+  onVisible?: () => void;
+  /** Callback when the element becomes invisible */
+  onInvisible?: () => void;
 };
 
 export type VisibilityObserverReturn = {
@@ -57,6 +61,8 @@ export const useVisibilityObserver = ({
   root,
   rootMargin,
   threshold = 0,
+  onVisible,
+  onInvisible,
 }: VisibilityObserverProps) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -67,6 +73,8 @@ export const useVisibilityObserver = ({
     const observer = new IntersectionObserver(
       ([entry]) => {
         setVisible(entry.isIntersecting);
+        entry.isIntersecting && onVisible?.();
+        !entry.isIntersecting && onInvisible?.();
       },
       {
         root,
@@ -80,6 +88,6 @@ export const useVisibilityObserver = ({
     return () => {
       observer.unobserve(target);
     };
-  }, [ref, root, rootMargin, setVisible, threshold]);
+  }, [ref, root, rootMargin, setVisible, onVisible, onInvisible, threshold]);
   return { visible };
 };
