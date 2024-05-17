@@ -48,8 +48,8 @@ function App() {
       </div>
       <ControllerProvider
         loaders={6}
-        ram={300}
-        video={5000}
+        ram={500}
+        video={300}
         units="MB"
         hwRank={0.8} // 0-1
         gpuDataFull={true}
