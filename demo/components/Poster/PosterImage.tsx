@@ -33,7 +33,7 @@ export const PosterImage = ({
     if (showImmediately) {
       setShow(true);
     }
-  }, [focused]);
+  }, [showImmediately, setShow]);
 
   const hash = useMemo(() => {
     // get url ?hash url param value
