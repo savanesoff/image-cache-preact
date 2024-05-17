@@ -118,7 +118,7 @@ export const ImageProvider = ({
     newRequest.on("clear", onCleared);
     newRequest.on("rendered", onRendered);
     return () => {
-      newRequest.clear();
+      newRequest.clear(true);
     };
   }, [
     height,

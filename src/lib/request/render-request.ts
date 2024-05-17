@@ -103,7 +103,8 @@ export class RenderRequest extends Logger {
   /**
    * Clears the render request.
    */
-  clear() {
+  clear(force = false) {
+    if (!force && this.isLocked()) return;
     this.image.off("size", this.request);
     this.image.off("loadstart", this.#onloadStart);
     this.image.off("progress", this.#onProgress);
