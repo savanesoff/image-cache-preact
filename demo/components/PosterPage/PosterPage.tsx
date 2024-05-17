@@ -87,6 +87,7 @@ export const PosterPage = ({
           asset={asset}
           index={index}
           pageNumber={pageNumber}
+          showImmediately={!immediateFetch}
         />
       ))}
     </div>
@@ -102,10 +103,12 @@ const ImageContent = ({
   asset,
   index,
   pageNumber,
+  showImmediately,
 }: {
   asset: Asset;
   index: number;
   pageNumber: number;
+  showImmediately?: boolean;
 }) => {
   const headers = useMemo(
     () => ({
@@ -124,7 +127,12 @@ const ImageContent = ({
       height={config.image.renderHeight}
       visibilityMargin={config.visibilityMargin}
     >
-      <Poster index={index} asset={asset} pageNumber={pageNumber} />
+      <Poster
+        index={index}
+        asset={asset}
+        pageNumber={pageNumber}
+        showImmediately={showImmediately}
+      />
     </ImageProvider>
   );
 };

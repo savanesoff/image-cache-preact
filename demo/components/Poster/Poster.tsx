@@ -11,6 +11,7 @@ export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   index: number;
   asset: Asset;
   pageNumber: number;
+  showImmediately?: boolean;
 };
 
 const initialFocus = {
@@ -26,6 +27,7 @@ export const Poster = ({
   index,
   asset,
   pageNumber,
+  showImmediately,
   ...props
 }: PosterProps) => {
   const { width } = useImage();
@@ -70,6 +72,7 @@ export const Poster = ({
         asset={asset}
         index={index}
         pageNumber={pageNumber}
+        showImmediately={showImmediately}
       />
     </div>
   );

@@ -1,13 +1,14 @@
 import { useImage, useBucket } from "@/components";
 import { cn } from "@demo/utils";
 import { Asset } from "@demo/utils/assets.endpoint";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 
 type PosterImageProps = {
   focused?: boolean;
   asset: Asset;
   index?: number;
   pageNumber?: number;
+  showImmediately?: boolean;
 };
 /**
  * Renders the poster image using the useImage hook.
@@ -17,6 +18,7 @@ export const PosterImage = ({
   asset,
   index,
   pageNumber,
+  showImmediately,
 }: PosterImageProps) => {
   const { url, width, height } = useImage();
   const [show, setShow] = useState(false);
@@ -26,6 +28,12 @@ export const PosterImage = ({
   }, []);
 
   useBucket({ onRendered: onBucketReady });
+
+  useEffect(() => {
+    if (showImmediately) {
+      setShow(true);
+    }
+  }, [focused]);
 
   const hash = useMemo(() => {
     // get url ?hash url param value
