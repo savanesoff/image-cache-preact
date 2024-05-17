@@ -35,7 +35,7 @@ export const PosterImage = ({
 
   return (
     <div
-      className={cn("bg-cyan-900", url && "relative bg-orange-500 ")}
+      className={cn("bg-cyan-900", url && "bg-orange-500 ")}
       style={{
         width,
         height,
