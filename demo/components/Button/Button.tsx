@@ -1,6 +1,6 @@
 import { cn } from "@demo/utils";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { HTMLAttributes, useEffect } from "react";
+import { HTMLAttributes, useCallback, useEffect } from "react";
 
 type ButtonProps = HTMLAttributes<HTMLButtonElement> & {
   onClick: () => void;
@@ -15,7 +15,12 @@ export const Button = ({
   className,
   ...props
 }: ButtonProps) => {
-  const { ref, focused, focusSelf } = useFocusable({ onEnterPress: onClick });
+  const onEnterPress = useCallback(() => {
+    if (!disabled) {
+      onClick();
+    }
+  }, [onClick, disabled]);
+  const { ref, focused, focusSelf } = useFocusable({ onEnterPress });
   useEffect(() => {
     focusSelf();
   }, [focusSelf]);
@@ -25,7 +30,8 @@ export const Button = ({
       className={cn(
         "m-2 rounded-md border-2 border-green-900 px-2 py-1 text-white",
         disabled && "bg-gray-800",
-        focused && " border-yellow-500 bg-green-700",
+        focused && disabled && " border-yellow-500",
+        focused && !disabled && "border-yellow-500 bg-green-700",
         className,
       )}
       disabled={disabled}
