@@ -7,20 +7,18 @@ import {
   useState,
 } from "react";
 import { BucketProviderProps, ImageProvider } from "@cache";
-import {
-  Asset,
-  AssetPage,
-  fetchAssets,
-  Topic,
-} from "@demo/utils/assets.endpoint";
+import { Asset, AssetPage, fetchAssets, Topic } from "@demo/utils";
 import { cn } from "@demo/utils";
-import { Poster } from "../Poster/Poster";
+import { Poster } from "@demo/components";
 import config from "@demo/config.json";
+import { useVisibilityObserver } from "@/utils/useVisibilityObserver";
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
   Exclude<BucketProviderProps, "children"> & {
     topic: Topic;
     pageNumber: number;
+    /** Array of page numbers to fetch initially */
+    immediateFetch?: boolean;
   };
 
 /**
@@ -31,6 +29,7 @@ export const PosterPage = ({
   topic,
   pageNumber,
   className,
+  immediateFetch,
   ...props
 }: PosterPageProps) => {
   const [pageData, setPageData] = useState<AssetPage>();
@@ -39,6 +38,9 @@ export const PosterPage = ({
   >("idle");
   const ref = useRef<HTMLDivElement>(null);
 
+  /**
+   * Fetches the assets for the page
+   */
   const fetchData = useCallback(async () => {
     setFetchStatus("loading");
     const data = await fetchAssets({
@@ -53,41 +55,17 @@ export const PosterPage = ({
     }
   }, [topic, pageNumber]);
 
-  /**
-   * Fetch initial data when the page number is 0
-   * The page number is 0 when the component is first rendered
-   * All other pages are fetched when the page is scrolled into view
-   */
+  const onVisible = useCallback(() => {
+    if (fetchStatus === "idle") fetchData();
+  }, [fetchData, fetchStatus]);
+
+  useVisibilityObserver({ ref, rootMargin: "200px", onVisible });
+
   useEffect(() => {
-    if (pageNumber === 0) {
+    if (immediateFetch) {
       fetchData();
     }
-  }, [fetchData, pageNumber]);
-
-  useEffect(() => {
-    const target = ref.current;
-    if (!target || fetchStatus !== "idle" || pageNumber === 0) {
-      return;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          fetchData();
-        }
-      },
-      {
-        // root: target.parentElement,
-        rootMargin: "200px",
-        threshold: 0,
-      },
-    );
-
-    observer.observe(target);
-
-    return () => {
-      observer.unobserve(target);
-    };
-  }, [pageNumber, fetchStatus, fetchData, ref]);
+  }, [fetchData, immediateFetch]);
 
   return (
     <div

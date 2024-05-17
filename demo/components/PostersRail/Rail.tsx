@@ -1,13 +1,17 @@
 import { cn } from "@demo/utils";
 import { Topic } from "@demo/utils/assets.endpoint";
 import { HTMLAttributes, useMemo } from "react";
-import { PosterPage } from "../PosterPage";
+import { PosterPage } from "@demo/components";
 
 export type RailProps = HTMLAttributes<HTMLDivElement> & {
   focused: boolean;
   topic: Topic;
   fromPage: number;
 };
+// pages we want to fetch immediately
+// every other page will be fetched when it comes into view
+const immediateFetchPages = [0];
+
 export const Rail = ({
   focused,
   topic,
@@ -19,6 +23,7 @@ export const Rail = ({
     () => Array.from({ length: topic.pages }),
     [topic.pages],
   );
+
   return (
     <div
       data-testid="rail"
@@ -36,6 +41,7 @@ export const Rail = ({
           name="Poser page main"
           topic={topic}
           pageNumber={index + fromPage}
+          immediateFetch={immediateFetchPages.includes(index)}
         />
       ))}
     </div>
