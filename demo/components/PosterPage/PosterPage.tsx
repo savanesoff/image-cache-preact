@@ -59,7 +59,11 @@ export const PosterPage = ({
     if (fetchStatus === "idle") fetchData();
   }, [fetchData, fetchStatus]);
 
-  useVisibilityObserver({ ref, rootMargin: "200px", onVisible });
+  useVisibilityObserver({
+    ref,
+    rootMargin: config.visibilityMargin,
+    onVisible,
+  });
 
   useEffect(() => {
     if (immediateFetch) {
@@ -118,6 +122,7 @@ const ImageContent = ({
       headers={headers}
       width={config.image.renderWidth}
       height={config.image.renderHeight}
+      visibilityMargin={config.visibilityMargin}
     >
       <Poster index={index} asset={asset} pageNumber={pageNumber} />
     </ImageProvider>

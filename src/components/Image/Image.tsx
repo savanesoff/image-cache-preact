@@ -42,6 +42,11 @@ export const ImageContext = createContext<ImageContextType>(
 export type ImageProviderProps = ImgProps &
   Size & {
     children?: ReactNode;
+    /**
+     * How far off the screen to trigger rendering, default 0,
+     * meaning at the edge of the viewport
+     */
+    visibilityMargin?: string;
   };
 
 /**
@@ -58,6 +63,7 @@ export const ImageProvider = ({
   headers,
   retry,
   type,
+  visibilityMargin,
 }: ImageProviderProps) => {
   const [request, setRequest] = useState<RenderRequest | null>(null);
   const [cleared, setCleared] = useState(false);
@@ -66,7 +72,7 @@ export const ImageProvider = ({
   const ref = useRef<HTMLDivElement>(null);
   const { visible } = useVisibilityObserver({
     ref,
-    rootMargin: "300px",
+    rootMargin: visibilityMargin,
   });
 
   const { bucket } = useBucket();
