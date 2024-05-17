@@ -21,7 +21,7 @@ import { Network } from "@lib/network";
 import { Logger, LogLevel } from "@lib/logger";
 import { FrameQueue, FrameQueueProps } from "@lib/frame-queue";
 import { UnitsType } from "@utils";
-import { renderer } from "../request";
+import { renderer, RenderRequest } from "../request";
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerEventTypes =
@@ -30,7 +30,9 @@ export type ControllerEventTypes =
   | "update"
   | "image-added"
   | "image-removed"
-  | "clear";
+  | "clear"
+  | "render-request-added"
+  | "render-request-removed";
 
 /** Controller event */
 export type ControllerEvent<T extends ControllerEventTypes> = {
@@ -41,7 +43,10 @@ export type ControllerEvent<T extends ControllerEventTypes> = {
 } & (T extends "ram-overflow" | "video-overflow"
   ? { bytes: number }
   : unknown) &
-  (T extends "image-added" | "image-removed" ? { image: Img } : unknown);
+  (T extends "image-added" | "image-removed" ? { image: Img } : unknown) &
+  (T extends "render-request-added" | "render-request-removed"
+    ? { request: RenderRequest }
+    : unknown);
 
 /** Controller event handler */
 export type ControllerEventHandler<T extends ControllerEventTypes> = (
@@ -76,10 +81,12 @@ const styles = {
   log: "color: skyblue;",
 };
 
+export type ControllerCache = Map<string, Img>;
+
 export class Controller extends Logger {
   readonly ram: Memory;
   readonly video: Memory;
-  readonly cache = new Map<string, Img>();
+  readonly cache: ControllerCache;
   readonly frameQueue: FrameQueue;
   readonly network: Network;
   readonly units: UnitsType;
@@ -104,6 +111,7 @@ export class Controller extends Logger {
     this.units = units;
     this.gpuDataFull = gpuDataFull;
     this.renderer = renderer;
+    this.cache = new Map();
     this.frameQueue = new FrameQueue({
       logLevel,
       hwRank,
@@ -175,11 +183,17 @@ export class Controller extends Logger {
     image.on("size", this.#onImageDecoded);
     image.on("render-request-rendered", this.#onRenderRequestRendered);
     image.on("render-request-removed", this.#onRenderRequestRemoved);
+    image.on("render-request-added", this.#onRequestAdded);
     this.network.add(image); // request load immediately
     this.emit("image-added", { image });
     this.emit("update");
     return image;
   }
+
+  #onRequestAdded = (event: ImgEvent<"render-request-added">) => {
+    this.emit("render-request-added", { request: event.request });
+    this.emit("update");
+  };
 
   /**
    * Adds video bytes of a render request to the video memory
@@ -197,8 +211,10 @@ export class Controller extends Logger {
    * Removes video bytes of a render request from the video memory
    * @param event
    */
-  #onRenderRequestRemoved = ({ bytes }: ImgEvent<"render-request-removed">) => {
-    this.video.removeBytes(bytes);
+  #onRenderRequestRemoved = (event: ImgEvent<"render-request-removed">) => {
+    this.emit("render-request-removed", { request: event.request });
+    this.video.removeBytes(event.bytes);
+    this.emit("update");
   };
 
   //-----------------------   VIDEO MEMORY MANAGEMENT   -----------------------
@@ -217,6 +233,7 @@ export class Controller extends Logger {
     if (overflow && this.#requestVideo(overflowBytes) === false) {
       this.emit("video-overflow", { bytes: overflowBytes });
     }
+    this.emit("update");
   }
 
   /**
@@ -273,9 +290,12 @@ export class Controller extends Logger {
     const remainingBytes = this.ram.addBytes(bytes);
     const overflow = remainingBytes < 0;
     const overflowBytes = Math.abs(remainingBytes);
+
     if (overflow && this.#requestRam(overflowBytes) === false) {
       this.emit("ram-overflow", { bytes: overflowBytes });
     }
+
+    this.emit("update");
   }
 
   /**
@@ -301,6 +321,12 @@ export class Controller extends Logger {
       result = iterator.next();
     }
     return false;
+  }
+
+  getRenderRequestCount() {
+    return Array.from(this.cache.values())
+      .map((item) => item.renderRequests.size)
+      .reduce((total, count) => total + count, 0);
   }
 
   //------------------------------    EVENTS    ------------------------------

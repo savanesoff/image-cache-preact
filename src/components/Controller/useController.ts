@@ -13,6 +13,10 @@ type UseControllerProps = {
   onImageRemoved?: (event: ControllerEvent<"image-removed">) => void;
   /** Event handler for cache update */
   onUpdate?: (event: ControllerEvent<"update">) => void;
+  /** Event handler for render request added */
+  onRequestAdded?: (event: ControllerEvent<"render-request-added">) => void;
+  /** Event handler for render request removed */
+  onRequestRemoved?: (event: ControllerEvent<"render-request-removed">) => void;
 };
 /**
  * The useController hook provides a way to access the `Controller` instance from the `ControllerProvider`.
@@ -23,6 +27,8 @@ export const useController = ({
   onImageAdded,
   onImageRemoved,
   onUpdate,
+  onRequestAdded,
+  onRequestRemoved,
 }: UseControllerProps = {}): ControllerContextType => {
   const context = useContext(ControllerContext);
   if (!context) {
@@ -36,6 +42,9 @@ export const useController = ({
     onImageAdded && controller.on("image-added", onImageAdded);
     onImageRemoved && controller.on("image-removed", onImageRemoved);
     onUpdate && controller.on("update", onUpdate);
+    onRequestAdded && controller.on("render-request-added", onRequestAdded);
+    onRequestRemoved &&
+      controller.on("render-request-removed", onRequestRemoved);
 
     // by the time this effect runs, the video might have already been loaded
     if (controller.video.getFreeSpace().prs < 0) {
@@ -60,6 +69,9 @@ export const useController = ({
       onImageAdded && controller.off("image-added", onImageAdded);
       onImageRemoved && controller.off("image-removed", onImageRemoved);
       onUpdate && controller.off("update", onUpdate);
+      onRequestAdded && controller.off("render-request-added", onRequestAdded);
+      onRequestRemoved &&
+        controller.off("render-request-removed", onRequestRemoved);
     };
   }, [
     controller,
@@ -68,6 +80,8 @@ export const useController = ({
     onRamOverflow,
     onUpdate,
     onVideoOverflow,
+    onRequestAdded,
+    onRequestRemoved,
   ]);
 
   return context;
