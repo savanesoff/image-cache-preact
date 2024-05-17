@@ -23,6 +23,7 @@ export const onRenderRequest = ({
     // backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "top left",
+    pointerEvents: "none",
     backgroundSize: `${target.size.width}px ${target.size.height}px`,
   };
   Object.assign(div.style, style);
