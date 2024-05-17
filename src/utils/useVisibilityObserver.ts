@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
+
 export type VisibilityObserverProps = {
   /** The ref of the element to observe */
   ref: React.RefObject<HTMLElement>;
@@ -64,50 +66,28 @@ export const useVisibilityObserver = ({
   onVisible,
   onInvisible,
 }: VisibilityObserverProps) => {
-  const [visible, setVisible] = useState(false);
-  /**
-   * This is to prevent the initial call to the observer
-   * When the component is first mounted, the observer will trigger with
-   * isIntersecting as true, even if element in not in viewport.
-   * This is to prevent that initial call.
-   */
-  const initialCallRef = useRef(true);
-  useEffect(() => {
-    const target = ref.current;
-    if (!target) {
-      return;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (initialCallRef.current) {
-          initialCallRef.current = false;
-          return;
-        }
-        setVisible(entry.isIntersecting);
-        entry.isIntersecting && onVisible?.();
-        !entry.isIntersecting && onInvisible?.();
-      },
-      {
-        root,
-        rootMargin,
-        threshold,
-      },
-    );
-
-    observer.observe(target);
-
-    return () => {
-      observer.unobserve(target);
-    };
-  }, [
+  const {
+    ref: inViewRef,
+    inView: visible,
+    // entry,
+  } = useInView({
+    /* Optional options */
+    threshold,
     root,
     rootMargin,
-    setVisible,
-    onVisible,
-    onInvisible,
-    threshold,
-    ref,
-    initialCallRef,
-  ]);
+  });
+
+  useEffect(() => {
+    inViewRef(ref.current);
+  }, [inViewRef, ref]);
+
+  useEffect(() => {
+    if (visible) {
+      onVisible?.();
+    } else {
+      onInvisible?.();
+    }
+  }, [onVisible, onInvisible, visible]);
+
   return { visible };
 };

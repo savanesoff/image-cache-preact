@@ -191,6 +191,21 @@ export class Img extends Loader {
     return false;
   }
 
+  isSizeLocked(callerRequest: RenderRequest) {
+    for (const request of this.renderRequests.values()) {
+      if (request === callerRequest) continue;
+      if (
+        (this.gpuDataFull ||
+          (request.size.width === callerRequest.size.width &&
+            request.size.height === callerRequest.size.height)) &&
+        request.isLocked()
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /*
    * Memory Usage Summary:
    *

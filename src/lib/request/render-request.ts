@@ -18,7 +18,7 @@ export type RenderRequestEventTypes =
   | "rendered"
   | "clear"
   | "loadend"
-  | "processing"
+  | "rendering"
   | "loadstart"
   | "progress"
   | "error"
@@ -29,7 +29,7 @@ export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   target: RenderRequest;
 } & (T extends "error" ? Omit<ImgEvent<"error">, "target"> : unknown) &
   (T extends "progress" ? Omit<ImgEvent<"progress">, "target"> : unknown) &
-  (T extends "render" ? RendererProps : unknown) &
+  (T extends "render" | "rendering" ? RendererProps : unknown) &
   (T extends "loadstart" ? Omit<ImgEvent<"loadstart">, "target"> : unknown) &
   (T extends "rendered" ? { url: string | null } : unknown);
 
@@ -42,12 +42,16 @@ export type RenderRequestEventHandler<T extends RenderRequestEventTypes> = (
  */
 export class RenderRequest extends Logger {
   size: Size;
-  rendered: boolean;
+  rendered = false;
   image: Img;
   bucket: Bucket;
   bytesVideo = 0;
   readonly frameQueue: FrameQueue;
-  locked = false;
+  visible = false;
+  /** True if request is added to frame queue */
+  requested = false;
+  cleared = false;
+  #renderTimeout: ReturnType<typeof setTimeout> | null = null;
 
   /**
    * Constructs a new RenderRequest instance.
@@ -58,7 +62,6 @@ export class RenderRequest extends Logger {
   constructor({ size, bucket, ...props }: RenderRequestProps) {
     super({ name: "RenderRequest", logLevel: "warn" });
     this.size = size;
-    this.rendered = false;
     this.bucket = bucket;
     this.frameQueue = this.bucket.controller.frameQueue;
     this.image = this.bucket.controller.getImage(props);
@@ -67,6 +70,7 @@ export class RenderRequest extends Logger {
     this.image.on("loadstart", this.#onloadStart);
     this.image.on("progress", this.#onProgress);
     this.image.on("error", this.#onImageError);
+
     if (!this.image.loaded) {
       this.image.on("size", this.request);
     } else {
@@ -89,7 +93,7 @@ export class RenderRequest extends Logger {
    */
   request = () => {
     this.log.verbose(["Requesting render"]);
-
+    this.requested = true;
     this.bytesVideo = this.image.getBytesVideo(this.size);
     // request render
     this.emit("loadend");
@@ -106,6 +110,10 @@ export class RenderRequest extends Logger {
     this.image.off("error", this.#onImageError);
     this.emit("rendered", { url: null });
     this.emit("clear");
+    if (this.#renderTimeout) {
+      clearTimeout(this.#renderTimeout);
+    }
+    this.cleared = true;
     this.removeAllListeners();
   }
 
@@ -114,7 +122,12 @@ export class RenderRequest extends Logger {
    * @returns True if the render request is locked, false otherwise.
    */
   isLocked() {
-    return this.locked || this.bucket.locked;
+    return (
+      !this.rendered ||
+      this.visible ||
+      this.bucket.locked ||
+      this.image.isSizeLocked(this)
+    );
   }
 
   /**
@@ -122,7 +135,7 @@ export class RenderRequest extends Logger {
    * @param props
    */
   render({ renderTime }: RendererProps) {
-    this.emit("processing");
+    this.emit("rendering", { renderTime });
     // render time of 0 means the image is already rendered
     const isRendered = renderTime === 0;
     // if renderer provided, call it
@@ -132,11 +145,16 @@ export class RenderRequest extends Logger {
       renderer({ request: this, renderTime });
     }
 
-    setTimeout(() => {
-      this.rendered = true;
-      this.emit("rendered", { url: this.image.url });
-    }, renderTime);
+    this.#renderTimeout = setTimeout(this.#onRendered, renderTime);
   }
+
+  #onRendered = () => {
+    this.rendered = true;
+    if (this.cleared) {
+      this.log.error(["Rendered cleared request", this.image.url]);
+    }
+    this.emit("rendered", { url: this.image.url });
+  };
 
   /**
    * Adds an event listener for the specified event type.

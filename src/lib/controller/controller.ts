@@ -227,7 +227,11 @@ export class Controller extends Logger {
    */
   #requestVideo(bytes: number): boolean {
     let clearedBytes = 0;
-    for (const image of this.cache.values()) {
+    // use FIFO to clear oldest render requests first
+    const iterator = this.cache.values();
+    let result = iterator.next();
+    while (!result.done) {
+      const image = result.value;
       for (const request of image.renderRequests) {
         if (request.isLocked()) continue;
         clearedBytes += request.bytesVideo;
@@ -236,7 +240,9 @@ export class Controller extends Logger {
           return true;
         }
       }
+      result = iterator.next();
     }
+
     return false;
   }
 

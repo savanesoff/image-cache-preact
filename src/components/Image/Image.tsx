@@ -66,7 +66,7 @@ export const ImageProvider = ({
   const ref = useRef<HTMLDivElement>(null);
   const { visible } = useVisibilityObserver({
     ref,
-    rootMargin: "200px",
+    rootMargin: "300px",
   });
 
   const { bucket } = useBucket();
@@ -94,7 +94,7 @@ export const ImageProvider = ({
    */
   useEffect(() => {
     if (!request) return;
-    request.locked = visible;
+    request.visible = visible;
   }, [request, visible]);
 
   useEffect(() => {
