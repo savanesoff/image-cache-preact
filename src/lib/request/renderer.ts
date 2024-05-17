@@ -12,7 +12,7 @@ export const renderer = ({
   const style = {
     width: `${request.size.width}px`,
     height: `${request.size.height}px`,
-    opacity: "0.01",
+    opacity: "0.001",
     position: "absolute",
     top: "0",
     left:
@@ -22,6 +22,7 @@ export const renderer = ({
     // backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "top left",
+    pointerEvents: "none",
     backgroundSize: `${request.size.width}px ${request.size.height}px`,
   };
   Object.assign(div.style, style);
