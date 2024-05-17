@@ -7,6 +7,7 @@ import { init } from "@noriginmedia/norigin-spatial-navigation";
 import { CacheLock } from "./cacheLock";
 import { useCallback, useState } from "react";
 import { CacheStats } from "./components/View/CacheStats";
+import { Button } from "./components/Button";
 
 init({
   // options
@@ -33,6 +34,11 @@ function App() {
   const onCacheLockReady = useCallback(() => {
     setLockReady(true);
   }, []);
+
+  const [showView, setShowView] = useState(false);
+  const onToggleView = useCallback(() => {
+    setShowView((prev) => !prev);
+  }, []);
   return (
     <div className={cn("bg-slate-500", "text-white", "w-full", "h-screen")}>
       <div
@@ -48,14 +54,19 @@ function App() {
       </div>
       <ControllerProvider
         loaders={6}
-        ram={500}
-        video={300}
+        ram={50000}
+        video={30000}
         units="MB"
         hwRank={0.8} // 0-1
         gpuDataFull={true}
       >
         <CacheStats />
-        {lockReady && <View />}
+        <Button
+          disabled={!lockReady}
+          title={!lockReady ? "loading..." : "Launch View"}
+          onClick={onToggleView}
+        />
+        {showView && <View />}
         <CacheLock onRendered={onCacheLockReady} />
       </ControllerProvider>
     </div>
