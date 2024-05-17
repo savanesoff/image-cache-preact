@@ -25,7 +25,8 @@ export type MemoryEvent<T extends MemoryEventTypes> = {
   (T extends "bytes-added"
     ? { bytes: number; remainingBytes: number }
     : unknown) &
-  (T extends "bytes-removed" ? { bytes: number } : unknown);
+  (T extends "bytes-removed" ? { bytes: number } : unknown) &
+  (T extends "update" ? { overflow: boolean } : unknown);
 
 /** Event handler for memory events */
 export type MemoryEventHandler<T extends MemoryEventTypes> = (
@@ -199,7 +200,7 @@ export class Memory extends Logger {
     this.count++;
     this.bytes += bytes;
     this.emit("bytes-added", { bytes, remainingBytes });
-    this.emit("update");
+    this.emit("update", { overflow: remainingBytes < 0 });
     this.log.info(
       [`Added: ${this.#toUnits(bytes)} ${this.units}`, this.getStats()],
       this.styles.info,
@@ -237,7 +238,9 @@ export class Memory extends Logger {
     this.count--;
     this.bytes -= bytes;
     this.emit("bytes-removed", { bytes });
-    this.emit("update");
+    this.emit("update", {
+      overflow: this.bytes > this.size * UNITS[this.units],
+    });
     this.log.info(
       [`Removed: ${this.#toUnits(bytes)} ${this.units}`, this.getStats()],
       this.styles.info,
