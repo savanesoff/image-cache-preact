@@ -1,11 +1,13 @@
 import { cn } from "@demo/utils";
-import { PageLoadStatus } from "../PosterPage/LoadStatus";
-import { RamUsage } from "../PosterPage/RamUsage";
-import { PageRenderStatus } from "../PosterPage/RenderStatus";
-import { VideoUsage } from "../PosterPage/VideoUsage";
+import {
+  PageLoadStatus,
+  RamUsage,
+  PageRenderStatus,
+  VideoUsage,
+} from "@demo/components";
 import { HTMLAttributes } from "react";
 import { AssetCount } from "./AssetCount";
-import { Topic } from "@demo/utils/assets.endpoint";
+import { Topic } from "@demo/utils";
 
 type RailHeaderProps = HTMLAttributes<HTMLDivElement> & {
   topic: Topic;
