@@ -19,16 +19,3 @@ export const View = () => {
     </FocusContext.Provider>
   );
 };
-
-// const ToggleRail = () => {
-//   const [hidden, setHidden] = useState(true);
-//   const toggleRail = useCallback(() => setHidden((hidden) => !hidden), []);
-//   return (
-//     <div className="mt-2 flex flex-col items-start gap-2">
-//       <button className="rounded-md bg-blue-400 p-1 " onClick={toggleRail}>
-//         Toggle Rail
-//       </button>
-//       {!hidden && <PostersRail />}
-//     </div>
-//   );
-// };
