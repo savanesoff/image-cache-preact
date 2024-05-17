@@ -173,9 +173,14 @@ export class Img extends Loader {
     event.target.off("rendered", this.#onRendered);
     event.target.off("clear", this.#onRequestClear);
     this.renderRequests.delete(event.target);
+    this.decoded = this.renderRequests.size === 0 ? false : this.decoded;
+
     this.emit("render-request-removed", {
       request: event.target,
-      bytes: event.target.bytesVideo,
+      bytes:
+        this.gpuDataFull && this.renderRequests.size > 0
+          ? 0
+          : event.target.bytesVideo,
     });
   };
 
