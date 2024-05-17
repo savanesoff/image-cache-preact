@@ -12,7 +12,8 @@ export type MemoryEventTypes =
   | "clear"
   | "bytes-added"
   | "bytes-removed"
-  | "cleared";
+  | "cleared"
+  | "update";
 
 /** Event data for memory events */
 export type MemoryEvent<T extends MemoryEventTypes> = {
@@ -198,6 +199,7 @@ export class Memory extends Logger {
     this.count++;
     this.bytes += bytes;
     this.emit("bytes-added", { bytes, remainingBytes });
+    this.emit("update");
     this.log.info(
       [`Added: ${this.#toUnits(bytes)} ${this.units}`, this.getStats()],
       this.styles.info,
@@ -235,6 +237,7 @@ export class Memory extends Logger {
     this.count--;
     this.bytes -= bytes;
     this.emit("bytes-removed", { bytes });
+    this.emit("update");
     this.log.info(
       [`Removed: ${this.#toUnits(bytes)} ${this.units}`, this.getStats()],
       this.styles.info,

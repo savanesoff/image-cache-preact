@@ -6,16 +6,16 @@ export const RamUsage = () => {
   const { controller } = useController();
   const [stats, setStats] = useState<MemoryStats>(controller.ram.getStats());
 
-  const onBytesAdded = useCallback((event: MemoryEvent<"bytes-added">) => {
+  const onBytesAdded = useCallback((event: MemoryEvent<"update">) => {
     setStats(event.target.getStats());
   }, []);
 
   useEffect(() => {
     // because by the time this effect runs, the video might have already been loaded
     setStats(controller.ram.getStats());
-    controller.ram.on("bytes-added", onBytesAdded);
+    controller.ram.on("update", onBytesAdded);
     return () => {
-      controller.ram.off("bytes-added", onBytesAdded);
+      controller.ram.off("update", onBytesAdded);
     };
   }, [controller, onBytesAdded]);
 
