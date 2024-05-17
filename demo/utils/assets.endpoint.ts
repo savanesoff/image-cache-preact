@@ -32,7 +32,7 @@ export type AssetPage = {
   assets: Asset[];
 };
 const cache = new Map<string, AssetPage>();
-
+let hash = 0;
 export const fetchAssets = async ({
   topic,
   page,
@@ -45,7 +45,7 @@ export const fetchAssets = async ({
   }
 
   const newData = new Array(topic.perPage).fill(0).map(() => ({
-    url: `${config.image.baseUrl}?hash=${Math.random()}`,
+    url: `${config.image.baseUrl}?hash=${hash++}`,
     mimeType: config.image.mimeType as MIMEType,
     colorType: config.image.colorType as ImageColorType,
     title: lorem.generateSentences(1),
