@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "outDir": "./dist-demo",
+    "noEmit": false,
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowImportingTsExtensions": false,
+    "baseUrl": "."
+  },
+  "include": ["./src/**/*", "./demo/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-demo",
+    "./src/**/*.spec.*",
+    "./demo/**/*.spec.*",
+    "./src/__mocks__"
+  ]
+}

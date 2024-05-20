@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "types": ["vite/client", "vitest/globals", "vitest/jsdom"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@components": ["src/components"],
+      "@lib/*": ["src/lib/*"],
+      "@lib": ["src/lib"],
+      "@utils/*": ["src/utils/*"],
+      "@utils": ["src/utils"],
+      "@cache": ["src"],
+      "@demo/components": ["demo/components"],
+      "@demo/components/*": ["demo/components/*"],
+      "@demo/utils": ["demo/utils"],
+      "@demo/*": ["demo/*"]
+    }
+  },
+  "include": ["src", "demo"],
+  "exclude": ["node_modules", "dist", "dist-demo"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
