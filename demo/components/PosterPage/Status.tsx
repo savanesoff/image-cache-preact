@@ -6,7 +6,7 @@ export const PageStatus = () => {
   const [error, setError] = useState<string | null>(null);
   const [rendered, setRendered] = useState<"Yes" | "No">("No");
   const onError = useCallback((event: BucketEvent<"error">) => {
-    setError(event.error);
+    setError(event.statusText);
   }, []);
 
   const onProgress = useCallback((event: BucketEvent<"progress">) => {

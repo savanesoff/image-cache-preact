@@ -21,7 +21,7 @@ import { Network } from "@lib/network";
 import { Logger, LogLevel } from "@lib/logger";
 import { FrameQueue, FrameQueueProps } from "@lib/frame-queue";
 import { UnitsType } from "@utils";
-import { renderer, RenderRequest } from "../request";
+import { renderer as renderFunction, RenderRequest } from "@lib/request";
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerEventTypes =
@@ -71,7 +71,7 @@ export type ControllerProps = FrameQueueProps & {
    */
   gpuDataFull?: boolean;
   /** The renderer function */
-  renderer?: typeof renderer;
+  renderer?: typeof renderFunction;
 };
 
 const styles = {
@@ -91,7 +91,7 @@ export class Controller extends Logger {
   readonly network: Network;
   readonly units: UnitsType;
   readonly gpuDataFull: boolean;
-  readonly renderer?: typeof renderer;
+  readonly renderer?: ControllerProps["renderer"];
 
   constructor({
     ram = 2,
