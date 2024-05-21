@@ -1,4 +1,4 @@
-import { RenderRequest } from "./render-request";
+import { RenderRequest } from "@lib/request/index.js";
 
 export const renderer = ({
   request,

@@ -1,2 +1,2 @@
-export * from "./Bucket";
-export * from "./useBucket";
+export * from "./Bucket.js";
+export * from "./useBucket.js";

@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
-import { ControllerContext, ControllerContextType } from "./Controller";
-import { ControllerEvent } from "@/lib";
+import { ControllerContext, ControllerContextType } from "@components/index.js";
+import { ControllerEvent } from "@lib/index.js";
 
 type UseControllerProps = {
   /** Event handler for RAM overflow */

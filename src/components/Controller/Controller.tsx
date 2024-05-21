@@ -3,7 +3,7 @@
  * It provides a `ControllerContext` that contains a `Controller` instance.
  */
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { ControllerProps, Controller } from "@lib";
+import { ControllerProps, Controller } from "@lib/index.js";
 
 export type ControllerContextType = {
   controller: Controller;

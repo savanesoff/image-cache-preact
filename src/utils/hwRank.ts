@@ -32,10 +32,10 @@ const startTest = (event: Event) => {
   //    });
 
   requestIdleCallback(() => {
-    const bounds = div.getBoundingClientRect();
+    // const bounds = div.getBoundingClientRect();
     const end = performance.now();
     const duration = end - start;
-    console.log("Render time:", duration, bounds.width, bounds.height);
-    // debugger;
+    // console.log("Render time:", duration, bounds.width, bounds.height);
+    return duration;
   });
 };

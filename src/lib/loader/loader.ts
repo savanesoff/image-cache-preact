@@ -23,7 +23,7 @@
  * });
  * loader.load("http://example.com/resource");
  */
-import { Logger } from "@lib/logger";
+import { Logger } from "@lib/index.js";
 
 export type MIMEType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 

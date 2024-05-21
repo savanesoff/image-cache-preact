@@ -9,9 +9,9 @@
  *
  * The `BucketProvider` component also uses the `useEffect` hook to clear the `Bucket` when the component is unmounted.
  */
-import { Bucket, BucketProps } from "@lib";
+import { useController } from "@components/index.js";
+import { Bucket, BucketProps } from "@lib/index.js";
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { useController } from "@components";
 
 export type BucketContextType = {
   /** The bucket instance. */

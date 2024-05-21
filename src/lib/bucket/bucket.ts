@@ -11,11 +11,14 @@
  * which involves adding or removing the `RenderRequest` from the set,
  * subscribing or unsubscribing to the "rendered" event, and adding or removing the image from the set of images.
  */
-import { Img } from "@lib/image";
-import { RenderRequest, RenderRequestEvent } from "@lib/request";
-import { Controller } from "@lib/controller";
-import { Logger } from "@lib/logger";
-import { now, UNITS, UnitsType } from "@utils";
+import {
+  Controller,
+  Logger,
+  RenderRequest,
+  RenderRequestEvent,
+  Img,
+} from "@lib/index.js";
+import { now, UNITS, UnitsType } from "@utils/index.js";
 
 export type BucketEventTypes =
   | "progress"

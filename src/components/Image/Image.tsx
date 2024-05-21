@@ -16,6 +16,8 @@
  * In this example, `MyComponent` and its descendants can use the `useContext` hook to access the `ImageContext`,
  * which contains the `Img` instance and the `RenderRequest` for the image.
  */
+import { useBucket } from "@components/index.js";
+import { RenderRequest, ImgProps, Size } from "@lib/index.js";
 import {
   createContext,
   ReactNode,
@@ -24,9 +26,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { useBucket } from "@components";
-import { RenderRequest, ImgProps, Size } from "@lib";
-import { useVisibilityObserver } from "@/utils/useVisibilityObserver";
+
+import { useVisibilityObserver } from "@utils/index.js";
 
 export type ImageContextType = {
   request: RenderRequest;

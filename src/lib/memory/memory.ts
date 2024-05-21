@@ -3,8 +3,8 @@
  * Its and abstraction that represents memory usage.
  * Emits events when size is overflowed, available or cleared.
  */
-import { Logger, LogLevel } from "@lib/logger";
-import { UNITS, UnitsType } from "@utils";
+import { Logger, LogLevel } from "@lib/index.js";
+import { UNITS, UnitsType } from "@utils/index.js";
 
 /** Memory event types */
 export type MemoryEventTypes =

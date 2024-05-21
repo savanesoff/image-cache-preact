@@ -1,2 +1,2 @@
-export * from "./Controller";
-export * from "./useController";
+export * from "./Controller.js";
+export * from "./useController.js";

@@ -18,15 +18,16 @@
  * When the same image is used again, the browser can skip the loading and decoding steps and directly use the cached bitmap.
  */
 
-import { ImageType } from "@/utils/image-type";
+import { ImageType } from "@utils/index.js";
 import {
   LoaderEventHandler,
   Loader,
   LoaderEventTypes,
   LoaderEvent,
   LoaderProps,
-} from "@lib/loader";
-import { RenderRequest, RenderRequestEvent } from "@lib/request";
+  RenderRequest,
+  RenderRequestEvent,
+} from "@lib/index.js";
 
 /** Event types for the Img class */
 export type ImgEventTypes =

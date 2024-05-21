@@ -15,13 +15,21 @@
  * const image = new Img({ url: "http://example.com/image.jpg" });
  * controller.addImage(image); // Add an image to the cache and network queue
  */
-import { Img, ImgProps, ImgEvent } from "@lib/image";
-import { Memory } from "@lib/memory";
-import { Network } from "@lib/network";
-import { Logger, LogLevel } from "@lib/logger";
-import { FrameQueue, FrameQueueProps } from "@lib/frame-queue";
-import { UnitsType } from "@utils";
-import { renderer as renderFunction, RenderRequest } from "@lib/request";
+
+import {
+  Img,
+  ImgProps,
+  ImgEvent,
+  FrameQueue,
+  FrameQueueProps,
+  Logger,
+  LogLevel,
+  Memory,
+  Network,
+  RenderRequest,
+  renderer,
+} from "@lib/index.js";
+import { UnitsType } from "@utils/index.js";
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerEventTypes =
@@ -71,7 +79,7 @@ export type ControllerProps = FrameQueueProps & {
    */
   gpuDataFull?: boolean;
   /** The renderer function */
-  renderer?: typeof renderFunction;
+  renderer?: typeof renderer;
 };
 
 const styles = {
