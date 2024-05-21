@@ -51,10 +51,8 @@
     "prepack": "pnpm run build",
     "clean:dist": "rm -rf ./dist",
     "clear:demo": "rm -rf dist-demo; mkdir dist-demo",
-    "clean:package": "pnpm run clean:dist && tsc -p tsconfig.package.json",
-    "build": "pnpm clean:dist && pnpm run build:esm && pnpm run build:cjs && node replace-path-aliases.js",
-    "build:esm": "tsc -p tsconfig.package.json --module esnext --outDir dist/esm",
-    "build:cjs": "tsc -p tsconfig.package.json --module commonjs --outDir dist/cjs",
+    "clean:package": "rm -rf ./dist",
+    "build:package": "pnpm clean:package && ./ts-cmd.sh --path tsconfig.package.json --cmd vite build --sourcemap",
     "build:demo": "pnpm clear:demo; bash ./demo-build.sh --path tsconfig.build.demo.json",
     "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo"
   },
@@ -70,6 +68,7 @@
   },
   "devDependencies": {
     "@noriginmedia/norigin-spatial-navigation": "^2.1.0",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/events": "^3.0.0",
     "@types/json-schema": "^7.0.11",
     "@types/react": "^18.0.28",
