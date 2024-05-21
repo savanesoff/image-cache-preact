@@ -6,7 +6,7 @@ import {
   UseBucketProps,
   useImage,
   UseImageProps,
-} from "@/components";
+} from "@components/index.js";
 import { useLockerAssets } from "./useLockerAssets";
 import { onRenderRequest } from "./onRenderRequest";
 import config from "@demo/config.json";

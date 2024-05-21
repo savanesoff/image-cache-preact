@@ -4,6 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { fileURLToPath, URL } from "url";
 import { resolve } from "path";
 import typescript from "@rollup/plugin-typescript";
+
 // Convert import.meta.url to a file path
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -15,10 +16,41 @@ export default defineConfig({
     // }),
 
     typescript({
-      tsconfig: "./tsconfig.package.json",
-      exclude: ["demo"],
+      compilerOptions: {
+        lib: ["ESNext", "DOM", "DOM.Iterable"],
+        target: "ES2018",
+        module: "ESNext",
+        outDir: "./dist",
+        declaration: true,
+        declarationMap: true,
+        noEmit: false,
+        baseUrl: "./",
+        paths: {
+          "@components/*": ["src/components/*"],
+          "@components": ["src/components"],
+          "@lib/*": ["src/lib/*"],
+          "@lib": ["src/lib"],
+          "@utils/*": ["src/utils/*"],
+          "@demo/components/*": ["demo/components/*"],
+          "@demo/utils/*": ["demo/utils/*"],
+          "@cache/*": ["src/*"],
+          "@cache": ["src"],
+          "@demo/*": ["demo/*"],
+        },
+      },
+      include: ["./src/**/*"],
+      exclude: [
+        "node_modules",
+        "dist",
+        "dist-demo",
+        "demo",
+        "./**/*.spec.*",
+        "./src/__mocks__",
+      ],
     }),
-    tsconfigPaths(),
+    tsconfigPaths({
+      projects: [resolve(__dirname, "tsconfig.package.json")],
+    }),
   ],
   build: {
     lib: {

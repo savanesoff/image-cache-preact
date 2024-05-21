@@ -1,4 +1,4 @@
-import { ImageColorType, MIMEType } from "@/lib";
+import { ImageColorType, MIMEType } from "@lib";
 import config from "@demo/config.json";
 import { LoremIpsum } from "lorem-ipsum";
 

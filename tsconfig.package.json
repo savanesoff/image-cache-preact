@@ -8,13 +8,17 @@
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,
-    "baseUrl": "./",
     "paths": {
       "@components/*": ["src/components/*"],
+      "@components": ["src/components"],
       "@lib/*": ["src/lib/*"],
+      "@lib": ["src/lib"],
       "@utils/*": ["src/utils/*"],
       "@demo/components/*": ["demo/components/*"],
-      "@demo/utils/*": ["demo/utils/*"]
+      "@demo/utils/*": ["demo/utils/*"],
+      "@cache/*": ["src/*"],
+      "@cache": ["src"],
+      "@demo/*": ["demo/*"]
     }
   },
   "include": ["./src/**/*"],

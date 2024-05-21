@@ -1,4 +1,4 @@
-import { RenderRequestEvent } from "@/lib";
+import { RenderRequestEvent } from "@lib";
 
 /**
  * A custom event handler for the render request.

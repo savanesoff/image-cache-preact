@@ -1,5 +1,5 @@
-import { useBucket } from "@/components";
-import { BucketEvent } from "@/lib";
+import { useBucket } from "@components";
+import { BucketEvent } from "@lib";
 import { useState, useCallback } from "react";
 import { StatusBadge } from "../StatusBadge/StatusBadge";
 

@@ -1,6 +1,6 @@
 import devtoolsFPS from "devtools-fps";
 import { cn } from "./utils";
-import { ControllerProvider } from "@cache";
+import { ControllerProvider } from "@cache/index.js";
 
 import { View } from "@demo/components";
 import {
