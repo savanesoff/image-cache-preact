@@ -17,38 +17,46 @@ module.exports = {
     "no-console": "warn",
     "react/react-in-jsx-scope": "off",
     "react/jsx-uses-react": "off",
-    'import/extensions': [
-      'error',
-      'ignorePackages',
+    "import/extensions": [
+      "error",
+      "ignorePackages",
       {
-        ts: 'never',
-        tsx: 'never',
-        js: 'always',
-        jsx: 'always',
+        ts: "never",
+        tsx: "never",
+        js: "always",
+        jsx: "always",
       },
     ],
-    'import/no-unresolved': [
-      'error',
-      { commonjs: true, caseSensitive: true }
+    "import/no-unresolved": [
+      "error",
+      { commonjs: true, caseSensitive: true },
     ],
-    'no-restricted-imports': [
-      'error',
+    "no-restricted-imports": [
+      "error",
       {
-        patterns: ['*.ts', '!*.d.ts'],
+        patterns: ["*.ts", "!*.d.ts", "@lib", "./*"],
+      },
+    ],
+    "import/order": [
+      "error",
+      {
+        groups: [["builtin", "external", "internal"]],
+        "newlines-between": "always",
+        alphabetize: { order: "asc", caseInsensitive: true },
       },
     ],
   },
   settings: {
-    'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx'],
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"],
     },
-    'import/resolver': {
+    "import/resolver": {
       typescript: {
         alwaysTryTypes: true,
-        project: './tsconfig.json',
+        project: "./tsconfig.json",
       },
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
       },
     },
   },
