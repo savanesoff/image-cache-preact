@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "target": "ES2018",
+    "module": "ES6",
+    "outDir": "./dist/esm",
+    // "declarationDir": "./dist/types",
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "baseUrl": "./",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@lib/*": ["src/lib/*"],
+      "@utils/*": ["src/utils/*"],
+      "@demo/components/*": ["demo/components/*"],
+      "@demo/utils/*": ["demo/utils/*"]
+    },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths",
+        "afterDeclarations": true
+      }
+    ]
+  },
+  "include": ["./src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-demo",
+    "demo",
+    "./**/*.spec.*",
+    "./**/*.spec.*",
+    "./src/__mocks__"
+  ]
+}
