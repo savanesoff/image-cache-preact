@@ -1,32 +1,22 @@
-const path = require('path');
-
 module.exports = {
-  env: {
-    browser: true,
-    es2020: true,
-    node: true,
-  },
+  env: { browser: true, es2020: true, node: true },
   extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended',
-    'plugin:react/recommended',
-    'prettier',
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:react/recommended",
+    "prettier",
   ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-  },
-  plugins: [
-    'react-refresh',
-    '@typescript-eslint',
-    'import',
-  ],
+  parser: "@typescript-eslint/parser",
+  parserOptions: { ecmaVersion: "latest", sourceType: "module" },
+  plugins: ["react-refresh", "@typescript-eslint", "import"],
   rules: {
-    'react-refresh/only-export-components': 'warn',
-    '@typescript-eslint/no-unused-vars': 'error',
-    'no-console': 'warn',
+    "react-refresh/only-export-components": "warn",
+    "@typescript-eslint/no-unused-vars": "error",
+    "no-console": "warn",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-uses-react": "off",
     'import/extensions': [
       'error',
       'ignorePackages',
@@ -47,7 +37,6 @@ module.exports = {
         patterns: ['*.ts', '!*.d.ts'],
       },
     ],
-    'react/react-in-jsx-scope': 'off', // Disable this rule
   },
   settings: {
     'import/parsers': {
@@ -56,7 +45,7 @@ module.exports = {
     'import/resolver': {
       typescript: {
         alwaysTryTypes: true,
-        project: path.resolve(__dirname, './tsconfig.package.json'),
+        project: './tsconfig.json',
       },
       node: {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
