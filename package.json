@@ -4,13 +4,13 @@
   "version": "0.4.2",
   "type": "module",
   "description": "React component for image caching. Provides a way to handle load and cache of images in memory and manage their lifecycle in both GPU and RAM.",
-  "main": "./dist/index.cjs.js",
-  "module": "./dist/index.es.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -60,15 +60,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint",
     "preview": "vite preview --root dist-demo",
     "test": "vitest --run",
     "prepack": "pnpm run build",
-    "clean:dist": "rm -rf ./dist",
     "clear:demo": "rm -rf dist-demo; mkdir dist-demo",
     "clean:package": "rm -rf ./dist",
-    "build:package": "pnpm clean:dist && rollup --config rollup.config.js",
-    "build:package:vite": "pnpm clean:dist && vite build --outDir dist",
+    "build:types": "tsc --project tsconfig.package.json",
+    "build:package": "pnpm run clean:dist && vite build && pnpm run build:types",
     "build:demo": "pnpm clear:demo; bash ./demo-build.sh --path tsconfig.build.demo.json",
     "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo"
   },

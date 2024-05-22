@@ -6,16 +6,15 @@
     "module": "esnext",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "inlineSources": true,
+    "emitDeclarationOnly": true,
     "noEmit": false,
+    "outDir": "./dist/types",
     "baseUrl": "./",
     "paths": {
       "@components/*": ["src/components/*"],
       "@lib/*": ["src/lib/*"],
       "@utils": ["src/utils"]
-    },
-    "downlevelIteration": true
+    }
   },
   "include": ["./src/**/*"],
   "exclude": [
