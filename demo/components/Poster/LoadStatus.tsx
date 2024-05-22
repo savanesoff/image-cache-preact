@@ -1,6 +1,6 @@
-import { HTMLAttributes, useCallback, useState } from "react";
-import { ImgEvent, useImage } from "@cache";
-import { StatusBadge } from "@demo/components/StatusBadge";
+import { HTMLAttributes, useCallback, useState } from 'react';
+import { ImgEvent, useImage } from '@cache';
+import { StatusBadge } from '@demo/components/StatusBadge';
 
 export type LoadStatusProps = HTMLAttributes<HTMLDivElement>;
 /**
@@ -14,14 +14,14 @@ export const PosterLoadStatus = ({ ...props }: LoadStatusProps) => {
   }, []);
 
   const [progress, setProgress] = useState(0);
-  const onProgress = useCallback((event: ImgEvent<"progress">) => {
+  const onProgress = useCallback((event: ImgEvent<'progress'>) => {
     setProgress(Math.round(event.progress * 100));
   }, []);
   useImage({ onLoadend, onProgress });
 
   return (
     <StatusBadge
-      status={loaded ? "on" : "off"}
+      status={loaded ? 'on' : 'off'}
       text={`${progress}%`}
       {...props}
     />

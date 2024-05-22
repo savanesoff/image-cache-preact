@@ -1,118 +1,118 @@
-import { Loader } from "@lib/loader";
-import { Network } from "./network";
-import "@mocks/xhr";
+import { Loader } from '@lib/loader';
+import { Network } from './network';
+import '@mocks/xhr';
 
 const createResource = (): Loader => {
   return new Loader({
     url: Math.random().toString(36).substring(7),
     retry: 0,
     headers: {
-      "Content-Type": "image/jpeg",
+      'Content-Type': 'image/jpeg',
     },
   });
 };
 
-describe("Network", () => {
+describe('Network', () => {
   let network: Network;
 
   beforeEach(() => {
     network = new Network({ loaders: 1 });
-    network.on("error", () => null);
+    network.on('error', () => null);
   });
 
-  it("should add resource to loaders", () => {
+  it('should add resource to loaders', () => {
     const resource = createResource();
     network.add(resource);
     expect(network.inFlight.size).toBe(1);
     expect(network.inFlight.get(resource.url)).toBeDefined();
   });
 
-  it("should not add the same resource twice", () => {
+  it('should not add the same resource twice', () => {
     const resource = createResource();
     network.add(resource);
     network.add(resource);
     expect(network.inFlight.size).toBe(1);
   });
 
-  it("should not have loading resource in queue", () => {
+  it('should not have loading resource in queue', () => {
     const resource = createResource();
     network.add(resource);
     expect(network.queue.size).toBe(0);
   });
 
-  it("should remove resource from loaders on load", () => {
+  it('should remove resource from loaders on load', () => {
     const resource = createResource();
     network.add(resource);
-    resource.emit("loadend");
+    resource.emit('loadend');
     expect(network.inFlight.size).toBe(0);
   });
 
-  it("should remove resource from loaders on abort", () => {
+  it('should remove resource from loaders on abort', () => {
     const resource = createResource();
     network.add(resource);
-    resource.emit("abort");
+    resource.emit('abort');
     expect(network.inFlight.size).toBe(0);
   });
 
-  it("should remove resource from loaders on error", () => {
+  it('should remove resource from loaders on error', () => {
     const resource = createResource();
     network.add(resource);
-    resource.emit("error");
+    resource.emit('error');
     expect(network.inFlight.size).toBe(0);
   });
 
-  it("should remove resource from loaders on timeout", () => {
+  it('should remove resource from loaders on timeout', () => {
     const resource = createResource();
     network.add(resource);
-    resource.emit("timeout");
+    resource.emit('timeout');
     expect(network.inFlight.size).toBe(0);
   });
 
-  it("should add resource to queue if loaders are full", () => {
+  it('should add resource to queue if loaders are full', () => {
     network.add(createResource());
     network.add(createResource());
     expect(network.queue.size).toBe(1);
   });
 
-  it("should not add resource to loaders if paused", () => {
+  it('should not add resource to loaders if paused', () => {
     network.pause();
     network.add(createResource());
     expect(network.inFlight.size).toBe(0);
   });
 
-  it("should not process resource if paused", () => {
+  it('should not process resource if paused', () => {
     network.pause();
     network.add(createResource());
     expect(network.queue.size).toBe(1);
   });
 
-  it("should take resource from queue when unpaused", () => {
+  it('should take resource from queue when unpaused', () => {
     network.pause();
     network.add(createResource());
     network.resume();
     expect(network.queue.size).toBe(0);
   });
 
-  it("should take resource from queue when loader is removed", () => {
+  it('should take resource from queue when loader is removed', () => {
     network.add(createResource());
     network.add(createResource());
-    network.inFlight.get([...network.inFlight.keys()][0])?.emit("loadend");
+    network.inFlight.get([...network.inFlight.keys()][0])?.emit('loadend');
     expect(network.queue.size).toBe(0);
   });
 
-  it("should remove all loaders on clear", () => {
+  it('should remove all loaders on clear', () => {
     network.add(createResource());
     network.clear();
     expect(network.inFlight.size).toBe(0);
   });
 
-  it("should remove loaders on pause", () => {
+  it('should remove loaders on pause', () => {
     network.add(createResource());
     network.pause();
     expect(network.inFlight.size).toBe(1);
   });
 
-  it("should empty queue on clear", () => {
+  it('should empty queue on clear', () => {
     network.add(createResource());
     network.add(createResource());
     network.add(createResource());
@@ -120,65 +120,65 @@ describe("Network", () => {
     expect(network.queue.size).toBe(0);
   });
 
-  it("should emit pause event", () => {
+  it('should emit pause event', () => {
     const spy = vi.fn();
-    network.on("pause", spy);
+    network.on('pause', spy);
     network.pause();
     expect(spy).toHaveBeenCalledWith({
-      type: "pause",
+      type: 'pause',
       target: network,
       loader: undefined,
     });
   });
 
-  it("should emit resume event", () => {
+  it('should emit resume event', () => {
     const spy = vi.fn();
-    network.on("resume", spy);
+    network.on('resume', spy);
     network.resume();
     expect(spy).toHaveBeenCalledWith({
-      type: "resume",
+      type: 'resume',
       target: network,
       loader: undefined,
     });
   });
 
-  it("should emit error event", () => {
+  it('should emit error event', () => {
     const spy = vi.fn();
-    network.on("error", spy);
+    network.on('error', spy);
     const resource = createResource();
     network.add(resource);
     const loader = network.inFlight.get(resource.url);
-    loader?.emit("error");
+    loader?.emit('error');
     expect(spy).toHaveBeenCalledWith({
-      type: "error",
+      type: 'error',
       target: network,
       loader,
     });
   });
 
-  it("should emit abort event", () => {
+  it('should emit abort event', () => {
     const spy = vi.fn();
-    network.on("abort", spy);
+    network.on('abort', spy);
     const resource = createResource();
     network.add(resource);
     const loader = network.inFlight.get(resource.url);
-    loader?.emit("abort");
+    loader?.emit('abort');
     expect(spy).toHaveBeenCalledWith({
-      type: "abort",
+      type: 'abort',
       target: network,
       loader,
     });
   });
 
-  it("should emit timeout event", () => {
+  it('should emit timeout event', () => {
     const spy = vi.fn();
-    network.on("timeout", spy);
+    network.on('timeout', spy);
     const resource = createResource();
     network.add(resource);
     const loader = network.inFlight.get(resource.url);
-    loader?.emit("timeout");
+    loader?.emit('timeout');
     expect(spy).toHaveBeenCalledWith({
-      type: "timeout",
+      type: 'timeout',
       target: network,
       loader,
     });

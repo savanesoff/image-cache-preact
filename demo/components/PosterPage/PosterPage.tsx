@@ -5,16 +5,16 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { BucketProviderProps, ImageProvider } from "@cache";
-import { Asset, AssetPage, fetchAssets, Topic } from "@demo/utils";
-import { cn } from "@demo/utils";
-import { Poster } from "@demo/components";
-import config from "@demo/config.json";
-import { useVisibilityObserver } from "@cache";
+} from 'react';
+import { BucketProviderProps, ImageProvider } from '@cache';
+import { Asset, AssetPage, fetchAssets, Topic } from '@demo/utils';
+import { cn } from '@demo/utils';
+import { Poster } from '@demo/components';
+import config from '@demo/config.json';
+import { useVisibilityObserver } from '@cache';
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
-  Exclude<BucketProviderProps, "children"> & {
+  Exclude<BucketProviderProps, 'children'> & {
     topic: Topic;
     pageNumber: number;
     /** Array of page numbers to fetch initially */
@@ -34,29 +34,29 @@ export const PosterPage = ({
 }: PosterPageProps) => {
   const [pageData, setPageData] = useState<AssetPage>();
   const [fetchStatus, setFetchStatus] = useState<
-    "idle" | "loading" | "loaded" | "error"
-  >("idle");
+    'idle' | 'loading' | 'loaded' | 'error'
+  >('idle');
   const ref = useRef<HTMLDivElement>(null);
 
   /**
    * Fetches the assets for the page
    */
   const fetchData = useCallback(async () => {
-    setFetchStatus("loading");
+    setFetchStatus('loading');
     const data = await fetchAssets({
       topic,
       page: pageNumber,
     });
     if (data) {
       setPageData(data);
-      setFetchStatus("loaded");
+      setFetchStatus('loaded');
     } else {
-      setFetchStatus("error");
+      setFetchStatus('error');
     }
   }, [topic, pageNumber]);
 
   const onVisible = useCallback(() => {
-    if (fetchStatus === "idle") fetchData();
+    if (fetchStatus === 'idle') fetchData();
   }, [fetchData, fetchStatus]);
 
   useVisibilityObserver({
@@ -75,7 +75,7 @@ export const PosterPage = ({
     <div
       ref={ref}
       className={cn(
-        "flex min-w-full flex-shrink-0 flex-grow flex-row space-x-2 overflow-y-clip",
+        'flex min-w-full flex-shrink-0 flex-grow flex-row space-x-2 overflow-y-clip',
         className,
       )}
       {...props}
@@ -112,7 +112,7 @@ const ImageContent = ({
 }) => {
   const headers = useMemo(
     () => ({
-      "Content-Type": asset.mimeType,
+      'Content-Type': asset.mimeType,
     }),
     [asset.mimeType],
   );

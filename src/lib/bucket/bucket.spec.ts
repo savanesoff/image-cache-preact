@@ -1,19 +1,19 @@
-import { Controller } from "@lib/controller";
+import { Controller } from '@lib/controller';
 import {
   RenderRequest,
   RenderRequestEvent,
   RenderRequestEventTypes,
-} from "@lib/request";
-import { Bucket } from "./bucket";
-import { Img, Size } from "@lib/image";
-import { UNITS } from "@utils";
+} from '@lib/request';
+import { Bucket } from './bucket';
+import { Img, Size } from '@lib/image';
+import { UNITS } from '@utils';
 
-vi.mock("@lib/image");
-vi.mock("@lib/request");
-vi.mock("@lib/controller");
+vi.mock('@lib/image');
+vi.mock('@lib/request');
+vi.mock('@lib/controller');
 
 const createBucket = ({
-  name = "test",
+  name = 'test',
   lock = false,
   controller,
 }: {
@@ -29,7 +29,7 @@ const createBucket = ({
   return bucket;
 };
 
-const createImage = ({ url = "test-url" }) => {
+const createImage = ({ url = 'test-url' }) => {
   const image = new Img({ url });
   image.bytes = Math.round(Math.random() * 100);
   image.bytesUncompressed = Math.round(Math.random() * 100);
@@ -40,7 +40,7 @@ type Listeners = {
   [K in RenderRequestEventTypes]: (event: RenderRequestEvent<K>) => Request;
 };
 const createRequest = ({
-  url = "test-url",
+  url = 'test-url',
   size = { width: 100, height: 100 },
   bucket = createBucket(),
   listeners = {} as Listeners,
@@ -66,58 +66,58 @@ const createRequest = ({
   return request;
 };
 
-describe("Bucket", () => {
-  describe("constructor", () => {
+describe('Bucket', () => {
+  describe('constructor', () => {
     afterEach(() => {
       vi.clearAllMocks();
     });
 
-    it("should be defined", () => {
+    it('should be defined', () => {
       expect(createBucket()).toBeDefined();
     });
 
-    it("should have a name", () => {
-      expect(createBucket().name).toBe("test");
+    it('should have a name', () => {
+      expect(createBucket().name).toBe('test');
     });
 
-    it("should be unlocked", () => {
+    it('should be unlocked', () => {
       expect(createBucket().locked).toBe(false);
     });
 
-    it("should be unlocked", () => {
+    it('should be unlocked', () => {
       expect(createBucket({ lock: true }).locked).toBe(true);
     });
 
-    it("should have a controller", () => {
+    it('should have a controller', () => {
       const controller = new Controller({});
       expect(createBucket({ controller }).controller).toEqual(controller);
     });
 
-    it("should have loaded:false", () => {
+    it('should have loaded:false', () => {
       expect(createBucket().loaded).toBe(false);
     });
 
-    it("should have loading:false", () => {
+    it('should have loading:false', () => {
       expect(createBucket().loading).toBe(false);
     });
-    it("should have rendered:false", () => {
+    it('should have rendered:false', () => {
       expect(createBucket().rendered).toBe(false);
     });
   });
 
-  describe("registerRequest", () => {
+  describe('registerRequest', () => {
     let bucket: Bucket;
     beforeEach(() => {
       bucket = createBucket();
     });
-    it("should register the request", () => {
+    it('should register the request', () => {
       const request = createRequest();
       bucket.registerRequest(request);
       expect(bucket.requests).toContain(request);
     });
   });
 
-  describe("request events", () => {
+  describe('request events', () => {
     let bucket: Bucket;
     let request: RenderRequest;
 
@@ -126,121 +126,121 @@ describe("Bucket", () => {
       bucket = createBucket();
     });
 
-    describe("loadstart", () => {
+    describe('loadstart', () => {
       beforeEach(() => {
         request = createRequest({ listeners });
         bucket.registerRequest(request);
       });
-      it("should set loading:true", () => {
+      it('should set loading:true', () => {
         // fire loadstart event
-        listeners["loadstart"]({
-          type: "loadstart",
+        listeners['loadstart']({
+          type: 'loadstart',
           target: request,
         });
         expect(bucket.loading).toBe(true);
       });
 
-      it("should set loaded:false", () => {
+      it('should set loaded:false', () => {
         // fire loadstart event
-        listeners["loadstart"]({
-          type: "loadstart",
+        listeners['loadstart']({
+          type: 'loadstart',
           target: request,
         });
         expect(bucket.loaded).toBe(false);
       });
 
-      it("should set rendered:false", () => {
+      it('should set rendered:false', () => {
         // fire loadstart event
-        listeners["loadstart"]({
-          type: "loadstart",
+        listeners['loadstart']({
+          type: 'loadstart',
           target: request,
         });
         expect(bucket.rendered).toBe(false);
       });
-      it("should emit loading event", () => {
+      it('should emit loading event', () => {
         const spy = vi.fn();
-        bucket.on("loading", spy);
+        bucket.on('loading', spy);
         // fire loadstart event
-        listeners["loadstart"]({
-          type: "loadstart",
+        listeners['loadstart']({
+          type: 'loadstart',
           target: request,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "loading",
+          type: 'loading',
           target: bucket,
           request,
         });
       });
     });
-    describe("progress", () => {
+    describe('progress', () => {
       beforeEach(() => {
         request = createRequest({ listeners });
         request.image.progress = 50;
         bucket.registerRequest(request);
       });
-      it("should set loaded:false", () => {
+      it('should set loaded:false', () => {
         // fire progress event
-        listeners["progress"]({
-          type: "progress",
+        listeners['progress']({
+          type: 'progress',
           target: request,
         });
         expect(bucket.loaded).toBe(false);
       });
-      it("should set loading: true", () => {
+      it('should set loading: true', () => {
         // fire progress event
-        listeners["progress"]({
-          type: "progress",
+        listeners['progress']({
+          type: 'progress',
           target: request,
         });
         expect(bucket.loading).toBe(true);
       });
-      it("should set loadProgress value", () => {
+      it('should set loadProgress value', () => {
         const request = createRequest({ listeners });
         bucket.registerRequest(request);
         request.image.progress = 100;
         // fire progress event
-        listeners["progress"]({
-          type: "progress",
+        listeners['progress']({
+          type: 'progress',
           target: request,
         });
         // combined progress of all requests
         expect(bucket.loadProgress).toBe(75);
       });
-      it("should emit progress event", () => {
+      it('should emit progress event', () => {
         const spy = vi.fn();
-        bucket.on("progress", spy);
+        bucket.on('progress', spy);
         // fire progress event
-        listeners["progress"]({
-          type: "progress",
+        listeners['progress']({
+          type: 'progress',
           target: request,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "progress",
+          type: 'progress',
           target: bucket,
           progress: 50,
         });
       });
     });
 
-    describe("error", () => {
+    describe('error', () => {
       beforeEach(() => {
         request = createRequest({ listeners });
         bucket.registerRequest(request);
       });
 
-      it("should emit error event", () => {
+      it('should emit error event', () => {
         const spy = vi.fn();
         const statusText = Math.random().toString();
-        bucket.on("error", spy);
+        bucket.on('error', spy);
         // fire error event
-        listeners["error"]({
-          type: "error",
+        listeners['error']({
+          type: 'error',
           target: request,
           statusText,
           status: 500,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "error",
+          type: 'error',
           target: bucket,
           statusText: statusText,
           status: 500,
@@ -248,129 +248,129 @@ describe("Bucket", () => {
       });
     });
 
-    describe("loadend", () => {
+    describe('loadend', () => {
       beforeEach(() => {
         request = createRequest({ listeners });
         bucket.registerRequest(request);
       });
 
-      it("should set loaded:true, loading:false if all images loaded", () => {
+      it('should set loaded:true, loading:false if all images loaded', () => {
         request.image.loaded = true;
         request = createRequest({ listeners });
         bucket.registerRequest(request);
         request.image.loaded = true;
         // fire loadend event
-        listeners["loadend"]({
-          type: "loadend",
+        listeners['loadend']({
+          type: 'loadend',
           target: request,
         });
         expect(bucket.loaded).toBe(true);
         expect(bucket.loading).toBe(false);
       });
 
-      it("should set loaded:false, loading:true in one of images not loaded", () => {
+      it('should set loaded:false, loading:true in one of images not loaded', () => {
         request.image.loaded = false;
         request = createRequest({ listeners });
         bucket.registerRequest(request);
         request.image.loaded = true;
         // fire loadend event
-        listeners["loadend"]({
-          type: "loadend",
+        listeners['loadend']({
+          type: 'loadend',
           target: request,
         });
         expect(bucket.loaded).toBe(false);
         expect(bucket.loading).toBe(true);
       });
 
-      it("should emit loaded event", () => {
+      it('should emit loaded event', () => {
         request.image.loaded = true;
         const spy = vi.fn();
-        bucket.on("loadend", spy);
+        bucket.on('loadend', spy);
         // fire loadend event
-        listeners["loadend"]({
-          type: "loadend",
+        listeners['loadend']({
+          type: 'loadend',
           target: request,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "loadend",
+          type: 'loadend',
           target: bucket,
         });
       });
 
-      it("should emit request-loadend event", () => {
+      it('should emit request-loadend event', () => {
         request.image.loaded = true;
         const spy = vi.fn();
-        bucket.on("request-loadend", spy);
+        bucket.on('request-loadend', spy);
         // fire loadend event
-        listeners["loadend"]({
-          type: "loadend",
+        listeners['loadend']({
+          type: 'loadend',
           target: request,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "request-loadend",
+          type: 'request-loadend',
           target: bucket,
           request,
         });
       });
     });
 
-    describe("rendered", () => {
+    describe('rendered', () => {
       beforeEach(() => {
         request = createRequest({ listeners });
         bucket.registerRequest(request);
       });
 
-      it("should set rendered:true, if all renders", () => {
+      it('should set rendered:true, if all renders', () => {
         request.rendered = true;
         // fire render event
-        listeners["rendered"]({
-          type: "rendered",
+        listeners['rendered']({
+          type: 'rendered',
           target: request,
         });
         expect(bucket.rendered).toBe(true);
       });
 
-      it("should set rendered:false, if one of renders not rendered", () => {
+      it('should set rendered:false, if one of renders not rendered', () => {
         request.rendered = true;
         request = createRequest({ listeners });
         bucket.registerRequest(request);
         // fire render event
-        listeners["rendered"]({
-          type: "rendered",
+        listeners['rendered']({
+          type: 'rendered',
           target: request,
         });
         expect(bucket.rendered).toBe(false);
       });
 
-      it("should emit request-rendered event", () => {
+      it('should emit request-rendered event', () => {
         const spy = vi.fn();
-        bucket.on("request-rendered", spy);
+        bucket.on('request-rendered', spy);
         // fire render event
-        listeners["rendered"]({
-          type: "rendered",
+        listeners['rendered']({
+          type: 'rendered',
           target: request,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "request-rendered",
+          type: 'request-rendered',
           target: bucket,
           request,
         });
       });
 
-      it("should emit render-progress event", () => {
+      it('should emit render-progress event', () => {
         const spy = vi.fn();
-        bucket.on("render-progress", spy);
+        bucket.on('render-progress', spy);
         request.rendered = true;
         request = createRequest();
         bucket.registerRequest(request);
         request.rendered = false;
         // fire render event
-        listeners["rendered"]({
-          type: "rendered",
+        listeners['rendered']({
+          type: 'rendered',
           target: request,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "render-progress",
+          type: 'render-progress',
           target: bucket,
           progress: 0.5,
         });
@@ -378,22 +378,22 @@ describe("Bucket", () => {
 
       it('should emit "rendered" event', () => {
         const spy = vi.fn();
-        bucket.on("rendered", spy);
+        bucket.on('rendered', spy);
         request.rendered = true;
         // fire render event
-        listeners["rendered"]({
-          type: "rendered",
+        listeners['rendered']({
+          type: 'rendered',
           target: request,
         });
         expect(spy).toHaveBeenCalledWith({
-          type: "rendered",
+          type: 'rendered',
           target: bucket,
         });
       });
     });
   });
 
-  describe("unregisterRequest", () => {
+  describe('unregisterRequest', () => {
     let bucket: Bucket;
     let request: RenderRequest;
     beforeEach(() => {
@@ -401,33 +401,33 @@ describe("Bucket", () => {
       request = createRequest();
       bucket.registerRequest(request);
     });
-    it("should unregister the request", () => {
+    it('should unregister the request', () => {
       bucket.unregisterRequest(request);
       expect(bucket.requests).not.toContain(request);
     });
 
-    it("should unregister request listeners", () => {
+    it('should unregister request listeners', () => {
       request.clear = vi.fn();
       request.off = vi.fn();
       bucket.unregisterRequest(request);
       expect(request.off).toHaveBeenCalledWith(
-        "loadstart",
+        'loadstart',
         expect.any(Function),
       );
       expect(request.off).toHaveBeenCalledWith(
-        "progress",
+        'progress',
         expect.any(Function),
       );
-      expect(request.off).toHaveBeenCalledWith("error", expect.any(Function));
-      expect(request.off).toHaveBeenCalledWith("loadend", expect.any(Function));
+      expect(request.off).toHaveBeenCalledWith('error', expect.any(Function));
+      expect(request.off).toHaveBeenCalledWith('loadend', expect.any(Function));
       expect(request.off).toHaveBeenCalledWith(
-        "rendered",
+        'rendered',
         expect.any(Function),
       );
     });
   });
 
-  describe("clear", () => {
+  describe('clear', () => {
     let bucket: Bucket;
     let request: RenderRequest;
     beforeEach(() => {
@@ -435,19 +435,19 @@ describe("Bucket", () => {
       request = createRequest();
       bucket.registerRequest(request);
     });
-    it("should clear all requests", () => {
+    it('should clear all requests', () => {
       bucket.clear();
       expect(bucket.requests).toHaveLength(0);
     });
 
-    it("should call request.clear()", () => {
+    it('should call request.clear()', () => {
       request.clear = vi.fn();
       bucket.clear();
       expect(request.clear).toHaveBeenCalled();
     });
   });
 
-  describe("getRamBytes", () => {
+  describe('getRamBytes', () => {
     let bucket: Bucket;
     beforeEach(() => {
       bucket = createBucket();
@@ -455,7 +455,7 @@ describe("Bucket", () => {
       bucket.registerRequest(createRequest());
       bucket.registerRequest(createRequest());
     });
-    it("should return bytes object", () => {
+    it('should return bytes object', () => {
       expect(bucket.getRamBytes()).toEqual({
         compressed: expect.any(Number),
         uncompressed: expect.any(Number),
@@ -463,7 +463,7 @@ describe("Bucket", () => {
       });
     });
 
-    it("should have correct compressed data", () => {
+    it('should have correct compressed data', () => {
       const compressed = Array.from(bucket.requests).reduce(
         (acc, request) => acc + request.image.bytes,
         0,
@@ -471,7 +471,7 @@ describe("Bucket", () => {
       expect(bucket.getRamBytes().compressed).toBe(compressed);
     });
 
-    it("should have correct uncompressed data", () => {
+    it('should have correct uncompressed data', () => {
       const uncompressed = Array.from(bucket.requests).reduce(
         (acc, request) => acc + request.image.bytesUncompressed,
         0,
@@ -479,7 +479,7 @@ describe("Bucket", () => {
       expect(bucket.getRamBytes().uncompressed).toBe(uncompressed);
     });
 
-    it("should have correct total data", () => {
+    it('should have correct total data', () => {
       const total = Array.from(bucket.requests).reduce(
         (acc, request) =>
           acc + request.image.bytes + request.image.bytesUncompressed,
@@ -489,9 +489,9 @@ describe("Bucket", () => {
     });
   });
 
-  describe("getRamUnits", () => {
+  describe('getRamUnits', () => {
     let bucket: Bucket;
-    const units = "GB";
+    const units = 'GB';
     beforeEach(() => {
       bucket = createBucket();
       bucket.registerRequest(createRequest());
@@ -500,7 +500,7 @@ describe("Bucket", () => {
       // @ts-expect-error - readonly
       bucket.controller.units = units;
     });
-    it("should return bytes object", () => {
+    it('should return bytes object', () => {
       expect(bucket.getRamUnits()).toEqual({
         compressed: expect.any(Number),
         uncompressed: expect.any(Number),
@@ -510,7 +510,7 @@ describe("Bucket", () => {
       });
     });
 
-    it("should have correct compressed data", () => {
+    it('should have correct compressed data', () => {
       const compressed =
         Array.from(bucket.requests).reduce(
           (acc, request) => acc + request.image.bytes,
@@ -519,7 +519,7 @@ describe("Bucket", () => {
       expect(bucket.getRamUnits().compressed).toBe(compressed);
     });
 
-    it("should have correct uncompressed data", () => {
+    it('should have correct uncompressed data', () => {
       const uncompressed =
         Array.from(bucket.requests).reduce(
           (acc, request) => acc + request.image.bytesUncompressed,
@@ -528,7 +528,7 @@ describe("Bucket", () => {
       expect(bucket.getRamUnits().uncompressed).toBe(uncompressed);
     });
 
-    it("should have correct total data", () => {
+    it('should have correct total data', () => {
       const total =
         Array.from(bucket.requests).reduce(
           (acc, request) =>
@@ -538,7 +538,7 @@ describe("Bucket", () => {
       expect(bucket.getRamUnits().total).toBe(total);
     });
 
-    it("should have type as UNITS", () => {
+    it('should have type as UNITS', () => {
       expect(bucket.getRamUnits().type).toBe(units);
     });
     it('should have ratio as "compressed/total"', () => {
@@ -547,7 +547,7 @@ describe("Bucket", () => {
     });
   });
 
-  describe("getVideoBytes", () => {
+  describe('getVideoBytes', () => {
     let bucket: Bucket;
     beforeEach(() => {
       bucket = createBucket();
@@ -555,7 +555,7 @@ describe("Bucket", () => {
       bucket.registerRequest(createRequest());
       bucket.registerRequest(createRequest());
     });
-    it("should return bytes object", () => {
+    it('should return bytes object', () => {
       const output = bucket.getVideoBytes();
       expect(output).toEqual({
         requested: expect.any(Number),
@@ -566,7 +566,7 @@ describe("Bucket", () => {
       expect(output.used).not.toBeNaN();
     });
 
-    it("should have correct requested data", () => {
+    it('should have correct requested data', () => {
       const requested = Array.from(bucket.requests).reduce(
         (acc, request) => acc + request.bytesVideo,
         0,
@@ -574,8 +574,8 @@ describe("Bucket", () => {
       expect(bucket.getVideoBytes().requested).toBe(requested);
     });
 
-    it("should have correct used data", () => {
-      bucket.requests.forEach((request) => {
+    it('should have correct used data', () => {
+      bucket.requests.forEach(request => {
         request.rendered = Math.random() > 0.5;
         request.image.getBytesVideo = vi.fn(() => request.bytesVideo);
       });
@@ -587,9 +587,9 @@ describe("Bucket", () => {
     });
   });
 
-  describe("getVideoUnits", () => {
+  describe('getVideoUnits', () => {
     let bucket: Bucket;
-    const units = "GB";
+    const units = 'GB';
     beforeEach(() => {
       bucket = createBucket();
       bucket.registerRequest(createRequest());
@@ -598,7 +598,7 @@ describe("Bucket", () => {
       // @ts-expect-error - readonly
       bucket.controller.units = units;
     });
-    it("should return bytes object", () => {
+    it('should return bytes object', () => {
       const output = bucket.getVideoUnits();
       expect(output).toEqual({
         requested: expect.any(Number),
@@ -611,7 +611,7 @@ describe("Bucket", () => {
       expect(output.used).not.toBeNaN();
     });
 
-    it("should have correct requested data", () => {
+    it('should have correct requested data', () => {
       const requested =
         Array.from(bucket.requests).reduce(
           (acc, request) => acc + request.bytesVideo,
@@ -620,8 +620,8 @@ describe("Bucket", () => {
       expect(bucket.getVideoUnits().requested).toBe(requested);
     });
 
-    it("should have correct used data", () => {
-      bucket.requests.forEach((request) => {
+    it('should have correct used data', () => {
+      bucket.requests.forEach(request => {
         request.rendered = Math.random() > 0.5;
         request.image.getBytesVideo = vi.fn(() => request.bytesVideo);
       });
@@ -633,11 +633,11 @@ describe("Bucket", () => {
       expect(bucket.getVideoUnits().used).toBe(used);
     });
 
-    it("should have type as UNITS", () => {
+    it('should have type as UNITS', () => {
       expect(bucket.getVideoUnits().type).toBe(units);
     });
 
-    it("should have ratio as requested/used", () => {
+    it('should have ratio as requested/used', () => {
       const ratio = UNITS[units];
       expect(bucket.getVideoUnits().ratio).toBe(ratio);
     });

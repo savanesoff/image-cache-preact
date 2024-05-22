@@ -1,17 +1,17 @@
-import devtoolsFPS from "devtools-fps";
-import { cn } from "./utils";
-import { ControllerProvider } from "@cache";
+import devtoolsFPS from 'devtools-fps';
+import { cn } from './utils';
+import { ControllerProvider } from '@cache';
 
-import { View } from "@demo/components";
+import { View } from '@demo/components';
 import {
   FocusContext,
   init,
   useFocusable,
-} from "@noriginmedia/norigin-spatial-navigation";
-import { CacheLock } from "./cacheLock";
-import { useCallback, useState } from "react";
-import { CacheStats } from "./components/View/CacheStats";
-import { Button } from "./components/Button";
+} from '@noriginmedia/norigin-spatial-navigation';
+import { CacheLock } from './cacheLock';
+import { useCallback, useState } from 'react';
+import { CacheStats } from './components/View/CacheStats';
+import { Button } from './components/Button';
 
 init({
   // options
@@ -27,9 +27,9 @@ devtoolsFPS.config({
   height: 50,
   style: {
     // position: "fixed",
-    bottom: `0`,
-    right: `0`,
-    zIndex: `9999`,
+    bottom: '0',
+    right: '0',
+    zIndex: '9999',
   },
 });
 
@@ -41,7 +41,7 @@ function App() {
 
   const [showView, setShowView] = useState(false);
   const onToggleView = useCallback(() => {
-    setShowView((prev) => !prev);
+    setShowView(prev => !prev);
   }, []);
 
   const { ref, focusKey } = useFocusable();
@@ -49,15 +49,15 @@ function App() {
     <FocusContext.Provider value={focusKey}>
       <div
         ref={ref}
-        className={cn("bg-slate-500", "text-white", "w-full", "h-screen")}
+        className={cn('bg-slate-500', 'text-white', 'w-full', 'h-screen')}
       >
         <div
           className={cn(
-            "bg-slate-900",
-            "text-slate-300",
-            "p-2",
-            "w-full",
-            "text-xl",
+            'bg-slate-900',
+            'text-slate-300',
+            'p-2',
+            'w-full',
+            'text-xl',
           )}
         >
           React Image Cache Demo
@@ -65,10 +65,10 @@ function App() {
             disabled={!lockReady}
             title={
               !lockReady
-                ? "loading..."
+                ? 'loading...'
                 : !showView
-                  ? "Launch View"
-                  : "Close View"
+                  ? 'Launch View'
+                  : 'Close View'
             }
             onClick={onToggleView}
             className="text-sm"

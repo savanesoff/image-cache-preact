@@ -3,17 +3,17 @@
  * Its and abstraction that represents memory usage.
  * Emits events when size is overflowed, available or cleared.
  */
-import { Logger, LogLevel } from "@lib/logger";
-import { UNITS, UnitsType } from "@utils";
+import { Logger, LogLevel } from '@lib/logger';
+import { UNITS, UnitsType } from '@utils';
 
 /** Memory event types */
 export type MemoryEventTypes =
-  | "overflow"
-  | "clear"
-  | "bytes-added"
-  | "bytes-removed"
-  | "cleared"
-  | "update";
+  | 'overflow'
+  | 'clear'
+  | 'bytes-added'
+  | 'bytes-removed'
+  | 'cleared'
+  | 'update';
 
 /** Event data for memory events */
 export type MemoryEvent<T extends MemoryEventTypes> = {
@@ -21,12 +21,12 @@ export type MemoryEvent<T extends MemoryEventTypes> = {
   type: T;
   /** The memory object that emitted the event */
   target: Memory;
-} & (T extends "overflow" ? { bytes: number } : unknown) &
-  (T extends "bytes-added"
+} & (T extends 'overflow' ? { bytes: number } : unknown) &
+  (T extends 'bytes-added'
     ? { bytes: number; remainingBytes: number }
     : unknown) &
-  (T extends "bytes-removed" ? { bytes: number } : unknown) &
-  (T extends "update" ? { overflow: boolean } : unknown);
+  (T extends 'bytes-removed' ? { bytes: number } : unknown) &
+  (T extends 'update' ? { overflow: boolean } : unknown);
 
 /** Event handler for memory events */
 export type MemoryEventHandler<T extends MemoryEventTypes> = (
@@ -104,9 +104,9 @@ export class Memory extends Logger {
    */
   constructor({
     size = 1,
-    units = "GB",
-    logLevel = "verbose",
-    name = "Memory",
+    units = 'GB',
+    logLevel = 'verbose',
+    name = 'Memory',
   }: MemoryProps) {
     super({
       name,
@@ -193,14 +193,14 @@ export class Memory extends Logger {
   addBytes(bytes = 0): number {
     const remainingBytes = this.getBytesSpace(bytes);
     if (remainingBytes < 0) {
-      this.log.warn([`Overflow!`, this.getStats()], this.styles.error);
-      this.emit("overflow", { bytes: remainingBytes });
+      this.log.warn(['Overflow!', this.getStats()], this.styles.error);
+      this.emit('overflow', { bytes: remainingBytes });
     }
 
     this.count++;
     this.bytes += bytes;
-    this.emit("bytes-added", { bytes, remainingBytes });
-    this.emit("update", { overflow: remainingBytes < 0 });
+    this.emit('bytes-added', { bytes, remainingBytes });
+    this.emit('update', { overflow: remainingBytes < 0 });
     this.log.info(
       [`Added: ${this.#toUnits(bytes)} ${this.units}`, this.getStats()],
       this.styles.info,
@@ -237,8 +237,8 @@ export class Memory extends Logger {
   removeBytes(bytes: number): number {
     this.count--;
     this.bytes -= bytes;
-    this.emit("bytes-removed", { bytes });
-    this.emit("update", {
+    this.emit('bytes-removed', { bytes });
+    this.emit('update', {
       overflow: this.bytes > this.size * UNITS[this.units],
     });
     this.log.info(
@@ -256,9 +256,9 @@ export class Memory extends Logger {
   clear() {
     this.bytes = 0;
     this.count = 0;
-    this.emit("cleared");
-    this.log.info([`Cleared`], this.styles.info);
-    this.emit("clear");
+    this.emit('cleared');
+    this.log.info(['Cleared'], this.styles.info);
+    this.emit('clear');
   }
 
   /**
@@ -314,7 +314,7 @@ export class Memory extends Logger {
    */
   emit<T extends MemoryEventTypes>(
     event: T,
-    data?: Omit<MemoryEvent<T>, "target" | "type">,
+    data?: Omit<MemoryEvent<T>, 'target' | 'type'>,
   ): boolean {
     return super.emit(event, {
       ...data,

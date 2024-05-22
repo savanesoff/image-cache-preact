@@ -29,7 +29,7 @@ module.exports = {
     'no-unused-vars': 'error',
     semi: ['error', 'always'],
     quotes: ['error', 'single'],
-    indent: ['error', 2],
+    indent: ['error', 2, { SwitchCase: 1 }],
   },
   settings: {
     react: {

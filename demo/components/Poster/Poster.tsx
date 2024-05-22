@@ -1,11 +1,11 @@
-import { HTMLAttributes, useEffect } from "react";
-import { useImage } from "@cache";
-import { cn } from "@demo/utils";
-import { PosterLoadStatus } from "./LoadStatus";
-import { PosterRenderStatus } from "./RenderStatus";
-import { PosterImage } from "./PosterImage";
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { Asset } from "@demo/utils/assets.endpoint";
+import { HTMLAttributes, useEffect } from 'react';
+import { useImage } from '@cache';
+import { cn } from '@demo/utils';
+import { PosterLoadStatus } from './LoadStatus';
+import { PosterRenderStatus } from './RenderStatus';
+import { PosterImage } from './PosterImage';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { Asset } from '@demo/utils/assets.endpoint';
 
 export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   index: number;
@@ -36,9 +36,9 @@ export const Poster = ({
   useEffect(() => {
     if (focused) {
       ref.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "center",
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
       });
     }
   }, [focused, ref]);
@@ -54,16 +54,16 @@ export const Poster = ({
     <div
       ref={ref}
       className={cn(
-        "bg-slate-800",
+        'bg-slate-800',
         `max-w-[${width}px]`,
         `w-[${width}px]`,
         `min-w-[${width}px]`,
-        "flex flex-col space-y-1",
+        'flex flex-col space-y-1',
         className,
       )}
       {...props}
     >
-      <div className={"flex flex-row justify-around space-x-1"}>
+      <div className={'flex flex-row justify-around space-x-1'}>
         <PosterLoadStatus />
         <PosterRenderStatus />
       </div>

@@ -16,24 +16,24 @@
  * controller.addImage(image); // Add an image to the cache and network queue
  */
 
-import { FrameQueueProps, FrameQueue } from "@lib/frame-queue";
-import { Img, ImgProps, ImgEvent } from "@lib/image";
-import { Memory } from "@lib/memory";
-import { Network } from "@lib/network";
-import { RenderRequest, renderer } from "@lib/request";
-import { UnitsType } from "@utils";
-import { LogLevel, Logger } from "@lib/logger";
+import { FrameQueueProps, FrameQueue } from '@lib/frame-queue';
+import { Img, ImgProps, ImgEvent } from '@lib/image';
+import { Memory } from '@lib/memory';
+import { Network } from '@lib/network';
+import { RenderRequest, renderer } from '@lib/request';
+import { UnitsType } from '@utils';
+import { LogLevel, Logger } from '@lib/logger';
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerEventTypes =
-  | "ram-overflow"
-  | "video-overflow"
-  | "update"
-  | "image-added"
-  | "image-removed"
-  | "clear"
-  | "render-request-added"
-  | "render-request-removed";
+  | 'ram-overflow'
+  | 'video-overflow'
+  | 'update'
+  | 'image-added'
+  | 'image-removed'
+  | 'clear'
+  | 'render-request-added'
+  | 'render-request-removed';
 
 /** Controller event */
 export type ControllerEvent<T extends ControllerEventTypes> = {
@@ -41,11 +41,11 @@ export type ControllerEvent<T extends ControllerEventTypes> = {
   type: T;
   /** The target of the event */
   target: Controller;
-} & (T extends "ram-overflow" | "video-overflow"
+} & (T extends 'ram-overflow' | 'video-overflow'
   ? { bytes: number }
   : unknown) &
-  (T extends "image-added" | "image-removed" ? { image: Img } : unknown) &
-  (T extends "render-request-added" | "render-request-removed"
+  (T extends 'image-added' | 'image-removed' ? { image: Img } : unknown) &
+  (T extends 'render-request-added' | 'render-request-removed'
     ? { request: RenderRequest }
     : unknown);
 
@@ -76,10 +76,10 @@ export type ControllerProps = FrameQueueProps & {
 };
 
 const styles = {
-  info: "color: green;",
-  warn: "color: orange;",
-  error: "color: red;",
-  log: "color: skyblue;",
+  info: 'color: green;',
+  warn: 'color: orange;',
+  error: 'color: red;',
+  log: 'color: skyblue;',
 };
 
 export type ControllerCache = Map<string, Img>;
@@ -92,20 +92,20 @@ export class Controller extends Logger {
   readonly network: Network;
   readonly units: UnitsType;
   readonly gpuDataFull: boolean;
-  readonly renderer?: ControllerProps["renderer"];
+  readonly renderer?: ControllerProps['renderer'];
 
   constructor({
     ram = 2,
     video = 1,
     loaders = 6,
-    units = "GB",
-    logLevel = "error",
+    units = 'GB',
+    logLevel = 'error',
     hwRank = 1,
     gpuDataFull = false,
     renderer,
   }: ControllerProps) {
     super({
-      name: "Master",
+      name: 'Master',
       logLevel,
       styles,
     });
@@ -122,13 +122,13 @@ export class Controller extends Logger {
       size: ram,
       units: units,
       logLevel,
-      name: "RAM",
+      name: 'RAM',
     });
     this.video = new Memory({
       size: video,
       units: units,
       logLevel,
-      name: "VIDEO",
+      name: 'VIDEO',
     });
   }
 
@@ -146,12 +146,12 @@ export class Controller extends Logger {
   }
 
   clear() {
-    this.cache.forEach((image) => image.clear());
+    this.cache.forEach(image => image.clear());
     this.cache.clear();
     this.network.clear();
     this.ram.clear();
     this.video.clear();
-    this.emit("clear");
+    this.emit('clear');
     this.removeAllListeners();
   }
 
@@ -166,8 +166,8 @@ export class Controller extends Logger {
     this.cache.delete(image.url);
     this.ram.removeBytes(image.getBytesRam());
     image.clear();
-    this.emit("image-removed", { image });
-    this.emit("update");
+    this.emit('image-removed', { image });
+    this.emit('update');
   }
 
   /**
@@ -180,20 +180,20 @@ export class Controller extends Logger {
   #createImage(props: ImgProps): Img {
     const image = new Img({ ...props, gpuDataFull: this.gpuDataFull });
     this.cache.set(image.url, image); // TODO blob is network data, once we get image size any render of size will consume raw width/height data for ram
-    image.on("loadend", this.#onImageLoadend);
-    image.on("size", this.#onImageDecoded);
-    image.on("render-request-rendered", this.#onRenderRequestRendered);
-    image.on("render-request-removed", this.#onRenderRequestRemoved);
-    image.on("render-request-added", this.#onRequestAdded);
+    image.on('loadend', this.#onImageLoadend);
+    image.on('size', this.#onImageDecoded);
+    image.on('render-request-rendered', this.#onRenderRequestRendered);
+    image.on('render-request-removed', this.#onRenderRequestRemoved);
+    image.on('render-request-added', this.#onRequestAdded);
     this.network.add(image); // request load immediately
-    this.emit("image-added", { image });
-    this.emit("update");
+    this.emit('image-added', { image });
+    this.emit('update');
     return image;
   }
 
-  #onRequestAdded = (event: ImgEvent<"render-request-added">) => {
-    this.emit("render-request-added", { request: event.request });
-    this.emit("update");
+  #onRequestAdded = (event: ImgEvent<'render-request-added'>) => {
+    this.emit('render-request-added', { request: event.request });
+    this.emit('update');
   };
 
   /**
@@ -204,7 +204,7 @@ export class Controller extends Logger {
    */
   #onRenderRequestRendered = ({
     bytes,
-  }: ImgEvent<"render-request-rendered">) => {
+  }: ImgEvent<'render-request-rendered'>) => {
     this.#addVideoBytes(bytes);
   };
 
@@ -212,10 +212,10 @@ export class Controller extends Logger {
    * Removes video bytes of a render request from the video memory
    * @param event
    */
-  #onRenderRequestRemoved = (event: ImgEvent<"render-request-removed">) => {
-    this.emit("render-request-removed", { request: event.request });
+  #onRenderRequestRemoved = (event: ImgEvent<'render-request-removed'>) => {
+    this.emit('render-request-removed', { request: event.request });
     this.video.removeBytes(event.bytes);
-    this.emit("update");
+    this.emit('update');
   };
 
   //-----------------------   VIDEO MEMORY MANAGEMENT   -----------------------
@@ -232,9 +232,9 @@ export class Controller extends Logger {
     const overflowBytes = Math.abs(remainingBytes);
 
     if (overflow && this.#requestVideo(overflowBytes) === false) {
-      this.emit("video-overflow", { bytes: overflowBytes });
+      this.emit('video-overflow', { bytes: overflowBytes });
     }
-    this.emit("update");
+    this.emit('update');
   }
 
   /**
@@ -270,7 +270,7 @@ export class Controller extends Logger {
    * Adds image blob ram data to the ram
    * @param event
    */
-  #onImageLoadend = ({ bytes }: ImgEvent<"loadend">) => {
+  #onImageLoadend = ({ bytes }: ImgEvent<'loadend'>) => {
     this.#addRamBytes(bytes);
   };
 
@@ -278,7 +278,7 @@ export class Controller extends Logger {
    * Adds decoded image size ram data to the ram
    * @param event
    */
-  #onImageDecoded = (event: ImgEvent<"size">) => {
+  #onImageDecoded = (event: ImgEvent<'size'>) => {
     this.#addRamBytes(event.target.getBytesVideo(event.size));
   };
 
@@ -293,10 +293,10 @@ export class Controller extends Logger {
     const overflowBytes = Math.abs(remainingBytes);
 
     if (overflow && this.#requestRam(overflowBytes) === false) {
-      this.emit("ram-overflow", { bytes: overflowBytes });
+      this.emit('ram-overflow', { bytes: overflowBytes });
     }
 
-    this.emit("update");
+    this.emit('update');
   }
 
   /**
@@ -326,7 +326,7 @@ export class Controller extends Logger {
 
   getRenderRequestCount() {
     return Array.from(this.cache.values())
-      .map((item) => item.renderRequests.size)
+      .map(item => item.renderRequests.size)
       .reduce((total, count) => total + count, 0);
   }
 
@@ -362,7 +362,7 @@ export class Controller extends Logger {
    */
   emit<T extends ControllerEventTypes>(
     type: T,
-    data?: Omit<ControllerEvent<T>, "type" | "target">,
+    data?: Omit<ControllerEvent<T>, 'type' | 'target'>,
   ): boolean {
     return super.emit(type, {
       ...data,

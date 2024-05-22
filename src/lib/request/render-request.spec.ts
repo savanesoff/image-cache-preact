@@ -1,13 +1,13 @@
-import { Bucket } from "@lib/bucket";
-import { Controller } from "@lib/controller";
-import { RenderRequest } from "./render-request";
-import { Img, ImgEvent, ImgEventTypes, Size } from "@lib/image";
-import { FrameQueue } from "@lib/frame-queue";
+import { Bucket } from '@lib/bucket';
+import { Controller } from '@lib/controller';
+import { RenderRequest } from './render-request';
+import { Img, ImgEvent, ImgEventTypes, Size } from '@lib/image';
+import { FrameQueue } from '@lib/frame-queue';
 
-vi.mock("@lib/image");
-vi.mock("@lib/bucket");
-vi.mock("@lib/controller");
-vi.mock("@lib/frame-queue");
+vi.mock('@lib/image');
+vi.mock('@lib/bucket');
+vi.mock('@lib/controller');
+vi.mock('@lib/frame-queue');
 
 const imageSize = () => ({
   width: Math.round(Math.random() * 100),
@@ -20,7 +20,7 @@ type Listeners = {
 };
 
 const createImage = ({
-  url = "test",
+  url = 'test',
   listeners = {} as Listeners,
   imageLoaded,
 }: {
@@ -42,7 +42,7 @@ const createImage = ({
   return image;
 };
 const createBucket = ({
-  url = "test",
+  url = 'test',
   imageLoaded,
   listeners = {} as Listeners,
 }: {
@@ -55,7 +55,7 @@ const createBucket = ({
   const frameQueue = new FrameQueue({});
   // @ts-expect-error - mock api for readonly
   controller.frameQueue = frameQueue;
-  const bucket = new Bucket({ name: "test", controller });
+  const bucket = new Bucket({ name: 'test', controller });
   bucket.controller = controller;
   // @ts-expect-error - mock api
   bucket.controller.getImage.mockImplementation(() => image);
@@ -63,7 +63,7 @@ const createBucket = ({
 };
 
 const createRequest = ({
-  url = "test",
+  url = 'test',
   size,
   bucket,
   imageLoaded,
@@ -83,39 +83,39 @@ const createRequest = ({
   });
 };
 
-describe("RenderRequest", () => {
+describe('RenderRequest', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
-  it("should create an instance", () => {
+  it('should create an instance', () => {
     expect(createRequest()).toBeTruthy();
   });
 
-  it("should have size assigned", () => {
+  it('should have size assigned', () => {
     const size = imageSize();
     const request = createRequest({ size });
     expect(request.size).toEqual(size);
   });
 
-  it("should have bucket assigned", () => {
+  it('should have bucket assigned', () => {
     const bucket = createBucket();
     const request = createRequest({ bucket });
     expect(request.bucket).toEqual(bucket);
   });
 
-  it("should have frameQueue assigned", () => {
+  it('should have frameQueue assigned', () => {
     const bucket = createBucket();
     const request = createRequest({ bucket });
     expect(request.frameQueue).toEqual(bucket.controller.frameQueue);
   });
 
-  it("should have image assigned", () => {
+  it('should have image assigned', () => {
     const request = createRequest();
     // @ts-expect-error - mock api
     expect(request.image).toEqual(request.bucket.controller.getImage());
   });
 
-  it("should have bytesVideo of size assigned", () => {
+  it('should have bytesVideo of size assigned', () => {
     const request = createRequest();
     expect(request.bytesVideo).toBe(mockBytesVideo);
     expect(request.image.getBytesVideo).toHaveBeenCalledWith(
@@ -124,55 +124,55 @@ describe("RenderRequest", () => {
     );
   });
 
-  it("should register request on image", () => {
+  it('should register request on image', () => {
     const request = createRequest();
     expect(request.image.registerRequest).toHaveBeenCalledWith(request);
   });
 
-  it("should return request on bucket", () => {
+  it('should return request on bucket', () => {
     const request = createRequest();
     expect(request.bucket.registerRequest).toHaveBeenCalledWith(request);
   });
 
-  it("should register image size listener if image.loaded:false", () => {
+  it('should register image size listener if image.loaded:false', () => {
     const request = createRequest();
-    expect(request.image.on).toHaveBeenCalledWith("size", request.request);
+    expect(request.image.on).toHaveBeenCalledWith('size', request.request);
   });
 
-  it("should not register image size listener if image.loaded:true", () => {
+  it('should not register image size listener if image.loaded:true', () => {
     const request = createRequest({ imageLoaded: true });
-    expect(request.image.on).not.toHaveBeenCalledWith("size", request.request);
+    expect(request.image.on).not.toHaveBeenCalledWith('size', request.request);
   });
 
-  it("should emit loadstart on image loadstart", () => {
+  it('should emit loadstart on image loadstart', () => {
     const listeners = {} as Listeners;
     const request = createRequest({ imageLoaded: true, listeners });
     const spy = vi.fn();
-    request.on("loadstart", spy);
+    request.on('loadstart', spy);
 
-    listeners["loadstart"]({
+    listeners['loadstart']({
       target: request.image,
-      type: "loadstart",
+      type: 'loadstart',
     });
     expect(spy).toHaveBeenCalledWith({
-      type: "loadstart",
+      type: 'loadstart',
       target: request,
     });
   });
 
-  it("should emit progress event on image progress", () => {
+  it('should emit progress event on image progress', () => {
     const listeners = {} as Listeners;
     const request = createRequest({ imageLoaded: true, listeners });
     const spy = vi.fn();
-    request.on("progress", spy);
+    request.on('progress', spy);
 
-    listeners["progress"]({
+    listeners['progress']({
       target: request.image,
-      type: "progress",
+      type: 'progress',
       progress: 0.5,
     });
     expect(spy).toHaveBeenCalledWith({
-      type: "progress",
+      type: 'progress',
       target: request,
       progress: 0.5,
     });
@@ -182,116 +182,116 @@ describe("RenderRequest", () => {
     const listeners = {} as Listeners;
     const request = createRequest({ imageLoaded: true, listeners });
     const spy = vi.fn();
-    request.on("error", spy);
+    request.on('error', spy);
 
-    listeners["error"]({
+    listeners['error']({
       target: request.image,
-      type: "error",
+      type: 'error',
       status: 500,
-      statusText: "error",
+      statusText: 'error',
     });
     expect(spy).toHaveBeenCalledWith({
-      type: "error",
+      type: 'error',
       target: request,
       status: 500,
-      statusText: "error",
+      statusText: 'error',
     });
   });
 
-  it("should emit onloadend if image loaded", () => {
-    const spy = vi.spyOn(RenderRequest.prototype, "emit");
+  it('should emit onloadend if image loaded', () => {
+    const spy = vi.spyOn(RenderRequest.prototype, 'emit');
     createRequest({ imageLoaded: true });
-    expect(spy).toHaveBeenCalledWith("loadend");
+    expect(spy).toHaveBeenCalledWith('loadend');
   });
 
-  it("should add request to frame queue", () => {
+  it('should add request to frame queue', () => {
     const request = createRequest({ imageLoaded: true });
     expect(request.frameQueue.add).toHaveBeenCalledWith(request);
   });
 
-  describe("onRendered", () => {
-    it("should set rendered to true", () => {
+  describe('onRendered', () => {
+    it('should set rendered to true', () => {
       const request = createRequest();
       request.onRendered();
       expect(request.rendered).toBe(true);
     });
 
-    it("should emit rendered event", () => {
+    it('should emit rendered event', () => {
       const request = createRequest();
-      const spy = vi.spyOn(RenderRequest.prototype, "emit");
+      const spy = vi.spyOn(RenderRequest.prototype, 'emit');
       request.onRendered();
-      expect(spy).toHaveBeenCalledWith("rendered");
+      expect(spy).toHaveBeenCalledWith('rendered');
     });
   });
 
-  describe("onProcessing", () => {
-    it("should emit processing event", () => {
+  describe('onProcessing', () => {
+    it('should emit processing event', () => {
       const request = createRequest();
-      const spy = vi.spyOn(RenderRequest.prototype, "emit");
+      const spy = vi.spyOn(RenderRequest.prototype, 'emit');
       request.onProcessing();
-      expect(spy).toHaveBeenCalledWith("processing");
+      expect(spy).toHaveBeenCalledWith('processing');
     });
   });
 
-  describe("clear", () => {
+  describe('clear', () => {
     let request: RenderRequest;
     beforeEach(() => {
       request = createRequest();
       request.clear();
     });
-    it("should unregister from image", () => {
+    it('should unregister from image', () => {
       expect(request.image.unregisterRequest).toHaveBeenCalledWith(request);
     });
 
-    it("should unregister from bucket", () => {
+    it('should unregister from bucket', () => {
       expect(request.bucket.unregisterRequest).toHaveBeenCalledWith(request);
     });
 
-    it("should remove size listener", () => {
-      expect(request.image.off).toHaveBeenCalledWith("size", request.request);
+    it('should remove size listener', () => {
+      expect(request.image.off).toHaveBeenCalledWith('size', request.request);
     });
 
-    it("should emit clear event", () => {
+    it('should emit clear event', () => {
       const request = createRequest();
-      const spy = vi.spyOn(RenderRequest.prototype, "emit");
+      const spy = vi.spyOn(RenderRequest.prototype, 'emit');
       request.clear();
-      expect(spy).toHaveBeenCalledWith("clear");
+      expect(spy).toHaveBeenCalledWith('clear');
     });
 
-    it("should remove image loadstart listener", () => {
+    it('should remove image loadstart listener', () => {
       expect(request.image.off).toHaveBeenCalledWith(
-        "loadstart",
+        'loadstart',
         expect.any(Function),
       );
     });
 
-    it("should remove image progress listener", () => {
+    it('should remove image progress listener', () => {
       expect(request.image.off).toHaveBeenCalledWith(
-        "progress",
+        'progress',
         expect.any(Function),
       );
     });
 
-    it("should remove image error listener", () => {
+    it('should remove image error listener', () => {
       expect(request.image.off).toHaveBeenCalledWith(
-        "error",
+        'error',
         expect.any(Function),
       );
     });
   });
 
-  describe("isLocked", () => {
+  describe('isLocked', () => {
     let request: RenderRequest;
     beforeEach(() => {
       request = createRequest();
     });
 
-    it("should return false if bucket is not locked", () => {
+    it('should return false if bucket is not locked', () => {
       request.bucket.locked = false;
       expect(request.isLocked()).toBe(false);
     });
 
-    it("should return true if bucket is locked", () => {
+    it('should return true if bucket is locked', () => {
       request.bucket.locked = true;
       expect(request.isLocked()).toBe(true);
     });

@@ -11,23 +11,23 @@
  * which involves adding or removing the `RenderRequest` from the set,
  * subscribing or unsubscribing to the "rendered" event, and adding or removing the image from the set of images.
  */
-import { Controller } from "@lib/controller";
-import { Img } from "@lib/image";
-import { RenderRequest, RenderRequestEvent } from "@lib/request";
-import { now, UNITS, UnitsType } from "@utils";
-import { Logger } from "@lib/logger";
+import { Controller } from '@lib/controller';
+import { Img } from '@lib/image';
+import { RenderRequest, RenderRequestEvent } from '@lib/request';
+import { now, UNITS, UnitsType } from '@utils';
+import { Logger } from '@lib/logger';
 
 export type BucketEventTypes =
-  | "progress"
-  | "loadend"
-  | "error"
-  | "rendered"
-  | "clear"
-  | "loading"
-  | "request-rendered"
-  | "request-loadend"
-  | "render-progress"
-  | "update";
+  | 'progress'
+  | 'loadend'
+  | 'error'
+  | 'rendered'
+  | 'clear'
+  | 'loading'
+  | 'request-rendered'
+  | 'request-loadend'
+  | 'render-progress'
+  | 'update';
 
 type ProgressEvent = {
   /** The progress of the loading operation */
@@ -98,14 +98,14 @@ export type BucketEvent<T extends BucketEventTypes> = {
   type: T;
   /** The target of the event */
   target: Bucket;
-} & (T extends "progress" | "render-progress" ? ProgressEvent : unknown) &
-  (T extends "error" ? RenderRequestEvent<"error"> : unknown) &
-  (T extends "loadend" ? LoadEvent : unknown) &
-  (T extends "rendered" ? RenderEvent : unknown) &
-  (T extends "request-rendered" ? RequestRenderedEvent : unknown) &
-  (T extends "request-loadend" ? RequestLoadEndEvent : unknown) &
-  (T extends "loading" ? { request: RenderRequest } : unknown) &
-  (T extends "update" ? { requests: number; images: number } : unknown);
+} & (T extends 'progress' | 'render-progress' ? ProgressEvent : unknown) &
+  (T extends 'error' ? RenderRequestEvent<'error'> : unknown) &
+  (T extends 'loadend' ? LoadEvent : unknown) &
+  (T extends 'rendered' ? RenderEvent : unknown) &
+  (T extends 'request-rendered' ? RequestRenderedEvent : unknown) &
+  (T extends 'request-loadend' ? RequestLoadEndEvent : unknown) &
+  (T extends 'loading' ? { request: RenderRequest } : unknown) &
+  (T extends 'update' ? { requests: number; images: number } : unknown);
 
 export type BucketEventHandler<T extends BucketEventTypes> = (
   event: BucketEvent<T>,
@@ -140,7 +140,7 @@ export class Bucket extends Logger {
   constructor({ name, lock = false, controller }: BucketProps) {
     super({
       name: name || (Bucket.bucketNumber++).toString(),
-      logLevel: "error",
+      logLevel: 'error',
     });
     this.controller = controller;
     this.locked = lock;
@@ -148,27 +148,27 @@ export class Bucket extends Logger {
 
   registerRequest(request: RenderRequest) {
     this.requests.add(request);
-    request.on("loadstart", this.#onRequestLoadStart);
-    request.on("progress", this.#onRequestProgress);
-    request.on("error", this.#onRequestError);
-    request.on("loadend", this.#onRequestLoadEnd);
-    request.on("rendered", this.#onRequestRendered);
-    request.on("clear", this.#onRequestClear);
-    this.emit("update", {
+    request.on('loadstart', this.#onRequestLoadStart);
+    request.on('progress', this.#onRequestProgress);
+    request.on('error', this.#onRequestError);
+    request.on('loadend', this.#onRequestLoadEnd);
+    request.on('rendered', this.#onRequestRendered);
+    request.on('clear', this.#onRequestClear);
+    this.emit('update', {
       requests: this.requests.size,
       images: this.getImages().size,
     });
   }
 
-  #onRequestClear = (event: RenderRequestEvent<"clear">) => {
+  #onRequestClear = (event: RenderRequestEvent<'clear'>) => {
     this.requests.delete(event.target);
-    event.target.off("loadstart", this.#onRequestLoadStart);
-    event.target.off("progress", this.#onRequestProgress);
-    event.target.off("error", this.#onRequestError);
-    event.target.off("loadend", this.#onRequestLoadEnd);
-    event.target.off("rendered", this.#onRequestRendered);
-    event.target.off("clear", this.#onRequestClear);
-    this.emit("update", {
+    event.target.off('loadstart', this.#onRequestLoadStart);
+    event.target.off('progress', this.#onRequestProgress);
+    event.target.off('error', this.#onRequestError);
+    event.target.off('loadend', this.#onRequestLoadEnd);
+    event.target.off('rendered', this.#onRequestRendered);
+    event.target.off('clear', this.#onRequestClear);
+    this.emit('update', {
       requests: this.requests.size,
       images: this.getImages().size,
     });
@@ -187,7 +187,7 @@ export class Bucket extends Logger {
    * When a request is rendered, check if all requests are rendered
    * @param event
    */
-  #onRequestRendered = (event: RenderRequestEvent<"rendered">) => {
+  #onRequestRendered = (event: RenderRequestEvent<'rendered'>) => {
     this.rendered = true;
     let renderedRequests = 0;
     // emit the render event only if all requests are rendered
@@ -196,13 +196,13 @@ export class Bucket extends Logger {
       renderedRequests += request.rendered ? 1 : 0;
     }
 
-    this.emit("request-rendered", { request: event.target });
+    this.emit('request-rendered', { request: event.target });
     // current render progress
     const progress = renderedRequests / this.requests.size;
-    this.emit("render-progress", { progress });
+    this.emit('render-progress', { progress });
     this.log.verbose([`Request Rendered ${this.name}`, now(), event.target]);
     if (this.rendered) {
-      this.emit("rendered");
+      this.emit('rendered');
     }
   };
 
@@ -210,11 +210,11 @@ export class Bucket extends Logger {
    * Any image load event will reset the loading state
    * @param event
    */
-  #onRequestLoadStart = (event: RenderRequestEvent<"loadstart">) => {
+  #onRequestLoadStart = (event: RenderRequestEvent<'loadstart'>) => {
     this.loading = true;
     this.loaded = false;
     this.rendered = false;
-    this.emit("loading", { request: event.target });
+    this.emit('loading', { request: event.target });
   };
 
   /**
@@ -222,7 +222,7 @@ export class Bucket extends Logger {
    * Instead, a getter should be used to calculate the current progress
    * @param event
    */
-  #onRequestProgress = (event: RenderRequestEvent<"progress">): void => {
+  #onRequestProgress = (event: RenderRequestEvent<'progress'>): void => {
     this.loaded = false;
     this.loading = true;
     let progress = 0;
@@ -231,10 +231,10 @@ export class Bucket extends Logger {
       progress += image.progress;
     }
     this.loadProgress = progress / images.size;
-    this.emit("progress", { progress: this.loadProgress });
+    this.emit('progress', { progress: this.loadProgress });
     this.log.verbose([
       `Progress ${this.name}: ${this.loadProgress}`,
-      "event:",
+      'event:',
       event,
     ]);
   };
@@ -245,7 +245,7 @@ export class Bucket extends Logger {
    * @param event
    * @returns
    */
-  #onRequestLoadEnd = (event: RenderRequestEvent<"loadend">) => {
+  #onRequestLoadEnd = (event: RenderRequestEvent<'loadend'>) => {
     this.loaded = true;
     for (const request of this.requests) {
       if (!request.image.loaded) {
@@ -254,10 +254,10 @@ export class Bucket extends Logger {
       }
     }
     this.loading = !this.loaded;
-    this.emit("request-loadend", { request: event.target });
+    this.emit('request-loadend', { request: event.target });
     if (this.loaded) {
       this.loadProgress = 1;
-      this.emit("loadend");
+      this.emit('loadend');
       this.log.info([`Loaded ${this.name}`, now()]);
     }
   };
@@ -266,8 +266,8 @@ export class Bucket extends Logger {
    * When an image errors, emit the error event
    * @param event
    */
-  #onRequestError = (event: RenderRequestEvent<"error">) => {
-    this.emit("error", { statusText: event.statusText, status: event.status });
+  #onRequestError = (event: RenderRequestEvent<'error'>) => {
+    this.emit('error', { statusText: event.statusText, status: event.status });
   };
 
   /**
@@ -344,7 +344,7 @@ export class Bucket extends Logger {
       request.clear();
     }
     this.requests.clear();
-    this.emit("clear");
+    this.emit('clear');
     this.removeAllListeners();
   };
 
@@ -352,7 +352,7 @@ export class Bucket extends Logger {
    * Get all unique images in the bucket
    */
   getImages() {
-    return new Set(Array.from(this.requests).map((request) => request.image));
+    return new Set(Array.from(this.requests).map(request => request.image));
   }
 
   //-----------------------   EVENT METHODS   -----------------------
@@ -394,7 +394,7 @@ export class Bucket extends Logger {
    */
   emit<T extends BucketEventTypes>(
     type: T,
-    data?: Omit<BucketEvent<T>, "target" | "type">,
+    data?: Omit<BucketEvent<T>, 'target' | 'type'>,
   ): boolean {
     return super.emit(type, {
       ...data,

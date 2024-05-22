@@ -1,6 +1,6 @@
-import { ImageColorType, MIMEType } from "@lib";
-import config from "@demo/config.json";
-import { LoremIpsum } from "lorem-ipsum";
+import { ImageColorType, MIMEType } from '@cache';
+import config from '@demo/config.json';
+import { LoremIpsum } from 'lorem-ipsum';
 
 const lorem = new LoremIpsum({
   sentencesPerParagraph: {

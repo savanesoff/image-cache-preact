@@ -1,7 +1,7 @@
-import { useImage, useBucket } from "@cache";
-import { cn } from "@demo/utils";
-import { Asset } from "@demo/utils/assets.endpoint";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useImage, useBucket } from '@cache';
+import { cn } from '@demo/utils';
+import { Asset } from '@demo/utils/assets.endpoint';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 
 type PosterImageProps = {
   focused?: boolean;
@@ -37,13 +37,13 @@ export const PosterImage = ({
 
   const hash = useMemo(() => {
     // get url ?hash url param value
-    const hash = url?.split("?hash=")[1];
+    const hash = url?.split('?hash=')[1];
     return hash;
   }, [url]);
 
   return (
     <div
-      className={cn("bg-cyan-900", url && "bg-orange-500 ")}
+      className={cn('bg-cyan-900', url && 'bg-orange-500 ')}
       style={{
         width,
         height,
@@ -52,14 +52,14 @@ export const PosterImage = ({
         minHeight: height,
         maxWidth: width,
         maxHeight: height,
-        position: "relative",
+        position: 'relative',
       }}
     >
       <div
         className={cn(
-          "opacity-0 transition-opacity duration-1000 ease-in-out",
-          "h-full w-full",
-          show && "opacity-100",
+          'opacity-0 transition-opacity duration-1000 ease-in-out',
+          'h-full w-full',
+          show && 'opacity-100',
         )}
         style={{
           backgroundImage: `url(${url})`,
@@ -69,14 +69,14 @@ export const PosterImage = ({
 
       <div
         className={cn(
-          "absolute bottom-0 left-0  top-full w-full overflow-hidden bg-slate-900",
-          "duration-400 transition-all ease-in-out",
-          "flex flex-col items-start justify-start text-xl text-slate-50",
-          "h-1/2 p-2 opacity-0",
-          focused && "top-1/2 opacity-80",
+          'absolute bottom-0 left-0  top-full w-full overflow-hidden bg-slate-900',
+          'duration-400 transition-all ease-in-out',
+          'flex flex-col items-start justify-start text-xl text-slate-50',
+          'h-1/2 p-2 opacity-0',
+          focused && 'top-1/2 opacity-80',
         )}
         style={{
-          position: "absolute",
+          position: 'absolute',
         }}
       >
         <div className="text-sm">

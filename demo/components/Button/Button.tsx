@@ -1,6 +1,6 @@
-import { cn } from "@demo/utils";
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { HTMLAttributes, useCallback, useEffect } from "react";
+import { cn } from '@demo/utils';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { HTMLAttributes, useCallback, useEffect } from 'react';
 
 type ButtonProps = HTMLAttributes<HTMLButtonElement> & {
   onClick: () => void;
@@ -28,10 +28,10 @@ export const Button = ({
     <button
       ref={ref}
       className={cn(
-        "m-2 rounded-md border-2 border-green-900 px-2 py-1 text-white",
-        disabled && "bg-gray-800",
-        focused && disabled && " border-yellow-500",
-        focused && !disabled && "border-yellow-500 bg-green-700",
+        'm-2 rounded-md border-2 border-green-900 px-2 py-1 text-white',
+        disabled && 'bg-gray-800',
+        focused && disabled && ' border-yellow-500',
+        focused && !disabled && 'border-yellow-500 bg-green-700',
         className,
       )}
       disabled={disabled}

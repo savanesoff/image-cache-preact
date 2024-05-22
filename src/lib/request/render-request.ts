@@ -3,11 +3,11 @@
  * Each request is associated with an image and a bucket. Where an image can
  * have multiple requests associated with it, a bucket can have multiple images
  */
-import { Bucket } from "@lib/bucket";
-import { Logger } from "@lib/logger";
-import { ImgProps, Size, ImgEvent, Img } from "@lib/image";
-import { renderer } from "./renderer";
-import { RendererProps, FrameQueue } from "@lib/frame-queue";
+import { Bucket } from '@lib/bucket';
+import { Logger } from '@lib/logger';
+import { ImgProps, Size, ImgEvent, Img } from '@lib/image';
+import { renderer } from './renderer';
+import { RendererProps, FrameQueue } from '@lib/frame-queue';
 
 export type RenderRequestProps = ImgProps & {
   size: Size;
@@ -15,23 +15,23 @@ export type RenderRequestProps = ImgProps & {
 };
 
 export type RenderRequestEventTypes =
-  | "rendered"
-  | "clear"
-  | "loadend"
-  | "rendering"
-  | "loadstart"
-  | "progress"
-  | "error"
-  | "render";
+  | 'rendered'
+  | 'clear'
+  | 'loadend'
+  | 'rendering'
+  | 'loadstart'
+  | 'progress'
+  | 'error'
+  | 'render';
 
 export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   type: T;
   target: RenderRequest;
-} & (T extends "error" ? Omit<ImgEvent<"error">, "target"> : unknown) &
-  (T extends "progress" ? Omit<ImgEvent<"progress">, "target"> : unknown) &
-  (T extends "render" | "rendering" ? RendererProps : unknown) &
-  (T extends "loadstart" ? Omit<ImgEvent<"loadstart">, "target"> : unknown) &
-  (T extends "rendered" ? { url: string | null } : unknown);
+} & (T extends 'error' ? Omit<ImgEvent<'error'>, 'target'> : unknown) &
+  (T extends 'progress' ? Omit<ImgEvent<'progress'>, 'target'> : unknown) &
+  (T extends 'render' | 'rendering' ? RendererProps : unknown) &
+  (T extends 'loadstart' ? Omit<ImgEvent<'loadstart'>, 'target'> : unknown) &
+  (T extends 'rendered' ? { url: string | null } : unknown);
 
 export type RenderRequestEventHandler<T extends RenderRequestEventTypes> = (
   event: RenderRequestEvent<T>,
@@ -60,43 +60,43 @@ export class RenderRequest extends Logger {
    * @param props - Additional properties for the request.
    */
   constructor({ size, bucket, ...props }: RenderRequestProps) {
-    super({ name: "RenderRequest", logLevel: "warn" });
+    super({ name: 'RenderRequest', logLevel: 'warn' });
     this.size = size;
     this.bucket = bucket;
     this.frameQueue = this.bucket.controller.frameQueue;
     this.image = this.bucket.controller.getImage(props);
     this.image.registerRequest(this);
     this.bucket.registerRequest(this);
-    this.image.on("loadstart", this.#onloadStart);
-    this.image.on("progress", this.#onProgress);
-    this.image.on("error", this.#onImageError);
+    this.image.on('loadstart', this.#onloadStart);
+    this.image.on('progress', this.#onProgress);
+    this.image.on('error', this.#onImageError);
 
     if (!this.image.loaded) {
-      this.image.on("size", this.request);
+      this.image.on('size', this.request);
     } else {
       this.request();
     }
   }
 
-  #onImageError = (event: ImgEvent<"error">) => {
-    this.emit("error", event);
+  #onImageError = (event: ImgEvent<'error'>) => {
+    this.emit('error', event);
   };
-  #onProgress = (event: ImgEvent<"progress">) => {
-    this.emit("progress", event);
+  #onProgress = (event: ImgEvent<'progress'>) => {
+    this.emit('progress', event);
   };
-  #onloadStart = (event: ImgEvent<"loadstart">) => {
-    this.emit("loadstart", event);
+  #onloadStart = (event: ImgEvent<'loadstart'>) => {
+    this.emit('loadstart', event);
   };
 
   /**
    * Requests the image to be rendered.
    */
   request = () => {
-    this.log.verbose(["Requesting render"]);
+    this.log.verbose(['Requesting render']);
     this.requested = true;
     this.bytesVideo = this.image.getBytesVideo(this.size);
     // request render
-    this.emit("loadend");
+    this.emit('loadend');
     this.frameQueue.add(this);
   };
 
@@ -105,12 +105,12 @@ export class RenderRequest extends Logger {
    */
   clear(force = false) {
     if (!force && this.isLocked()) return;
-    this.image.off("size", this.request);
-    this.image.off("loadstart", this.#onloadStart);
-    this.image.off("progress", this.#onProgress);
-    this.image.off("error", this.#onImageError);
-    this.emit("rendered", { url: null });
-    this.emit("clear");
+    this.image.off('size', this.request);
+    this.image.off('loadstart', this.#onloadStart);
+    this.image.off('progress', this.#onProgress);
+    this.image.off('error', this.#onImageError);
+    this.emit('rendered', { url: null });
+    this.emit('clear');
     if (this.#renderTimeout) {
       clearTimeout(this.#renderTimeout);
     }
@@ -136,13 +136,13 @@ export class RenderRequest extends Logger {
    * @param props
    */
   render({ renderTime }: RendererProps) {
-    this.emit("rendering", { renderTime });
+    this.emit('rendering', { renderTime });
     // render time of 0 means the image is already rendered
     const isRendered = renderTime === 0;
     // if renderer provided, call it
     if (!isRendered && this.bucket.controller.renderer) {
       this.bucket.controller.renderer({ request: this, renderTime });
-    } else if (!isRendered && this.emit("render", { renderTime }) !== true) {
+    } else if (!isRendered && this.emit('render', { renderTime }) !== true) {
       renderer({ request: this, renderTime });
     }
 
@@ -152,9 +152,9 @@ export class RenderRequest extends Logger {
   #onRendered = () => {
     this.rendered = true;
     if (this.cleared) {
-      this.log.error(["Rendered cleared request", this.image.url]);
+      this.log.error(['Rendered cleared request', this.image.url]);
     }
-    this.emit("rendered", { url: this.image.url });
+    this.emit('rendered', { url: this.image.url });
   };
 
   /**
@@ -191,7 +191,7 @@ export class RenderRequest extends Logger {
    */
   emit<T extends RenderRequestEventTypes>(
     type: T,
-    data?: Omit<RenderRequestEvent<T>, "target" | "type">,
+    data?: Omit<RenderRequestEvent<T>, 'target' | 'type'>,
   ): boolean {
     return super.emit(type, {
       ...data,

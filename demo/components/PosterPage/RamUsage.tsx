@@ -1,6 +1,6 @@
-import { BucketRamUnits, useBucket } from "@cache";
-import { useCallback, useState } from "react";
-import { StatusBadge } from "@demo/components";
+import { BucketRamUnits, useBucket } from '@cache';
+import { useCallback, useState } from 'react';
+import { StatusBadge } from '@demo/components';
 
 export const RamUsage = () => {
   const [data, setData] = useState<BucketRamUnits>();

@@ -1,7 +1,7 @@
-import { Topic, fetchTopics } from "@demo/utils/assets.endpoint";
-import { useState, useEffect } from "react";
-import { PostersRail } from "../PostersRail";
-import config from "@demo/config.json";
+import { Topic, fetchTopics } from '@demo/utils/assets.endpoint';
+import { useState, useEffect } from 'react';
+import { PostersRail } from '../PostersRail';
+import config from '@demo/config.json';
 
 export const RailsView = () => {
   const [data, setData] = useState<Topic[]>([]);
@@ -17,7 +17,7 @@ export const RailsView = () => {
   return (
     <>
       {data.length === 0 && <div>Loading...</div>}
-      {data.map((topic) => (
+      {data.map(topic => (
         <PostersRail key={topic.id} topic={topic} fromPage={0} />
       ))}
     </>

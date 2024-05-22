@@ -1,4 +1,4 @@
-import { Asset, AssetPage } from "@demo/utils/assets.endpoint";
+import { Asset, AssetPage } from '@demo/utils/assets.endpoint';
 import {
   BucketProvider,
   ImageProvider,
@@ -6,18 +6,18 @@ import {
   UseBucketProps,
   useImage,
   UseImageProps,
-} from "@cache";
-import { useLockerAssets } from "./useLockerAssets";
-import { onRenderRequest } from "./onRenderRequest";
-import config from "@demo/config.json";
-import { useMemo } from "react";
+} from '@cache';
+import { useLockerAssets } from './useLockerAssets';
+import { onRenderRequest } from './onRenderRequest';
+import config from '@demo/config.json';
+import { useMemo } from 'react';
 
 export const CacheLock = (props: UseBucketProps) => {
   // fetch all topics first page and cash it
   const { assetPages } = useLockerAssets();
 
   return (
-    <BucketProvider name={"Lock Cache"} lock={true}>
+    <BucketProvider name={'Lock Cache'} lock={true}>
       <AssetLocker assetPages={assetPages} {...props} />
     </BucketProvider>
   );
@@ -31,8 +31,8 @@ const AssetLocker = ({ assetPages, ...props }: AssetLockerProps) => {
   useBucket(props);
   return (
     <>
-      {assetPages.map((page) =>
-        page.assets.map((asset) => (
+      {assetPages.map(page =>
+        page.assets.map(asset => (
           <LockerImage key={asset.title} asset={asset} />
         )),
       )}
@@ -46,7 +46,7 @@ type LockerImageProps = UseImageProps & {
 const LockerImage = ({ asset, ...props }: LockerImageProps) => {
   const headers = useMemo(() => {
     return {
-      "Content-Type": asset.mimeType,
+      'Content-Type': asset.mimeType,
     };
   }, [asset.mimeType]);
   return (

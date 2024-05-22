@@ -1,6 +1,6 @@
-import { BucketVideoUnits, useBucket } from "@cache";
-import { useCallback, useState } from "react";
-import { StatusBadge } from "@demo/components";
+import { BucketVideoUnits, useBucket } from '@cache';
+import { useCallback, useState } from 'react';
+import { StatusBadge } from '@demo/components';
 
 export const VideoUsage = () => {
   const [data, setData] = useState<BucketVideoUnits>();

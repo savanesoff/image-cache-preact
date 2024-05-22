@@ -1,19 +1,19 @@
-import { FrameQueue } from "./frame-queue";
-import { RenderRequest } from "@lib/request";
-import { Img, Size } from "@lib/image";
-import { Bucket } from "@lib/bucket";
+import { FrameQueue } from './frame-queue';
+import { RenderRequest } from '@lib/request';
+import { Img, Size } from '@lib/image';
+import { Bucket } from '@lib/bucket';
 vi.useFakeTimers();
 
-vi.mock("@lib/request");
-vi.mock("@lib/image");
-vi.mock("@lib/controller");
+vi.mock('@lib/request');
+vi.mock('@lib/image');
+vi.mock('@lib/controller');
 
 const imageSize = () => ({
   width: Math.round(Math.random() * 100),
   height: Math.round(Math.random() * 100),
 });
 
-const createRequest = ({ url = "test" } = {}) => {
+const createRequest = ({ url = 'test' } = {}) => {
   const img = new Img({ url });
   // @ts-expect-error - readonly
   img.url = url;
@@ -33,7 +33,7 @@ const createRequest = ({ url = "test" } = {}) => {
 
 const hwRank = Math.random();
 
-describe("FrameQueue", () => {
+describe('FrameQueue', () => {
   let queue: FrameQueue;
 
   beforeEach(() => {
@@ -42,54 +42,54 @@ describe("FrameQueue", () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(queue).toBeDefined();
   });
 
-  it("should have queue", () => {
+  it('should have queue', () => {
     expect(queue.queue).toBeDefined();
   });
 
-  it("should have hwRank", () => {
+  it('should have hwRank', () => {
     expect(queue.hwRank).toBe(hwRank);
   });
 
-  it("should not have first request in queue", () => {
+  it('should not have first request in queue', () => {
     const request = createRequest();
     queue.add(request);
     expect(queue.queue).toHaveLength(0);
   });
-  it("should emit request-added event", () => {
+  it('should emit request-added event', () => {
     const spy = vi.fn();
-    queue.on("request-added", spy);
+    queue.on('request-added', spy);
     const request = createRequest();
     queue.add(request);
     expect(spy).toHaveBeenCalledWith({
-      type: "request-added",
+      type: 'request-added',
       target: queue,
       request,
     });
   });
 
-  it("should call request.onProcessing before processing", () => {
+  it('should call request.onProcessing before processing', () => {
     const request = createRequest();
     queue.add(request);
     expect(request.onProcessing).toHaveBeenCalled();
   });
 
-  it("should render first request immediately", () => {
+  it('should render first request immediately', () => {
     const request = createRequest();
-    const spy = vi.spyOn(queue, "renderer");
+    const spy = vi.spyOn(queue, 'renderer');
     queue.add(request);
     expect(spy).toHaveBeenCalledWith({
       request,
       renderTime: expect.any(Number),
     });
   });
-  it("should process first request immediately", () => {
+  it('should process first request immediately', () => {
     const url = Math.random().toString();
     const request = createRequest({ url });
-    const spy = vi.spyOn(document.body, "appendChild");
+    const spy = vi.spyOn(document.body, 'appendChild');
     queue.add(request);
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -100,20 +100,20 @@ describe("FrameQueue", () => {
     );
   });
 
-  it("should call request.onRendered after processing", () => {
+  it('should call request.onRendered after processing', () => {
     const request = createRequest();
     queue.add(request);
     vi.runAllTimers();
     expect(request.onRendered).toHaveBeenCalled();
   });
 
-  it("should add next callbacks to the queue", () => {
+  it('should add next callbacks to the queue', () => {
     queue.add(createRequest());
     queue.add(createRequest());
     expect(queue.queue).toHaveLength(1);
   });
 
-  it("should process the queue in the correct order", () => {
+  it('should process the queue in the correct order', () => {
     const request = createRequest();
     const request2 = createRequest();
 
@@ -129,19 +129,19 @@ describe("FrameQueue", () => {
     expect(request2.onProcessing).toHaveBeenCalledTimes(1);
   });
 
-  it("should clear queue after processing", () => {
+  it('should clear queue after processing', () => {
     queue.add(createRequest());
     queue.add(createRequest());
     vi.runAllTimers();
     expect(queue.queue).toHaveLength(0);
   });
 
-  it("should call render with correct render time", () => {
+  it('should call render with correct render time', () => {
     const request = createRequest();
     const renderTime =
       (request.image.bytesUncompressed / FrameQueue.bytesPerFrameRatio) *
       (1 - hwRank);
-    const spy = vi.spyOn(queue, "renderer");
+    const spy = vi.spyOn(queue, 'renderer');
     queue.add(request);
     expect(spy).toHaveBeenCalledWith({
       request,
@@ -149,7 +149,7 @@ describe("FrameQueue", () => {
     });
   });
 
-  it("should use provided renderer", () => {
+  it('should use provided renderer', () => {
     const renderer = vi.fn();
     queue = new FrameQueue({ hwRank, renderer });
     const request = createRequest();

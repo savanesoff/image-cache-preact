@@ -1,6 +1,6 @@
-import { ImageStats } from "./ImageStats";
-import { RamUsage } from "./RamUsage";
-import { VideoUsage } from "./VideoUsage";
+import { ImageStats } from './ImageStats';
+import { RamUsage } from './RamUsage';
+import { VideoUsage } from './VideoUsage';
 
 export const CacheStats = () => {
   return (

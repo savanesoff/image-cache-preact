@@ -1,13 +1,13 @@
-import { cn } from "@demo/utils";
+import { cn } from '@demo/utils';
 import {
   PageLoadStatus,
   RamUsage,
   PageRenderStatus,
   VideoUsage,
-} from "@demo/components";
-import { HTMLAttributes } from "react";
-import { AssetCount } from "./AssetCount";
-import { Topic } from "@demo/utils";
+} from '@demo/components';
+import { HTMLAttributes } from 'react';
+import { AssetCount } from './AssetCount';
+import { Topic } from '@demo/utils';
 
 type RailHeaderProps = HTMLAttributes<HTMLDivElement> & {
   topic: Topic;
@@ -22,9 +22,9 @@ export const RailHeader = ({
   return (
     <div
       className={cn(
-        "flex w-full flex-row items-center space-x-2",
-        " bg-slate-800 p-2 text-sm text-slate-400",
-        focused && "bg-fuchsia-950",
+        'flex w-full flex-row items-center space-x-2',
+        ' bg-slate-800 p-2 text-sm text-slate-400',
+        focused && 'bg-fuchsia-950',
         className,
       )}
       {...props}

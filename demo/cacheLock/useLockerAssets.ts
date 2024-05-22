@@ -3,9 +3,9 @@ import {
   AssetPage,
   fetchTopics,
   fetchAssets,
-} from "@demo/utils/assets.endpoint";
-import { useState, useEffect } from "react";
-import config from "@demo/config.json";
+} from '@demo/utils/assets.endpoint';
+import { useState, useEffect } from 'react';
+import config from '@demo/config.json';
 
 export const useLockerAssets = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -22,7 +22,7 @@ export const useLockerAssets = () => {
   useEffect(() => {
     if (topics.length === 0) return;
     const fetchData = async () => {
-      const assetPromises = topics.map(async (topic) => {
+      const assetPromises = topics.map(async topic => {
         const assetPages = await fetchAssets({
           topic,
           page: 0,

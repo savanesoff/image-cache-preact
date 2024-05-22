@@ -1,11 +1,11 @@
 export const XHR = {
   open: vi
-    .spyOn(XMLHttpRequest.prototype, "open")
+    .spyOn(XMLHttpRequest.prototype, 'open')
     .mockImplementation(() => null),
   send: vi
-    .spyOn(XMLHttpRequest.prototype, "send")
+    .spyOn(XMLHttpRequest.prototype, 'send')
     .mockImplementation(() => null),
   setRequestHeader: vi
-    .spyOn(XMLHttpRequest.prototype, "setRequestHeader")
+    .spyOn(XMLHttpRequest.prototype, 'setRequestHeader')
     .mockImplementation(() => null),
 };

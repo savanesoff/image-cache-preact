@@ -10,22 +10,22 @@
  * while the "rendered" event is emitted by the `RenderRequest`.
  *
  */
-import { useContext, useEffect } from "react";
-import { ImageContext, ImageContextType } from "./Image";
-import { RenderRequestEvent } from "@lib/request";
-import { ImgEvent } from "@lib/image";
+import { useContext, useEffect } from 'react';
+import { ImageContext, ImageContextType } from './Image';
+import { RenderRequestEvent } from '@lib/request';
+import { ImgEvent } from '@lib/image';
 
 export type UseImageEventTypes =
-  | "progress"
-  | "loadend"
-  | "error"
-  | "rendered"
-  | "render";
+  | 'progress'
+  | 'loadend'
+  | 'error'
+  | 'rendered'
+  | 'render';
 /**
  * The useImage hook provides a way to listen to events emitted by the image loader.
  */
 export type UseImageEvent<T extends UseImageEventTypes> =
-  T extends Exclude<T, "rendered" | "render">
+  T extends Exclude<T, 'rendered' | 'render'>
     ? ImgEvent<T>
     : RenderRequestEvent<T>;
 
@@ -34,18 +34,18 @@ export type UseImageEvent<T extends UseImageEventTypes> =
  */
 export type UseImageProps = {
   /** A function that will be called when the load "progress" event is emitted. */
-  onProgress?: (event: UseImageEvent<"progress">) => void;
+  onProgress?: (event: UseImageEvent<'progress'>) => void;
   /** A function that will be called when the load "error" event is emitted. */
-  onError?: (event: UseImageEvent<"error">) => void;
+  onError?: (event: UseImageEvent<'error'>) => void;
   /** A function that will be called when the load "loadend" event is emitted. */
-  onLoadend?: (event: UseImageEvent<"loadend">) => void;
+  onLoadend?: (event: UseImageEvent<'loadend'>) => void;
   /** A function that will be called when the "rendered" event is emitted. */
-  onRendered?: (event: UseImageEvent<"rendered">) => void;
+  onRendered?: (event: UseImageEvent<'rendered'>) => void;
   /**
    * A function that will be called when the "render" event is emitted.
    * Return true if you're rendering the image!
    */
-  onRender?: (event: UseImageEvent<"render">) => boolean;
+  onRender?: (event: UseImageEvent<'render'>) => boolean;
 };
 
 /**
@@ -60,27 +60,27 @@ export const useImage = ({
 }: UseImageProps = {}): ImageContextType => {
   const context = useContext(ImageContext);
   if (!context) {
-    throw new Error("useImage must be used within a ImageProvider");
+    throw new Error('useImage must be used within a ImageProvider');
   }
   const request = context.request;
   const image = context.request.image;
 
   useEffect(() => {
-    onProgress && image.on("progress", onProgress);
-    onError && image.on("error", onError);
-    onLoadend && image.on("loadend", onLoadend);
-    onRendered && request.on("rendered", onRendered);
-    onRender && request.on("render", onRender);
+    onProgress && image.on('progress', onProgress);
+    onError && image.on('error', onError);
+    onLoadend && image.on('loadend', onLoadend);
+    onRendered && request.on('rendered', onRendered);
+    onRender && request.on('render', onRender);
 
     // this ensures that the loadend event is fired if the image is already loaded
     if (request.image.loaded) {
       onLoadend?.({
-        type: "loadend",
+        type: 'loadend',
         target: request.image,
         bytes: request.image.bytes,
       });
       onProgress?.({
-        type: "progress",
+        type: 'progress',
         target: request.image,
         progress: 1,
       });
@@ -88,18 +88,18 @@ export const useImage = ({
 
     if (request.rendered) {
       onRendered?.({
-        type: "rendered",
+        type: 'rendered',
         target: request,
         url: request.image.url,
       });
     }
 
     return () => {
-      onProgress && image.off("progress", onProgress);
-      onError && image.off("error", onError);
-      onLoadend && image.off("loadend", onLoadend);
-      onRendered && request.off("rendered", onRendered);
-      onRender && request.off("render", onRender);
+      onProgress && image.off('progress', onProgress);
+      onError && image.off('error', onError);
+      onLoadend && image.off('loadend', onLoadend);
+      onRendered && request.off('rendered', onRendered);
+      onRender && request.off('render', onRender);
     };
   }, [image, onProgress, onError, onLoadend, onRendered, request, onRender]);
 

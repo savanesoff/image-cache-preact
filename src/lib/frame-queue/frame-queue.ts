@@ -23,17 +23,17 @@
  * const renderRequest = new RenderRequest({ id: "request1", priority: 1 });
  * frameQueue.add(renderRequest); // Add a render request to the queue
  */
-import { Logger, LoggerProps } from "@lib/logger";
-import { RenderRequest } from "@lib/request";
+import { Logger, LoggerProps } from '@lib/logger';
+import { RenderRequest } from '@lib/request';
 
-export type FrameQueueEventTypes = "rendered" | "request-added" | "processed";
+export type FrameQueueEventTypes = 'rendered' | 'request-added' | 'processed';
 /** FrameQueue event */
 export type FrameQueueEvent<T extends FrameQueueEventTypes> = {
   /** The type of the event */
   type: T;
   /** The target of the event */
   target: FrameQueue;
-} & (T extends "request-added" ? { request: RenderRequest } : unknown);
+} & (T extends 'request-added' ? { request: RenderRequest } : unknown);
 /** FrameQueue event handler */
 export type FrameQueueEventHandler<T extends FrameQueueEventTypes> = (
   event: FrameQueueEvent<T>,
@@ -73,8 +73,8 @@ export class FrameQueue extends Logger {
   static readonly bytesPerFrameRatio = 50000;
 
   constructor({
-    name = "Frame queue",
-    logLevel = "verbose",
+    name = 'Frame queue',
+    logLevel = 'verbose',
     hwRank = 1,
   }: FrameQueueProps) {
     super({
@@ -90,7 +90,7 @@ export class FrameQueue extends Logger {
    */
   add(request: RenderRequest) {
     this.queue.add(request);
-    this.emit("request-added", { request });
+    this.emit('request-added', { request });
     this.log.info([`added: ${this.queue.size}`]);
     this.#next();
   }
@@ -134,7 +134,7 @@ export class FrameQueue extends Logger {
       this.scheduled = false;
       this.#next();
       this.log.verbose([
-        `processed`,
+        'processed',
         request,
         `queue size: ${this.queue.size}`,
       ]);
@@ -177,7 +177,7 @@ export class FrameQueue extends Logger {
    */
   emit<T extends FrameQueueEventTypes>(
     type: T,
-    data?: Omit<FrameQueueEvent<T>, "target" | "type">,
+    data?: Omit<FrameQueueEvent<T>, 'target' | 'type'>,
   ): boolean {
     return super.emit(type, { ...data, type, target: this });
   }

@@ -5,10 +5,10 @@
  * and it emits events to indicate the progress of the loading process.
  * It also limits the number of concurrent loaders to avoid overloading the network.
  */
-import { LoaderEventTypes, Loader, LoaderEvent } from "@lib/loader";
-import { Logger } from "@lib/logger";
+import { LoaderEventTypes, Loader, LoaderEvent } from '@lib/loader';
+import { Logger } from '@lib/logger';
 
-export type NetworkEventTypes = LoaderEventTypes | "pause" | "resume";
+export type NetworkEventTypes = LoaderEventTypes | 'pause' | 'resume';
 
 type NetworkEvent<T extends NetworkEventTypes> = {
   event: T;
@@ -21,12 +21,12 @@ export type NetworkEventHandler<T extends NetworkEventTypes> = (
 
 // List of loader events
 const loaderEvent: LoaderEventTypes[] = [
-  "loadstart",
-  "progress",
-  "abort",
-  "error",
-  "timeout",
-  "loadend",
+  'loadstart',
+  'progress',
+  'abort',
+  'error',
+  'timeout',
+  'loadend',
 ];
 
 export type NetworkProps = {
@@ -75,8 +75,8 @@ export class Network extends Logger {
    */
   constructor({ loaders }: NetworkProps = {}) {
     super({
-      name: "Network",
-      logLevel: "none",
+      name: 'Network',
+      logLevel: 'none',
     });
     this.maxLoaders = loaders ?? this.maxLoaders;
   }
@@ -127,7 +127,7 @@ export class Network extends Logger {
    */
   pause() {
     this.paused = true;
-    this.emit("pause");
+    this.emit('pause');
   }
 
   /**
@@ -135,7 +135,7 @@ export class Network extends Logger {
    */
   resume() {
     this.paused = false;
-    this.emit("resume");
+    this.emit('resume');
     this.#update();
   }
 
@@ -151,7 +151,7 @@ export class Network extends Logger {
     for (const [url, loader] of entries) {
       if (this.inFlight.size >= this.maxLoaders) return;
       if (this.paused) {
-        this.log.warn(["Network paused!"]);
+        this.log.warn(['Network paused!']);
         return;
       }
       this.inFlight.set(url, loader);
@@ -171,10 +171,10 @@ export class Network extends Logger {
     target: loader,
   }: LoaderEvent<LoaderEventTypes>) => {
     switch (type) {
-      case "loadend":
-      case "abort":
-      case "timeout":
-      case "error":
+      case 'loadend':
+      case 'abort':
+      case 'timeout':
+      case 'error':
         loader.off(type, this.#onLoaderEvent);
         this.inFlight.delete(loader.url);
         this.emit(type, loader);
@@ -189,7 +189,7 @@ export class Network extends Logger {
    * Processes image
    */
   #launch(loader: Loader) {
-    loaderEvent.forEach((event) => loader.on(event, this.#onLoaderEvent));
+    loaderEvent.forEach(event => loader.on(event, this.#onLoaderEvent));
     loader.load();
   }
 

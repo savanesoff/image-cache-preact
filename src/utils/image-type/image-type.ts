@@ -1,13 +1,13 @@
 export type ImageType =
-  | "image/png"
-  | "image/jpeg"
-  | "image/gif"
-  | "image/tiff"
-  | "image/bmp"
-  | "image/webp"
-  | "image/svg+xml"
-  | "image/vnd.microsoft.icon"
-  | "image/heic";
+  | 'image/png'
+  | 'image/jpeg'
+  | 'image/gif'
+  | 'image/tiff'
+  | 'image/bmp'
+  | 'image/webp'
+  | 'image/svg+xml'
+  | 'image/vnd.microsoft.icon'
+  | 'image/heic';
 
 export const getImageType = (blob: Blob): Promise<ImageType> => {
   return new Promise((resolve, reject) => {
@@ -18,42 +18,42 @@ export const getImageType = (blob: Blob): Promise<ImageType> => {
           0,
           12, // Read the first 12 bytes
         );
-        let header = "";
+        let header = '';
         for (let i = 0; i < arr.length; i++) {
-          header += arr[i].toString(16).padStart(2, "0"); // Ensure each byte is 2 characters long
+          header += arr[i].toString(16).padStart(2, '0'); // Ensure each byte is 2 characters long
         }
         switch (true) {
           case /^89504e47/.test(header):
-            resolve("image/png");
+            resolve('image/png');
             break;
           case /^47494638/.test(header):
-            resolve("image/gif");
+            resolve('image/gif');
             break;
           case /^ffd8ffe/.test(header):
-            resolve("image/jpeg");
+            resolve('image/jpeg');
             break;
           case /^49492a00/.test(header):
           case /^4d4d002a/.test(header):
-            resolve("image/tiff");
+            resolve('image/tiff');
             break;
           case /^424d/.test(header):
-            resolve("image/bmp");
+            resolve('image/bmp');
             break;
           case /^52494646[0-9a-f]{16}/.test(header):
-            resolve("image/webp");
+            resolve('image/webp');
             break;
           case /^3c3f786d6c20/.test(header):
           case /^3c73766720/.test(header):
-            resolve("image/svg+xml");
+            resolve('image/svg+xml');
             break;
           case /^00000100/.test(header):
-            resolve("image/vnd.microsoft.icon");
+            resolve('image/vnd.microsoft.icon');
             break;
           case /^6674797068656963/.test(header):
-            resolve("image/heic");
+            resolve('image/heic');
             break;
           default:
-            reject("Unknown image type");
+            reject('Unknown image type');
         }
       }
     };

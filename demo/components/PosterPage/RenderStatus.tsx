@@ -1,12 +1,12 @@
-import { BucketEvent, useBucket } from "@cache";
-import { useCallback, useState } from "react";
-import { StatusBadge } from "../StatusBadge";
+import { BucketEvent, useBucket } from '@cache';
+import { useCallback, useState } from 'react';
+import { StatusBadge } from '../StatusBadge';
 
 export const PageRenderStatus = () => {
   const [progress, setProgress] = useState(0);
 
   const onRenderProgress = useCallback(
-    (event: BucketEvent<"render-progress">) => {
+    (event: BucketEvent<'render-progress'>) => {
       setProgress(Math.round(event.progress * 100));
     },
     [],
@@ -15,7 +15,7 @@ export const PageRenderStatus = () => {
   useBucket({ onRenderProgress });
   return (
     <StatusBadge
-      status={progress === 100 ? "warn" : "off"}
+      status={progress === 100 ? 'warn' : 'off'}
       text={`render ${progress}%`}
     />
   );

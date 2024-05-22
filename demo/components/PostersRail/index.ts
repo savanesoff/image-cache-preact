@@ -1,1 +1,1 @@
-export * from "./PostersRail";
+export * from './PostersRail';

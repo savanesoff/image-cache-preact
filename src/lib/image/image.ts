@@ -18,25 +18,25 @@
  * When the same image is used again, the browser can skip the loading and decoding steps and directly use the cached bitmap.
  */
 
-import { ImageType } from "@utils";
+import { ImageType } from '@utils';
 import {
   LoaderEventHandler,
   Loader,
   LoaderEventTypes,
   LoaderEvent,
   LoaderProps,
-} from "@lib/loader";
-import { RenderRequest, RenderRequestEvent } from "@lib/request";
+} from '@lib/loader';
+import { RenderRequest, RenderRequestEvent } from '@lib/request';
 
 /** Event types for the Img class */
 export type ImgEventTypes =
   | LoaderEventTypes
-  | "size"
-  | "clear"
-  | "render-request-rendered"
-  | "render-request-added"
-  | "render-request-removed"
-  | "blob-error";
+  | 'size'
+  | 'clear'
+  | 'render-request-rendered'
+  | 'render-request-added'
+  | 'render-request-removed'
+  | 'blob-error';
 
 /** Event data for the Img class */
 export type Size = {
@@ -51,14 +51,14 @@ type Events<T extends ImgEventTypes> = {
   type: T;
   /** The image instance that triggered the event */
   target: Img;
-} & (T extends "size" ? { size: Size } : unknown) &
+} & (T extends 'size' ? { size: Size } : unknown) &
   (T extends
-    | "render-request-rendered"
-    | "render-request-removed"
-    | "render-request-added"
+    | 'render-request-rendered'
+    | 'render-request-removed'
+    | 'render-request-added'
     ? { request: RenderRequest; bytes: number }
     : unknown) &
-  (T extends "blob-error" ? { error: string } : unknown);
+  (T extends 'blob-error' ? { error: string } : unknown);
 
 /** Event data for the Img class */
 export type ImgEvent<T extends ImgEventTypes> = T extends LoaderEventTypes
@@ -116,9 +116,9 @@ export class Img extends Loader {
 
   constructor({
     headers = {
-      "Content-Type": "image/jpeg",
+      'Content-Type': 'image/jpeg',
     },
-    type = "RGB",
+    type = 'RGB',
     gpuDataFull = false,
     ...props
   }: ImgProps) {
@@ -129,9 +129,9 @@ export class Img extends Loader {
     this.gpuDataFull = gpuDataFull;
     // TODO auto detect image type from headers or url
     this.type = type;
-    this.mimeType = "image/jpeg";
+    this.mimeType = 'image/jpeg';
     this.element = new Image(); // need to get actual size of image
-    this.on("loadend", this.#onLoadEnd); // called by a loader process
+    this.on('loadend', this.#onLoadEnd); // called by a loader process
   }
 
   /**
@@ -143,7 +143,7 @@ export class Img extends Loader {
   clear() {
     this.element.onload = null;
     this.element.onerror = null;
-    this.element.src = "";
+    this.element.src = '';
     this.gotSize = false;
     this.bytesUncompressed = 0;
     // release the blob data from memory
@@ -152,7 +152,7 @@ export class Img extends Loader {
     for (const request of this.renderRequests) {
       request.clear();
     }
-    this.emit("clear");
+    this.emit('clear');
     this.removeAllListeners();
   }
 
@@ -161,21 +161,21 @@ export class Img extends Loader {
    */
   registerRequest(request: RenderRequest) {
     this.renderRequests.add(request);
-    request.on("rendered", this.#onRendered);
-    request.on("clear", this.#onRequestClear);
-    this.emit("render-request-added", { request, bytes: request.bytesVideo });
+    request.on('rendered', this.#onRendered);
+    request.on('clear', this.#onRequestClear);
+    this.emit('render-request-added', { request, bytes: request.bytesVideo });
   }
 
   /**
    * Unregister a render request for the image.
    */
-  #onRequestClear = (event: RenderRequestEvent<"clear">) => {
-    event.target.off("rendered", this.#onRendered);
-    event.target.off("clear", this.#onRequestClear);
+  #onRequestClear = (event: RenderRequestEvent<'clear'>) => {
+    event.target.off('rendered', this.#onRendered);
+    event.target.off('clear', this.#onRequestClear);
     this.renderRequests.delete(event.target);
     this.decoded = this.renderRequests.size === 0 ? false : this.decoded;
 
-    this.emit("render-request-removed", {
+    this.emit('render-request-removed', {
       request: event.target,
       bytes:
         this.gpuDataFull && this.renderRequests.size > 0
@@ -281,7 +281,7 @@ export class Img extends Loader {
    */
   #onLoadEnd() {
     if (!this.blob) {
-      throw new Error("No blob data found!");
+      throw new Error('No blob data found!');
     }
     this.element.onload = this.#onBlobAssigned;
     this.element.onerror = this.#onBlobError;
@@ -300,7 +300,7 @@ export class Img extends Loader {
     // element satisfies the Size interface
     this.bytesUncompressed = this.getBytesVideo(this.element);
 
-    this.emit("size", {
+    this.emit('size', {
       size: {
         width: this.element.width,
         height: this.element.height,
@@ -314,18 +314,18 @@ export class Img extends Loader {
   #onBlobError = () => {
     this.element.onload = null;
     this.element.onerror = null;
-    this.emit("blob-error");
+    this.emit('blob-error');
   };
 
   /**
    * Called when the image is rendered
    */
-  #onRendered = (event: RenderRequestEvent<"rendered">) => {
+  #onRendered = (event: RenderRequestEvent<'rendered'>) => {
     // for each render request, we need to calculate the size of the image in video memory
     // however, we only need to decode the image once in the gpuDataFull mode
     const bytes = this.decoded ? 0 : event.target.bytesVideo;
 
-    this.emit("render-request-rendered", {
+    this.emit('render-request-rendered', {
       request: event.target,
       bytes,
     });
@@ -371,12 +371,12 @@ export class Img extends Loader {
   emit<T extends ImgEventTypes>(
     type: T,
     data?:
-      | Omit<LoaderEvent<LoaderEventTypes>, "target" | "type">
-      | Omit<ImgEvent<T>, "target" | "type">,
+      | Omit<LoaderEvent<LoaderEventTypes>, 'target' | 'type'>
+      | Omit<ImgEvent<T>, 'target' | 'type'>,
   ): boolean {
     return super.emit(
       type as LoaderEventTypes,
-      data as Omit<LoaderEvent<LoaderEventTypes>, "target" | "type">,
+      data as Omit<LoaderEvent<LoaderEventTypes>, 'target' | 'type'>,
     );
   }
 }

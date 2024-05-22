@@ -1,6 +1,6 @@
-import { useImage } from "@cache";
-import { useCallback, useState } from "react";
-import { StatusBadge } from "../StatusBadge";
+import { useImage } from '@cache';
+import { useCallback, useState } from 'react';
+import { StatusBadge } from '../StatusBadge';
 
 export const PosterRenderStatus = () => {
   const [rendered, setRendered] = useState(false);
@@ -11,8 +11,8 @@ export const PosterRenderStatus = () => {
   useImage({ onRendered });
   return (
     <StatusBadge
-      status={rendered ? "warn" : "off"}
-      text={rendered ? "100%" : `0%`}
+      status={rendered ? 'warn' : 'off'}
+      text={rendered ? '100%' : '0%'}
     />
   );
 };

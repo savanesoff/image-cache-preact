@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useInView } from "react-intersection-observer";
+import { useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 export type VisibilityObserverProps = {
   /** The ref of the element to observe */

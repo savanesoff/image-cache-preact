@@ -1,2 +1,2 @@
-export * from "./cn";
-export * from "./assets.endpoint";
+export * from './cn';
+export * from './assets.endpoint';

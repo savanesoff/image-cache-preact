@@ -1,1 +1,1 @@
-export * from "./useVisibilityObserver";
+export * from './useVisibilityObserver';

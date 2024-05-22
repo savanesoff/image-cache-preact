@@ -23,24 +23,24 @@
  * });
  * loader.load("http://example.com/resource");
  */
-import { Logger } from "@lib/logger";
+import { Logger } from '@lib/logger';
 
-export type MIMEType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+export type MIMEType = 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
 
 export type Headers = {
-  "Content-Type": MIMEType;
-  "Cache-Control"?: string;
+  'Content-Type': MIMEType;
+  'Cache-Control'?: string;
   Expires?: string;
 };
 /** Loader properties */
 export type LoaderEventTypes =
-  | "loadstart"
-  | "progress"
-  | "loadend"
-  | "abort"
-  | "timeout"
-  | "error"
-  | "retry";
+  | 'loadstart'
+  | 'progress'
+  | 'loadend'
+  | 'abort'
+  | 'timeout'
+  | 'error'
+  | 'retry';
 
 /** Loader properties */
 export type ProgressEventLoader = {
@@ -64,10 +64,10 @@ export type LoaderEvent<T extends LoaderEventTypes> = {
   type: T;
   /** The loader instance that triggered the event */
   target: Loader;
-} & (T extends "progress" ? ProgressEventLoader : unknown) &
-  (T extends "error" ? ErrorEventLoader : unknown) &
-  (T extends "retry" ? RetryEventLoader : unknown) &
-  (T extends "loadend" ? { bytes: number } : unknown);
+} & (T extends 'progress' ? ProgressEventLoader : unknown) &
+  (T extends 'error' ? ErrorEventLoader : unknown) &
+  (T extends 'retry' ? RetryEventLoader : unknown) &
+  (T extends 'loadend' ? { bytes: number } : unknown);
 
 /** Loader event handler */
 export type LoaderEventHandler<T extends LoaderEventTypes> = (
@@ -196,8 +196,8 @@ export class Loader extends Logger {
    */
   constructor({ url, headers = null, retry }: LoaderProps) {
     super({
-      name: "Loader",
-      logLevel: "error",
+      name: 'Loader',
+      logLevel: 'error',
     });
     this.url = url;
     this.headers = headers;
@@ -224,8 +224,8 @@ export class Loader extends Logger {
     this.xhr.onerror = this.#onLoadError;
     this.xhr.onabort = this.#onLoadAborted;
     this.xhr.ontimeout = this.#onLoadTimeout;
-    this.xhr.responseType = "arraybuffer";
-    this.xhr.open("GET", this.url, true);
+    this.xhr.responseType = 'arraybuffer';
+    this.xhr.open('GET', this.url, true);
     this.#setHeaders();
     this.xhr.send();
   }
@@ -263,8 +263,8 @@ export class Loader extends Logger {
     this.loading = false;
     this.progress = 1;
     Loader.loaded++;
-    this.log.verbose(["Loaded", this.url]);
-    this.emit("loadend", { bytes: this.bytes });
+    this.log.verbose(['Loaded', this.url]);
+    this.emit('loadend', { bytes: this.bytes });
   };
 
   /**
@@ -275,8 +275,8 @@ export class Loader extends Logger {
     this.bytes = event.total;
     this.bytesLoaded = event.loaded;
     this.progress = parseFloat((event.loaded / event.total).toFixed(2));
-    this.log.verbose(["Progress", this.url, this.progress]);
-    this.emit("progress", { progress: this.progress });
+    this.log.verbose(['Progress', this.url, this.progress]);
+    this.emit('progress', { progress: this.progress });
   };
 
   /**
@@ -285,8 +285,8 @@ export class Loader extends Logger {
   #onLoadStart = () => {
     this.loading = true;
     this.pending = false;
-    this.log.verbose(["Start", this.url]);
-    this.emit("loadstart");
+    this.log.verbose(['Start', this.url]);
+    this.emit('loadstart');
   };
 
   /**
@@ -297,8 +297,8 @@ export class Loader extends Logger {
     this.loading = false;
     this.loaded = false;
     Loader.aborted++;
-    this.log.verbose(["Aborted", this.url]);
-    this.emit("abort");
+    this.log.verbose(['Aborted', this.url]);
+    this.emit('abort');
   };
 
   /**
@@ -308,7 +308,7 @@ export class Loader extends Logger {
   #retryLoad() {
     if (this.retries < this.retry) {
       this.retries++;
-      this.emit("retry", { retries: this.retries });
+      this.emit('retry', { retries: this.retries });
       this.load();
       return true;
     }
@@ -326,8 +326,8 @@ export class Loader extends Logger {
     this.loaded = false;
     this.timeout = true;
     Loader.timeout++;
-    this.log.error(["Timeout", this.url]);
-    this.emit("timeout");
+    this.log.error(['Timeout', this.url]);
+    this.emit('timeout');
   };
 
   /**
@@ -342,8 +342,8 @@ export class Loader extends Logger {
     this.loaded = false;
     this.errored = true;
     Loader.errored++;
-    this.log.error(["Error", this.url]);
-    this.emit("error", {
+    this.log.error(['Error', this.url]);
+    this.emit('error', {
       statusText: this.xhr.statusText,
       status: this.xhr.status,
     });
@@ -385,7 +385,7 @@ export class Loader extends Logger {
    */
   emit<T extends LoaderEventTypes>(
     type: T,
-    data?: Omit<LoaderEvent<T>, "target" | "type">,
+    data?: Omit<LoaderEvent<T>, 'target' | 'type'>,
   ): boolean {
     return super.emit(type, { ...data, type, target: this });
   }

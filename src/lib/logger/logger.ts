@@ -15,11 +15,11 @@
  * logger.log.error(["This is an error log"]); // Log at the error level
  */
 
-import { EventEmitter } from "events";
+import { EventEmitter } from 'events';
 
-export type LogLevel = "none" | "verbose" | "info" | "warn" | "error";
+export type LogLevel = 'none' | 'verbose' | 'info' | 'warn' | 'error';
 type DataType = unknown;
-type ConsoleType = "log" | "info" | "error" | "warn";
+type ConsoleType = 'log' | 'info' | 'error' | 'warn';
 type Styles = {
   log?: string;
   info?: string;
@@ -37,20 +37,20 @@ export type LoggerProps = {
 };
 
 export class Logger extends EventEmitter {
-  level: LogLevel = "none";
-  name = "Logger";
+  level: LogLevel = 'none';
+  name = 'Logger';
   readonly styles: Styles = {
-    log: "color: white;",
-    info: "color: skyblue;",
-    warn: "color: orange;",
-    error: "color: red;",
+    log: 'color: white;',
+    info: 'color: skyblue;',
+    warn: 'color: orange;',
+    error: 'color: red;',
   };
 
   private readonly levelGates = {
-    verbose: "verbose",
-    info: "info, verbose",
-    warn: "warn, info, verbose",
-    error: "error, warn, info, verbose",
+    verbose: 'verbose',
+    info: 'info, verbose',
+    warn: 'warn, info, verbose',
+    error: 'error, warn, info, verbose',
   };
 
   /** Log methods */
@@ -80,31 +80,31 @@ export class Logger extends EventEmitter {
     this.level = level;
   }
 
-  #console(type: ConsoleType, styles = "color: white;", data: DataType[]) {
+  #console(type: ConsoleType, styles = 'color: white;', data: DataType[]) {
     // eslint-disable-next-line no-console
     console[type](
-      [`%c${this.name}:`, ...data.map((v) => `\t${v}`)].join("\n"),
+      [`%c${this.name}:`, ...data.map(v => `\t${v}`)].join('\n'),
       styles,
     );
   }
 
   #verbose(data: DataType[], style = this.styles.log) {
     this.levelGates.verbose.match(this.level) &&
-      this.#console("log", style, data);
+      this.#console('log', style, data);
   }
 
   #info(data: DataType[], style = this.styles.info) {
     this.levelGates.info.match(this.level) &&
-      this.#console("info", style, data);
+      this.#console('info', style, data);
   }
 
   #warn(data: DataType[], style = this.styles.warn) {
     this.levelGates.warn.match(this.level) &&
-      this.#console("warn", style, data);
+      this.#console('warn', style, data);
   }
 
   #error(data: DataType[], style = this.styles.error) {
     this.levelGates.error.match(this.level) &&
-      this.#console("error", style, data);
+      this.#console('error', style, data);
   }
 }
