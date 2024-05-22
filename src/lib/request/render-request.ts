@@ -3,17 +3,11 @@
  * Each request is associated with an image and a bucket. Where an image can
  * have multiple requests associated with it, a bucket can have multiple images
  */
-import {
-  Bucket,
-  FrameQueue,
-  Img,
-  ImgEvent,
-  ImgProps,
-  Logger,
-  renderer,
-  RendererProps,
-  Size,
-} from "@lib/index.js";
+import { Bucket } from "@lib/bucket";
+import { Logger } from "@lib/logger";
+import { ImgProps, Size, ImgEvent, Img } from "@lib/image";
+import { renderer } from "./renderer";
+import { RendererProps, FrameQueue } from "@lib/frame-queue";
 
 export type RenderRequestProps = ImgProps & {
   size: Size;

@@ -11,7 +11,7 @@ import { Asset, AssetPage, fetchAssets, Topic } from "@demo/utils";
 import { cn } from "@demo/utils";
 import { Poster } from "@demo/components";
 import config from "@demo/config.json";
-import { useVisibilityObserver } from "@/utils/useVisibilityObserver";
+import { useVisibilityObserver } from "@cache";
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &
   Exclude<BucketProviderProps, "children"> & {

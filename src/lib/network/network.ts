@@ -5,7 +5,8 @@
  * and it emits events to indicate the progress of the loading process.
  * It also limits the number of concurrent loaders to avoid overloading the network.
  */
-import { Loader, LoaderEvent, LoaderEventTypes, Logger } from "@lib/index.js";
+import { LoaderEventTypes, Loader, LoaderEvent } from "@lib/loader";
+import { Logger } from "@lib/logger";
 
 export type NetworkEventTypes = LoaderEventTypes | "pause" | "resume";
 

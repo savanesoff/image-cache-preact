@@ -1,6 +1,6 @@
 import { Loader } from "@lib/loader";
 import { Network } from "./network";
-import "@/__mocks__/xhr";
+import "@mocks/xhr";
 
 const createResource = (): Loader => {
   return new Loader({

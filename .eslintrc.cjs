@@ -10,13 +10,14 @@ module.exports = {
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: { ecmaVersion: "latest", sourceType: "module" },
-  plugins: ["react-refresh", "@typescript-eslint"],
+  plugins: ["react-refresh", "@typescript-eslint", "import"],
   rules: {
     "react-refresh/only-export-components": "warn",
     "@typescript-eslint/no-unused-vars": "error",
     "no-console": "warn",
     "react/react-in-jsx-scope": "off",
     "react/jsx-uses-react": "off",
+    "import/no-cycle": [2, { "maxDepth": "∞" }]
     // "import/extensions": [
     //   "error",
     //   "ignorePackages",

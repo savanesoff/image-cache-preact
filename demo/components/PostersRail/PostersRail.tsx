@@ -1,4 +1,4 @@
-import { BucketProvider } from "@/components";
+import { BucketProvider } from "@cache";
 import { cn } from "@demo/utils";
 import { Topic } from "@demo/utils/assets.endpoint";
 import {

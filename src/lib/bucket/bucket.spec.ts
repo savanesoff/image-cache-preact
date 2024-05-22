@@ -6,7 +6,7 @@ import {
 } from "@lib/request";
 import { Bucket } from "./bucket";
 import { Img, Size } from "@lib/image";
-import { UNITS } from "@/utils";
+import { UNITS } from "@utils";
 
 vi.mock("@lib/image");
 vi.mock("@lib/request");

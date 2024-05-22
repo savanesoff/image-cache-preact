@@ -11,8 +11,9 @@
  *
  */
 import { useContext, useEffect } from "react";
-import { ImageContext, ImageContextType } from "@components/index.js";
-import { ImgEvent, RenderRequestEvent } from "@lib/index.js";
+import { ImageContext, ImageContextType } from "./Image";
+import { RenderRequestEvent } from "@lib/request";
+import { ImgEvent } from "@lib/image";
 
 export type UseImageEventTypes =
   | "progress"

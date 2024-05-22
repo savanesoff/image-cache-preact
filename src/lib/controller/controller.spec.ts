@@ -1,9 +1,9 @@
-import { Bucket } from "../bucket";
-import { FrameQueue } from "../frame-queue";
-import { Img } from "../image";
-import { Memory } from "../memory";
-import { Network } from "../network";
-import { RenderRequest } from "../request";
+import { Bucket } from "@lib/bucket";
+import { FrameQueue } from "@lib/frame-queue";
+import { Img } from "@lib/image";
+import { Memory } from "@lib/memory";
+import { Network } from "@lib/network";
+import { RenderRequest } from "@lib/request";
 import { Controller } from "./controller";
 
 vi.mock("@lib/memory");

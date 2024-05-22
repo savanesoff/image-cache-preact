@@ -1,8 +1,8 @@
 import { Bucket } from "@lib/bucket";
-import { Controller } from "@lib//controller";
+import { Controller } from "@lib/controller";
 import { RenderRequest } from "./render-request";
-import { Img, ImgEvent, ImgEventTypes, Size } from "../image";
-import { FrameQueue } from "../frame-queue";
+import { Img, ImgEvent, ImgEventTypes, Size } from "@lib/image";
+import { FrameQueue } from "@lib/frame-queue";
 
 vi.mock("@lib/image");
 vi.mock("@lib/bucket");

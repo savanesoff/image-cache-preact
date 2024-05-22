@@ -3,55 +3,12 @@ import react from "@vitejs/plugin-react-swc";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { fileURLToPath, URL } from "url";
 import { resolve } from "path";
-import typescript from "@rollup/plugin-typescript";
 
 // Convert import.meta.url to a file path
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
-  plugins: [
-    react(),
-    // typescript({
-    //   path: [resolve(__dirname, "tsconfig.package.json")],
-    // }),
-
-    typescript({
-      compilerOptions: {
-        lib: ["ESNext", "DOM", "DOM.Iterable"],
-        target: "ES2018",
-        module: "ESNext",
-        outDir: "./dist",
-        declaration: true,
-        declarationMap: true,
-        noEmit: false,
-        baseUrl: "./",
-        paths: {
-          "@components/*": ["src/components/*"],
-          "@components": ["src/components"],
-          "@lib/*": ["src/lib/*"],
-          "@lib": ["src/lib"],
-          "@utils/*": ["src/utils/*"],
-          "@demo/components/*": ["demo/components/*"],
-          "@demo/utils/*": ["demo/utils/*"],
-          "@cache/*": ["src/*"],
-          "@cache": ["src"],
-          "@demo/*": ["demo/*"],
-        },
-      },
-      include: ["./src/**/*"],
-      exclude: [
-        "node_modules",
-        "dist",
-        "dist-demo",
-        "demo",
-        "./**/*.spec.*",
-        "./src/__mocks__",
-      ],
-    }),
-    tsconfigPaths({
-      projects: [resolve(__dirname, "tsconfig.package.json")],
-    }),
-  ],
+  plugins: [react(), tsconfigPaths()],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"), // Adjust this to the entry point of your library

@@ -1,21 +1,36 @@
 {
   "name": "image-cache-react",
   "private": false,
-  "version": "0.3.2",
+  "version": "0.4.2",
   "type": "module",
   "description": "React component for image caching. Provides a way to handle load and cache of images in memory and manage their lifecycle in both GPU and RAM.",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "react": ">=16"
+  },
+  "files": [
+    "dist/**/*",
+    "LICENSE",
+    "README.md"
+  ],
+  "license": "MIT",
   "author": {
     "name": "Samvel Avanesov",
     "email": "sam.avanesoff@gmail.com"
   },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/savanesoff/image-cache-react"
   },
-  "license": "MIT",
   "packageManager": "^pnpm@8.6.6",
   "keywords": [
     "cache",
@@ -52,7 +67,8 @@
     "clean:dist": "rm -rf ./dist",
     "clear:demo": "rm -rf dist-demo; mkdir dist-demo",
     "clean:package": "rm -rf ./dist",
-    "build:package": "pnpm clean:package && ./ts-cmd.sh --path tsconfig.package.json --cmd vite build --sourcemap",
+    "build:package": "pnpm clean:dist && rollup --config rollup.config.js",
+    "build:package:vite": "pnpm clean:dist && vite build --outDir dist",
     "build:demo": "pnpm clear:demo; bash ./demo-build.sh --path tsconfig.build.demo.json",
     "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo"
   },
@@ -64,10 +80,14 @@
     "react-dom": "^18.2.0",
     "react-intersection-observer": "^9.10.2",
     "tailwind-merge": "^2.2.2",
-    "tailwindcss": "^3.4.3"
+    "tailwindcss": "^3.4.3",
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@noriginmedia/norigin-spatial-navigation": "^2.1.0",
+    "@rollup/plugin-alias": "^5.1.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/events": "^3.0.0",
     "@types/json-schema": "^7.0.11",
@@ -94,33 +114,20 @@
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.13",
     "react-intersection-observer": "^9.10.2",
+    "rollup": "^4.17.2",
+    "rollup-plugin-typescript2": "^0.36.0",
     "swc-loader": "^0.2.6",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "ttypescript": "^1.5.15",
-    "typescript": "^5.0.2",
+    "typescript": "^5.4.2",
     "typescript-transform-paths": "^3.4.7",
-    "vite": "^5.2.8",
+    "vite": "^5.2.11",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.4.0",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "peerDependencies": {
-    "react": ">=16"
-  },
-  "files": [
-    "dist/**/*",
-    "LICENSE",
-    "README.md"
-  ]
+  }
 }

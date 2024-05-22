@@ -20,15 +20,14 @@
     "baseUrl": "./",
     "paths": {
       "@components/*": ["src/components/*"],
-      "@components": ["src/components"],
       "@lib/*": ["src/lib/*"],
-      "@lib": ["src/lib"],
-      "@utils/*": ["src/utils/*"],
+      "@utils": ["src/utils"],
       "@demo/components/*": ["demo/components/*"],
       "@demo/utils/*": ["demo/utils/*"],
       "@cache/*": ["src/*"],
       "@cache": ["src"],
-      "@demo/*": ["demo/*"]
+      "@demo/*": ["demo/*"],
+      "@mocks*": ["src/__mocks__/*"]
     },
     "plugins": [
       {

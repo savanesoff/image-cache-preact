@@ -1,7 +1,7 @@
 import { FrameQueue } from "./frame-queue";
 import { RenderRequest } from "@lib/request";
 import { Img, Size } from "@lib/image";
-import { Bucket } from "../bucket";
+import { Bucket } from "@lib/bucket";
 vi.useFakeTimers();
 
 vi.mock("@lib/request");

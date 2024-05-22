@@ -16,20 +16,13 @@
  * controller.addImage(image); // Add an image to the cache and network queue
  */
 
-import {
-  Img,
-  ImgProps,
-  ImgEvent,
-  FrameQueue,
-  FrameQueueProps,
-  Logger,
-  LogLevel,
-  Memory,
-  Network,
-  RenderRequest,
-  renderer,
-} from "@lib/index.js";
-import { UnitsType } from "@utils/index.js";
+import { FrameQueueProps, FrameQueue } from "@lib/frame-queue";
+import { Img, ImgProps, ImgEvent } from "@lib/image";
+import { Memory } from "@lib/memory";
+import { Network } from "@lib/network";
+import { RenderRequest, renderer } from "@lib/request";
+import { UnitsType } from "@utils";
+import { LogLevel, Logger } from "@lib/logger";
 // import { FrameQueue, FrameQueueProps } from "@/frame-queue";
 
 export type ControllerEventTypes =

@@ -1,25 +1,21 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "target": "ES2018",
-    "module": "ESNext",
-    "outDir": "./dist",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "target": "es2018",
+    "module": "esnext",
     "declaration": true,
     "declarationMap": true,
+    "sourceMap": true,
+    "inlineSources": true,
     "noEmit": false,
+    "baseUrl": "./",
     "paths": {
       "@components/*": ["src/components/*"],
-      "@components": ["src/components"],
       "@lib/*": ["src/lib/*"],
-      "@lib": ["src/lib"],
-      "@utils/*": ["src/utils/*"],
-      "@demo/components/*": ["demo/components/*"],
-      "@demo/utils/*": ["demo/utils/*"],
-      "@cache/*": ["src/*"],
-      "@cache": ["src"],
-      "@demo/*": ["demo/*"]
-    }
+      "@utils": ["src/utils"]
+    },
+    "downlevelIteration": true
   },
   "include": ["./src/**/*"],
   "exclude": [
@@ -27,7 +23,7 @@
     "dist",
     "dist-demo",
     "demo",
-    "./**/*.spec.*",
-    "./src/__mocks__"
+    "**/*.spec.*",
+    "src/__mocks__"
   ]
 }

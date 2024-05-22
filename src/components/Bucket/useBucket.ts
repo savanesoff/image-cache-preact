@@ -9,9 +9,9 @@
  * The "progress", "loadend", and "error" events are emitted by the `Bucket` instance,
  * while the "rendered" event is emitted when an image has been rendered.
  */
-import { BucketContext, BucketContextType } from "@components/index.js";
+import { BucketContext, BucketContextType } from "./Bucket";
 import { useContext, useEffect } from "react";
-import { BucketEvent } from "@lib/index.js";
+import { BucketEvent } from "@lib/bucket";
 
 export type UseBucketProps = {
   /** The progress event handler. */

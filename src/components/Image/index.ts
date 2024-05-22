@@ -1,2 +1,2 @@
-export * from "./Image.js";
-export * from "./useImage.js";
+export * from "./Image";
+export * from "./useImage";

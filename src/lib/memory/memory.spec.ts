@@ -1,5 +1,5 @@
 import { Memory } from "./memory";
-import { UNITS } from "@/utils";
+import { UNITS } from "@utils";
 
 describe("Memory", () => {
   describe("initial state", () => {
