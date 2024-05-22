@@ -1,67 +1,39 @@
 module.exports = {
-  env: { browser: true, es2020: true, node: true },
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2021,
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
+  },
+  plugins: ['react', 'react-hooks', '@typescript-eslint', 'prettier'],
   extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:react/recommended",
-    "prettier",
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+    'plugin:prettier/recommended',
   ],
-  parser: "@typescript-eslint/parser",
-  parserOptions: { ecmaVersion: "latest", sourceType: "module" },
-  plugins: ["react-refresh", "@typescript-eslint", "import"],
   rules: {
-    "react-refresh/only-export-components": "warn",
-    "@typescript-eslint/no-unused-vars": "error",
-    "no-console": "warn",
-    "react/react-in-jsx-scope": "off",
-    "react/jsx-uses-react": "off",
-    "import/no-cycle": [2, { "maxDepth": "∞" }]
-    // "import/extensions": [
-    //   "error",
-    //   "ignorePackages",
-    //   {
-    //     ts: "never",
-    //     tsx: "never",
-    //     js: "always",
-    //     jsx: "always",
-    //   },
-    // ],
-    // "import/no-unresolved": [
-    //   "error",
-    //   {
-    //     commonjs: true,
-    //     caseSensitive: true,
-    //   },
-    // ],
-    // "no-restricted-imports": [
-    //   "error",
-    //   {
-    //     patterns: ["*.ts", "!*.d.ts"],
-    //   },
-    // ],
-    // "import/order": [
-    //   "error",
-    //   {
-    //     groups: [["builtin", "external", "internal"]],
-    //     "newlines-between": "always",
-    //     alphabetize: { order: "asc", caseInsensitive: true },
-    //   },
-    // ],
+    'prettier/prettier': 'error',
+    'react/react-in-jsx-scope': 'off',
+    'react/prop-types': 'error',
+    '@typescript-eslint/no-unused-vars': ['warn'],
+    'no-unused-vars': 'error',
+    semi: ['error', 'always'],
+    quotes: ['error', 'single'],
+    indent: ['error', 2],
   },
   settings: {
-    // "import/parsers": {
-    //   "@typescript-eslint/parser": [".ts", ".tsx"],
-    // },
-    // "import/resolver": {
-    //   typescript: {
-    //     alwaysTryTypes: true,
-    //     project: "./tsconfig.json",
-    //   },
-    //   node: {
-    //     extensions: [".js", ".jsx", ".ts", ".tsx"],
-    //   },
-    // },
+    react: {
+      version: 'detect',
+    },
   },
 };
