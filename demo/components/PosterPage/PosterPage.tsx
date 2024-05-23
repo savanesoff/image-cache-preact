@@ -10,7 +10,7 @@ import { BucketProviderProps, ImageProvider } from '@cache';
 import { Asset, AssetPage, fetchAssets, Topic } from '@demo/utils';
 import { cn } from '@demo/utils';
 import { Poster } from '@demo/components';
-import config from '@demo/config.json';
+import { config } from '@demo/config';
 import { useVisibilityObserver } from '@cache';
 
 export type PosterPageProps = HTMLAttributes<HTMLDivElement> &

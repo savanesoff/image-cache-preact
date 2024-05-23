@@ -5,7 +5,7 @@ import {
   fetchAssets,
 } from '@demo/utils/assets.endpoint';
 import { useState, useEffect } from 'react';
-import config from '@demo/config.json';
+import { config } from '@demo/config';
 
 export const useLockerAssets = () => {
   const [topics, setTopics] = useState<Topic[]>([]);

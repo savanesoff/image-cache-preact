@@ -2,6 +2,7 @@ import { cn } from '@demo/utils';
 import { Topic } from '@demo/utils/assets.endpoint';
 import { HTMLAttributes, useMemo } from 'react';
 import { PosterPage } from '@demo/components';
+import { config } from '@demo/config';
 
 export type RailProps = HTMLAttributes<HTMLDivElement> & {
   focused: boolean;
@@ -28,7 +29,8 @@ export const Rail = ({
     <div
       data-testid="rail"
       className={cn(
-        'flex h-[186px] flex-row space-x-2 overflow-y-hidden overflow-x-scroll bg-slate-900 no-scrollbar',
+        `h-[${config.image.renderHeight}]`,
+        'flex flex-row space-x-2 overflow-y-hidden overflow-x-scroll bg-slate-900 no-scrollbar',
         focused && 'bg-fuchsia-950',
         className,
       )}

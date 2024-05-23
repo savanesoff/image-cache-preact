@@ -1,6 +1,5 @@
 import { HTMLAttributes, useEffect } from 'react';
 import { useImage } from '@cache';
-import { cn } from '@demo/utils';
 import { PosterLoadStatus } from './LoadStatus';
 import { PosterRenderStatus } from './RenderStatus';
 import { PosterImage } from './PosterImage';
@@ -14,24 +13,18 @@ export type PosterProps = HTMLAttributes<HTMLDivElement> & {
   showImmediately?: boolean;
 };
 
-const initialFocus = {
-  state: false,
-};
-
 /**
  * Poster component to display the image.
  * Uses the useImage hook to load the image.
  */
 export const Poster = ({
-  className,
   index,
   asset,
   pageNumber,
   showImmediately,
-  ...props
 }: PosterProps) => {
-  const { width } = useImage();
-  const { ref, focused, focusSelf } = useFocusable();
+  const { width, height } = useImage();
+  const { ref, focused } = useFocusable();
 
   useEffect(() => {
     if (focused) {
@@ -43,30 +36,18 @@ export const Poster = ({
     }
   }, [focused, ref]);
 
-  useEffect(() => {
-    if (initialFocus.state === false) {
-      initialFocus.state = true;
-      focusSelf();
-    }
-  }, [focusSelf]);
-
   return (
     <div
       ref={ref}
-      className={cn(
-        'bg-slate-800',
-        `max-w-[${width}px]`,
-        `w-[${width}px]`,
-        `min-w-[${width}px]`,
-        'flex flex-col space-y-1',
-        className,
-      )}
-      {...props}
+      style={{
+        width: width,
+        height: height,
+        minHeight: height,
+        minWidth: width,
+        maxHeight: height,
+        maxWidth: width,
+      }}
     >
-      <div className={'flex flex-row justify-around space-x-1'}>
-        <PosterLoadStatus />
-        <PosterRenderStatus />
-      </div>
       <PosterImage
         focused={focused}
         asset={asset}
@@ -74,6 +55,12 @@ export const Poster = ({
         pageNumber={pageNumber}
         showImmediately={showImmediately}
       />
+      <div
+        className={'absolute bottom-0 flex h-4 w-full flex-row justify-between'}
+      >
+        <PosterLoadStatus />
+        <PosterRenderStatus />
+      </div>
     </div>
   );
 };

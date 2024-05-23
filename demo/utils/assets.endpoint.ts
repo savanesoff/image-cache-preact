@@ -1,5 +1,5 @@
 import { ImageColorType, MIMEType } from '@cache';
-import config from '@demo/config.json';
+import { config } from '@demo/config';
 import { LoremIpsum } from 'lorem-ipsum';
 
 const lorem = new LoremIpsum({
