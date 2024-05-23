@@ -3,7 +3,12 @@
  * This is done by reading the first 12 bytes of the ArrayBuffer
  * So to support wider range of browsers
  */
-export type ImageType = 'image/png' | 'image/jpeg' | 'image/gif' | 'image/bmp';
+export type ImageType =
+  | 'image/png'
+  | 'image/jpeg'
+  | 'image/gif'
+  | 'image/bmp'
+  | 'unknown';
 
 /**
  * Get the type of an image from its ArrayBuffer.

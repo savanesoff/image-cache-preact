@@ -76,6 +76,7 @@ export type ImageColorType = keyof typeof IMAGE_COLOR_TYPE;
 export type ImgProps = LoaderProps & {
   type?: ImageColorType;
   gpuDataFull?: boolean;
+  mimeType?: ImageType;
 };
 
 /**
@@ -98,7 +99,7 @@ export class Img extends Loader {
   bytesUncompressed = 0;
   /** Image memory compression type */
   readonly type: ImageColorType;
-  mimeType: ImageType;
+  mimeType: ImageType = 'unknown';
   /**
    * GPU memory allocation type.
    * True - full image size pixel data moves to GPU.
@@ -115,6 +116,7 @@ export class Img extends Loader {
     gpuDataFull = false,
     logLevel = 'error',
     name = 'Image',
+    mimeType = 'unknown',
     ...props
   }: ImgProps) {
     super({
@@ -124,9 +126,9 @@ export class Img extends Loader {
       ...props,
     });
     this.gpuDataFull = gpuDataFull;
+    this.mimeType = mimeType;
     // TODO auto detect image type from headers or url
     this.type = type;
-    this.mimeType = 'image/jpeg';
     this.element = new Image(); // need to get actual size of image
     this.on('loadend', this.#onLoadEnd); // called by a loader process
   }
@@ -352,6 +354,14 @@ export class Img extends Loader {
     this.size = data.size;
     this.element.width = this.element.width || data.size.width;
     this.element.height = this.element.height || data.size.height;
+    if (this.mimeType !== data.type) {
+      this.log.warn([
+        'Presumed mimeType mismatch:',
+        `presumed: ${this.mimeType}`,
+        `actual: ${data.type}`,
+      ]);
+    }
+    this.mimeType = data.type;
     // not really needed to have size separate from image props, but image can be cleared to free memory
     this.gotSize = true;
     // element satisfies the Size interface
