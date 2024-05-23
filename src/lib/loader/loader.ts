@@ -23,7 +23,7 @@
  * });
  * loader.load("http://example.com/resource");
  */
-import { Logger } from '@lib/logger';
+import { Logger, LoggerProps } from '@lib/logger';
 
 export type MIMEType = 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
 
@@ -74,7 +74,7 @@ export type LoaderEventHandler<T extends LoaderEventTypes> = (
   event: LoaderEvent<T>,
 ) => void;
 
-export type LoaderProps = {
+export type LoaderProps = LoggerProps & {
   /** The URL of the resource to load */
   url: string;
   /** The headers to be sent with the request */
@@ -194,10 +194,16 @@ export class Loader extends Logger {
    * @param headers - The headers to be sent with the request.
    * @param retry - The number of times to retry loading the resource. Defaults to 3.
    */
-  constructor({ url, headers = null, retry }: LoaderProps) {
+  constructor({
+    url,
+    headers = null,
+    retry,
+    logLevel = 'error',
+    name = 'Loader',
+  }: LoaderProps) {
     super({
-      name: 'Loader',
-      logLevel: 'error',
+      name,
+      logLevel,
     });
     this.url = url;
     this.headers = headers;
@@ -263,7 +269,7 @@ export class Loader extends Logger {
     this.loading = false;
     this.progress = 1;
     Loader.loaded++;
-    this.log.verbose(['Loaded', this.url]);
+    this.log.verbose(['Loaded', this.url, 'bytes', this.bytes]);
     this.emit('loadend', { bytes: this.bytes });
   };
 
@@ -272,10 +278,25 @@ export class Loader extends Logger {
    * @param event - The progress event.
    */
   #onProgress = (event: ProgressEvent<EventTarget>) => {
-    this.bytes = event.total;
+    // cobalt fix
+    this.bytes = event.total || event.loaded;
     this.bytesLoaded = event.loaded;
-    this.progress = parseFloat((event.loaded / event.total).toFixed(2));
-    this.log.verbose(['Progress', this.url, this.progress]);
+    // cobalt fix
+    // keep progress at 0.5 if total is not available
+    this.progress = event.total
+      ? parseFloat((event.loaded / event.total).toFixed(2))
+      : 0.5;
+
+    this.log.verbose([
+      'Progress',
+      this.url,
+      'progress',
+      this.progress,
+      'bytes',
+      this.bytes,
+      'loaded',
+      this.bytesLoaded,
+    ]);
     this.emit('progress', { progress: this.progress });
   };
 

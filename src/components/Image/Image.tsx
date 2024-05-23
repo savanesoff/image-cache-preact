@@ -17,7 +17,8 @@
  * which contains the `Img` instance and the `RenderRequest` for the image.
  */
 import { useBucket } from '@components/Bucket';
-import { ImgProps, Size } from '@lib/image';
+import { ImgProps } from '@lib/image';
+import { Size } from '@utils';
 import {
   createContext,
   ReactNode,

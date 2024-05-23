@@ -5,9 +5,10 @@
  */
 import { Bucket } from '@lib/bucket';
 import { Logger } from '@lib/logger';
-import { ImgProps, Size, ImgEvent, Img } from '@lib/image';
+import { ImgProps, ImgEvent, Img } from '@lib/image';
 import { renderer } from './renderer';
 import { RendererProps, FrameQueue } from '@lib/frame-queue';
+import { Size } from '@utils';
 
 export type RenderRequestProps = ImgProps & {
   size: Size;

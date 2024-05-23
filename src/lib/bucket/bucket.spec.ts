@@ -5,7 +5,8 @@ import {
   RenderRequestEventTypes,
 } from '@lib/request';
 import { Bucket } from './bucket';
-import { Img, Size } from '@lib/image';
+import { Img } from '@lib/image';
+import { Size } from '@utils';
 import { UNITS } from '@utils';
 
 vi.mock('@lib/image');

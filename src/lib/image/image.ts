@@ -18,7 +18,7 @@
  * When the same image is used again, the browser can skip the loading and decoding steps and directly use the cached bitmap.
  */
 
-import { ImageType } from '@utils';
+import { ImageType, ImageData, Size, getImageData } from '@utils';
 import {
   LoaderEventHandler,
   Loader,
@@ -37,14 +37,6 @@ export type ImgEventTypes =
   | 'render-request-added'
   | 'render-request-removed'
   | 'blob-error';
-
-/** Event data for the Img class */
-export type Size = {
-  /** The width of the image */
-  width: number;
-  /** The height of the image */
-  height: number;
-};
 
 type Events<T extends ImgEventTypes> = {
   /** The type of the event */
@@ -113,6 +105,7 @@ export class Img extends Loader {
    * False - only the requested image size data moves to GPU.
    */
   readonly gpuDataFull: boolean;
+  size: Size = { width: 0, height: 0 };
 
   constructor({
     headers = {
@@ -120,10 +113,14 @@ export class Img extends Loader {
     },
     type = 'RGB',
     gpuDataFull = false,
+    logLevel = 'error',
+    name = 'Image',
     ...props
   }: ImgProps) {
     super({
       headers,
+      name,
+      logLevel,
       ...props,
     });
     this.gpuDataFull = gpuDataFull;
@@ -246,7 +243,27 @@ export class Img extends Loader {
    */
   getBytesVideo(size: Size) {
     const bytesPerPixel = IMAGE_COLOR_TYPE[this.type]; // default to 4 if the image type is not in the map
-    const gpuSize = this.gpuDataFull && this.element ? this.element : size;
+    const gpuSize = this.gpuDataFull && this.size ? this.size : size;
+    const bytes = gpuSize.width * gpuSize.height * bytesPerPixel;
+    this.log.verbose([
+      'getBytesVideo',
+      'Bytes per pixel:',
+      bytesPerPixel,
+      'Bytes:',
+      bytes,
+      'Size:',
+      size,
+      'GPU Size:',
+      gpuSize,
+      'size:',
+      size,
+      'gpuDataFull:',
+      this.gpuDataFull,
+      'decoded:',
+      this.decoded,
+      'this.size:',
+      this.size,
+    ]);
     return gpuSize.width * gpuSize.height * bytesPerPixel;
   }
 
@@ -283,28 +300,73 @@ export class Img extends Loader {
     if (!this.blob) {
       throw new Error('No blob data found!');
     }
-    this.element.onload = this.#onBlobAssigned;
-    this.element.onerror = this.#onBlobError;
-    // this.mimeType = await getImageType(this.blob);
-    this.element.src = URL.createObjectURL(this.blob);
+
+    this.log.verbose([
+      'onLoadEnd',
+      'Blob:',
+      this.blob,
+      'gpuDataFull:',
+      this.gpuDataFull,
+    ]);
+
+    // async call to get the image info like size and type
+    getImageData(this.xhr.response as ArrayBuffer)
+      .then(data => {
+        this.log.verbose([
+          'gotImageData',
+          'data:',
+          data,
+          'gpuDataFull:',
+          this.gpuDataFull,
+        ]);
+        this.element.onload = () => this.#onBlobAssigned(data);
+        this.element.onerror = this.#onBlobError;
+        // this does not work in Cobalt
+        if (this.gpuDataFull) {
+          setTimeout(() => this.#onBlobAssigned(data), 0);
+        } else if (this.blob) {
+          this.element.onload = () => this.#onBlobAssigned(data);
+          this.element.onerror = this.#onBlobError;
+          this.element.src = URL.createObjectURL(this.blob);
+        } else {
+          throw new Error('No blob data found!');
+        }
+      })
+      .catch(error => {
+        this.log.error([
+          'getImageData',
+          'error:',
+          error.message,
+          'gpuDataFull:',
+          this.gpuDataFull,
+        ]);
+      });
   }
 
   /**
    * Called when the image data is loaded
    */
-  #onBlobAssigned = () => {
+  #onBlobAssigned = (data: ImageData) => {
     this.element.onload = null;
     this.element.onerror = null;
+    this.size = data.size;
+    this.element.width = this.element.width || data.size.width;
+    this.element.height = this.element.height || data.size.height;
     // not really needed to have size separate from image props, but image can be cleared to free memory
     this.gotSize = true;
     // element satisfies the Size interface
-    this.bytesUncompressed = this.getBytesVideo(this.element);
-
+    this.bytesUncompressed = this.getBytesVideo(data.size);
+    this.log.verbose([
+      'onBlobAssigned',
+      'data:',
+      data,
+      'Bytes:',
+      this.bytes,
+      'Bytes Uncompressed:',
+      this.bytesUncompressed,
+    ]);
     this.emit('size', {
-      size: {
-        width: this.element.width,
-        height: this.element.height,
-      },
+      size: data.size,
     });
   };
 

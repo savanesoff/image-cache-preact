@@ -1,7 +1,7 @@
 {
   "name": "image-cache-react",
   "private": false,
-  "version": "0.4.2",
+  "version": "0.4.3",
   "type": "module",
   "description": "React component for image caching. Provides a way to handle load and cache of images in memory and manage their lifecycle in both GPU and RAM.",
   "main": "./dist/cjs/index.js",

@@ -105,15 +105,16 @@ export class Memory extends Logger {
   constructor({
     size = 1,
     units = 'GB',
-    logLevel = 'verbose',
+    // logLevel = 'verbose',
     name = 'Memory',
   }: MemoryProps) {
     super({
       name,
-      logLevel: logLevel,
+      logLevel: 'verbose',
     });
     this.units = units;
     this.size = size;
+    this.log.info(['Created memory', 'Size:', size, 'Units:', units]);
   }
 
   /**
