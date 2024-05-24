@@ -1,7 +1,7 @@
 import { useImage, useBucket } from '@cache';
 import { cn } from '@demo/utils';
 import { Asset } from '@demo/utils/assets.endpoint';
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'preact/compat';
 
 type PosterImageProps = {
   focused?: boolean;

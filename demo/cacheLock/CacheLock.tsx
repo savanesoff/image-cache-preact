@@ -10,7 +10,7 @@ import {
 import { useLockerAssets } from './useLockerAssets';
 import { onRenderRequest } from './onRenderRequest';
 import { config } from '@demo/config';
-import { useMemo } from 'react';
+import { useMemo } from 'preact/compat';
 
 export const CacheLock = (props: UseBucketProps) => {
   // fetch all topics first page and cash it

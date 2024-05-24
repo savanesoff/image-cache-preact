@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from 'preact/compat';
 import { useInView } from 'react-intersection-observer';
 
 export type VisibilityObserverProps = {

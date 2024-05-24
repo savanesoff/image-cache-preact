@@ -1,5 +1,5 @@
 import { ControllerEvent, useController } from '@cache';
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from 'preact/compat';
 import { StatusBadge } from '@demo/components';
 
 export const ImageStats = () => {

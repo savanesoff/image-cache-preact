@@ -26,7 +26,7 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react';
+} from 'preact/compat';
 
 import { useVisibilityObserver } from '@utils';
 import { RenderRequest } from '@lib/request';
@@ -74,6 +74,8 @@ export const ImageProvider = ({
   const [renderUrl, setRenderUrl] = useState<string | null>(null);
   // need to track visibility of the image to handle clearing
   const ref = useRef<HTMLDivElement>(null);
+  // track visibility of the image
+  // and trigger render request when visible
   const { visible } = useVisibilityObserver({
     ref,
     rootMargin: visibilityMargin,

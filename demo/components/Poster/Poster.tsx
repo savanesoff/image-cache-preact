@@ -1,4 +1,4 @@
-import { HTMLAttributes, useEffect } from 'react';
+import { HTMLAttributes, useEffect } from 'preact/compat';
 import { useImage } from '@cache';
 import { PosterLoadStatus } from './LoadStatus';
 import { PosterRenderStatus } from './RenderStatus';

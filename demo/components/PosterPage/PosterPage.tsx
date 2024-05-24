@@ -5,7 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
+} from 'preact/compat';
 import { BucketProviderProps, ImageProvider } from '@cache';
 import { Asset, AssetPage, fetchAssets, Topic } from '@demo/utils';
 import { cn } from '@demo/utils';

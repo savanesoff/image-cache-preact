@@ -1,5 +1,5 @@
 import { MemoryEvent, MemoryStats, useController } from '@cache';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'preact/compat';
 import { StatusBadge } from '@demo/components';
 
 export const VideoUsage = () => {

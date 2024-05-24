@@ -1,5 +1,5 @@
 import { BucketEvent, useBucket } from '@cache';
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from 'preact/compat';
 
 export const PageStatus = () => {
   const [loadStatus, setLoadStatus] = useState<'loading' | 'loaded'>('loading');

@@ -1,5 +1,5 @@
 import { Topic, fetchTopics } from '@demo/utils/assets.endpoint';
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'preact/compat';
 import { PostersRail } from '../PostersRail';
 import { config } from '@demo/config';
 

@@ -5,7 +5,7 @@ import {
   FocusContext,
   useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation';
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes } from 'preact/compat';
 import { RailHeader } from './RailHeader';
 import { Rail } from './Rail';
 

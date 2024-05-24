@@ -1,6 +1,6 @@
 import { cn } from '@demo/utils';
 import { Topic } from '@demo/utils/assets.endpoint';
-import { HTMLAttributes, useMemo } from 'react';
+import { HTMLAttributes, useMemo } from 'preact/compat';
 import { PosterPage } from '@demo/components';
 import { config } from '@demo/config';
 

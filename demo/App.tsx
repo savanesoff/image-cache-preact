@@ -9,7 +9,7 @@ import {
   useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { CacheLock } from './cacheLock';
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from 'preact/compat';
 import { CacheStats } from './components/View/CacheStats';
 import { Button } from './components/Button';
 
