@@ -51,8 +51,6 @@ export type ImageProviderProps = ImgProps &
      * meaning at the edge of the viewport
      */
     visibilityMargin?: string;
-
-    className?: string;
   };
 
 /**
@@ -70,7 +68,6 @@ export const ImageProvider = ({
   retry,
   type,
   visibilityMargin,
-  className,
 }: ImageProviderProps) => {
   const [request, setRequest] = useState<RenderRequest | null>(null);
   const [cleared, setCleared] = useState(false);
@@ -142,21 +139,7 @@ export const ImageProvider = ({
   ]);
 
   return (
-    <div
-      data-cache-id={url}
-      ref={ref}
-      style={{
-        height: `${height}px`,
-        width: `${width}px`,
-        minHeight: `${height}px`,
-        minWidth: `${width}px`,
-        maxHeight: `${height}px`,
-        maxWidth: `${width}px`,
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-      className={className}
-    >
+    <>
       {request && (
         <ImageContext.Provider
           value={{ request, url: renderUrl, height, width, ref }}
@@ -164,6 +147,6 @@ export const ImageProvider = ({
           {children}
         </ImageContext.Provider>
       )}
-    </div>
+    </>
   );
 };

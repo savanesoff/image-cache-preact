@@ -23,8 +23,8 @@ export const Poster = ({
   pageNumber,
   showImmediately,
 }: PosterProps) => {
-  const { width, height } = useImage();
   const { ref, focused } = useFocusable();
+  const { width, height } = useImage({ ref });
 
   useEffect(() => {
     if (focused) {
@@ -46,6 +46,7 @@ export const Poster = ({
         minWidth: width,
         maxHeight: height,
         maxWidth: width,
+        position: 'relative',
       }}
     >
       <PosterImage
@@ -56,7 +57,7 @@ export const Poster = ({
         showImmediately={showImmediately}
       />
       <div
-        className={'absolute bottom-0 flex h-4 w-full flex-row justify-between'}
+        className={'absolute top-0 flex h-4 w-full flex-row justify-between'}
       >
         <PosterLoadStatus />
         <PosterRenderStatus />

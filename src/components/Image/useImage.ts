@@ -14,6 +14,7 @@ import { useContext, useEffect } from 'react';
 import { ImageContext, ImageContextType } from './Image';
 import { RenderRequestEvent } from '@lib/request';
 import { ImgEvent } from '@lib/image';
+import { MergeRefsType, useMergeRefs } from './useMergeRefs';
 
 export type UseImageEventTypes =
   | 'progress'
@@ -33,6 +34,7 @@ export type UseImageEvent<T extends UseImageEventTypes> =
  * The useImage hook provides a way to listen to events emitted by the image loader.
  */
 export type UseImageProps = {
+  ref?: MergeRefsType<HTMLElement>;
   /** A function that will be called when the load "progress" event is emitted. */
   onProgress?: (event: UseImageEvent<'progress'>) => void;
   /** A function that will be called when the load "error" event is emitted. */
@@ -57,6 +59,7 @@ export const useImage = ({
   onLoadend,
   onRendered,
   onRender,
+  ref = null,
 }: UseImageProps = {}): ImageContextType => {
   const context = useContext(ImageContext);
   if (!context) {
@@ -64,6 +67,7 @@ export const useImage = ({
   }
   const request = context.request;
   const image = context.request.image;
+  useMergeRefs(context.ref, ref);
 
   useEffect(() => {
     onProgress && image.on('progress', onProgress);
