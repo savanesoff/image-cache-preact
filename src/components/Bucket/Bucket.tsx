@@ -11,7 +11,7 @@
  */
 import { useController } from '@components/Controller';
 import { Bucket, BucketProps } from '@lib/bucket';
-import { createContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, ReactNode, useEffect, useMemo } from 'preact/compat';
 
 export type BucketContextType = {
   /** The bucket instance. */
@@ -30,15 +30,16 @@ export type BucketProviderProps = Partial<
  */
 export function BucketProvider({ children, lock, name }: BucketProviderProps) {
   const { controller } = useController();
-  const [bucket, setBucket] = useState<Bucket | null>(null);
+
+  const bucket = useMemo(
+    () => new Bucket({ name, lock, controller }),
+    [controller, lock, name],
+  );
 
   useEffect(() => {
-    const newBucket = new Bucket({ name, lock, controller });
-    setBucket(newBucket);
-    return () => newBucket.clear();
-  }, [controller, lock, name]);
+    return () => bucket.clear();
+  }, [bucket]);
 
-  if (!bucket) return null;
   return (
     <BucketContext.Provider value={{ bucket }}>
       {children}
