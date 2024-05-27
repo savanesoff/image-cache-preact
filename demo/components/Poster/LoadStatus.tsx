@@ -1,4 +1,4 @@
-import { HTMLAttributes, useCallback, useState } from 'preact/compat';
+import { HTMLAttributes, useCallback, useState } from 'react';
 import { ImgEvent, useImage } from '@cache';
 import { StatusBadge } from '@demo/components/StatusBadge';
 

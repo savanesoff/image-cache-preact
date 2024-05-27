@@ -39,9 +39,6 @@ export default defineConfig({
       react: 'preact/compat',
       'react-dom': 'preact/compat',
       'react-dom/test-utils': 'preact/test-utils',
-      'react/jsx-runtime': 'preact/jsx-runtime',
-      preact: 'preact/compat',
-      'preact/hooks': 'preact/hooks',
     },
   },
 });

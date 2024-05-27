@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'preact/compat';
+import { useContext, useEffect } from 'react';
 import { ControllerContext, ControllerContextType } from './Controller';
 import { ControllerEvent } from '@lib/controller';
 

@@ -4,7 +4,7 @@ import {
   fetchTopics,
   fetchAssets,
 } from '@demo/utils/assets.endpoint';
-import { useState, useEffect } from 'preact/compat';
+import { useState, useEffect } from 'react';
 import { config } from '@demo/config';
 
 export const useLockerAssets = () => {

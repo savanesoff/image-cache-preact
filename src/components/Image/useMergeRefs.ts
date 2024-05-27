@@ -1,4 +1,4 @@
-import { MutableRefObject, useCallback } from 'preact/compat';
+import { MutableRefObject, useCallback } from 'react';
 import { RefCallback } from 'preact';
 
 export type MergeRefsType<T> =

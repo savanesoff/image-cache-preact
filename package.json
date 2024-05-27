@@ -78,9 +78,6 @@
     "tailwindcss": "^3.4.3",
     "tslib": "^2.6.2"
   },
-  "peerDependencies": {
-    "preact": "^10.22.0"
-  },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
     "@noriginmedia/norigin-spatial-navigation": "^2.1.0",

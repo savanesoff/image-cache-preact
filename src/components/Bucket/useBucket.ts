@@ -10,7 +10,7 @@
  * while the "rendered" event is emitted when an image has been rendered.
  */
 import { BucketContext, BucketContextType } from './Bucket';
-import { useContext, useEffect } from 'preact/compat';
+import { useContext, useEffect } from 'react';
 import { BucketEvent } from '@lib/bucket';
 
 export type UseBucketProps = {

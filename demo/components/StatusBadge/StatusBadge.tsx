@@ -1,5 +1,5 @@
 import { cn } from '@demo/utils';
-import { HTMLAttributes } from 'preact/compat';
+import { HTMLAttributes } from 'react';
 
 export type StatusBadgeProps = HTMLAttributes<HTMLDivElement> & {
   status?: 'on' | 'error' | 'warn' | 'off';

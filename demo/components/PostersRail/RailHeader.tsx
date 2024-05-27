@@ -5,7 +5,7 @@ import {
   PageRenderStatus,
   VideoUsage,
 } from '@demo/components';
-import { HTMLAttributes } from 'preact/compat';
+import { HTMLAttributes } from 'react';
 import { AssetCount } from './AssetCount';
 import { Topic } from '@demo/utils';
 

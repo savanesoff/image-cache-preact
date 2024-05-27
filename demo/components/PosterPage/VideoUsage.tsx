@@ -1,5 +1,5 @@
 import { BucketVideoUnits, useBucket } from '@cache';
-import { useCallback, useState } from 'preact/compat';
+import { useCallback, useState } from 'react';
 import { StatusBadge } from '@demo/components';
 
 export const VideoUsage = () => {

@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
@@ -19,9 +19,6 @@
     "esModuleInterop": true,
     "types": ["vite/client", "vitest/globals", "vitest/jsdom"],
     "baseUrl": "./",
-    // Preact compatibility
-    "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment",
     "paths": {
       "@components/*": ["src/components/*"],
       "@lib/*": ["src/lib/*"],

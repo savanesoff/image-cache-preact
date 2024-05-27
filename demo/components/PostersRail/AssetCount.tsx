@@ -1,5 +1,5 @@
 import { useBucket, BucketEvent } from '@cache';
-import { useState, useCallback } from 'preact/compat';
+import { useState, useCallback } from 'react';
 import { StatusBadge } from '../StatusBadge/StatusBadge';
 
 export const AssetCount = () => {

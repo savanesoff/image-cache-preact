@@ -1,5 +1,5 @@
 import { useImage } from '@cache';
-import { useCallback, useState } from 'preact/compat';
+import { useCallback, useState } from 'react';
 import { StatusBadge } from '../StatusBadge';
 
 export const PosterRenderStatus = () => {

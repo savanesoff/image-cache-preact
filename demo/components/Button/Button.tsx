@@ -1,6 +1,6 @@
 import { cn } from '@demo/utils';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import { HTMLAttributes, useCallback, useEffect } from 'preact/compat';
+import { HTMLAttributes, useCallback, useEffect } from 'react';
 
 type ButtonProps = HTMLAttributes<HTMLButtonElement> & {
   onClick: () => void;
