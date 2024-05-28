@@ -23,22 +23,25 @@ export const Poster = ({
   pageNumber,
   showImmediately,
 }: PosterProps) => {
-  const { ref, focused } = useFocusable();
-  const { width, height } = useImage({ ref });
+  const { ref: focusRef, focused } = useFocusable();
+  const { width, height, visibilityRef } = useImage();
 
   useEffect(() => {
     if (focused) {
-      ref.current?.scrollIntoView({
+      focusRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
         inline: 'center',
       });
     }
-  }, [focused, ref]);
+  }, [focused, focusRef]);
 
   return (
     <div
-      ref={ref}
+      ref={node => {
+        focusRef.current = node;
+        visibilityRef(node);
+      }}
       style={{
         width: width,
         height: height,

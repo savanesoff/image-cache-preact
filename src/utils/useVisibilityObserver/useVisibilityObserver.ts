@@ -2,8 +2,6 @@ import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 export type VisibilityObserverProps = {
-  /** The ref of the element to observe */
-  ref: React.RefObject<HTMLElement>;
   /**
    * The root element to use for intersection. Ex: parent Scrollable.
    * If not provided, the viewport is used.
@@ -53,13 +51,14 @@ export type VisibilityObserverProps = {
 export type VisibilityObserverReturn = {
   /** Whether the element is visible */
   visible: boolean;
+  /** The ref to attach to the element */
+  ref: (node?: HTMLElement | null) => void; // The type for the ref callback
 };
 
 /**
  * A hook that observes the visibility of an element.
  */
 export const useVisibilityObserver = ({
-  ref,
   root,
   rootMargin,
   threshold = 0,
@@ -67,7 +66,7 @@ export const useVisibilityObserver = ({
   onInvisible,
 }: VisibilityObserverProps) => {
   const {
-    ref: inViewRef,
+    ref,
     inView: visible,
     // entry,
   } = useInView({
@@ -78,10 +77,6 @@ export const useVisibilityObserver = ({
   });
 
   useEffect(() => {
-    inViewRef(ref.current);
-  }, [inViewRef, ref]);
-
-  useEffect(() => {
     if (visible) {
       onVisible?.();
     } else {
@@ -89,5 +84,5 @@ export const useVisibilityObserver = ({
     }
   }, [onVisible, onInvisible, visible]);
 
-  return { visible };
+  return { visible, ref };
 };

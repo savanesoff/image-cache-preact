@@ -24,7 +24,6 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 
@@ -36,7 +35,7 @@ export type ImageContextType = {
   height: number;
   width: number;
   url: string | null;
-  ref: React.RefObject<HTMLDivElement>;
+  visibilityRef: (node: HTMLElement | null) => void; // The type for the ref callback;
 };
 
 export const ImageContext = createContext<ImageContextType>(
@@ -72,11 +71,10 @@ export const ImageProvider = ({
   const [request, setRequest] = useState<RenderRequest | null>(null);
   const [cleared, setCleared] = useState(false);
   const [renderUrl, setRenderUrl] = useState<string | null>(null);
-  // need to track visibility of the image to handle clearing
-  const ref = useRef<HTMLDivElement>(null);
-  const { visible } = useVisibilityObserver({
-    ref,
+
+  const { visible, ref } = useVisibilityObserver({
     rootMargin: visibilityMargin,
+    root: document.getElementById('root'),
   });
 
   const { bucket } = useBucket();
@@ -142,7 +140,7 @@ export const ImageProvider = ({
     <>
       {request && (
         <ImageContext.Provider
-          value={{ request, url: renderUrl, height, width, ref }}
+          value={{ request, url: renderUrl, height, width, visibilityRef: ref }}
         >
           {children}
         </ImageContext.Provider>

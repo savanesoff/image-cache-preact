@@ -1,7 +1,7 @@
 import devtoolsFPS from 'devtools-fps';
 import { cn } from './utils';
 import { ControllerProvider } from '@cache';
-
+import 'preact/debug';
 import { View } from '@demo/components';
 import {
   FocusContext,

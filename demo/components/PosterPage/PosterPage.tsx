@@ -3,7 +3,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { BucketProviderProps, ImageProvider } from '@cache';
@@ -36,7 +35,6 @@ export const PosterPage = ({
   const [fetchStatus, setFetchStatus] = useState<
     'idle' | 'loading' | 'loaded' | 'error'
   >('idle');
-  const ref = useRef<HTMLDivElement>(null);
 
   /**
    * Fetches the assets for the page
@@ -59,8 +57,7 @@ export const PosterPage = ({
     if (fetchStatus === 'idle') fetchData();
   }, [fetchData, fetchStatus]);
 
-  useVisibilityObserver({
-    ref,
+  const { ref } = useVisibilityObserver({
     rootMargin: config.visibilityMargin,
     onVisible,
   });

@@ -7,8 +7,8 @@ export const config = {
     renderHeight: 160,
   },
 
-  topics: 1,
+  topics: 2,
   perPage: 10,
   pages: 10,
-  visibilityMargin: '200px',
+  visibilityMargin: '500px',
 };

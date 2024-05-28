@@ -11,7 +11,7 @@
  */
 import { useController } from '@components/Controller';
 import { Bucket, BucketProps } from '@lib/bucket';
-import { createContext, ReactNode, useEffect, useMemo } from 'preact/compat';
+import { createContext, ReactNode, useEffect, useMemo } from 'react';
 
 export type BucketContextType = {
   /** The bucket instance. */
