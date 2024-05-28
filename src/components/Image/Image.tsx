@@ -74,7 +74,7 @@ export const ImageProvider = ({
 
   const { visible, ref } = useVisibilityObserver({
     rootMargin: visibilityMargin,
-    root: document.getElementById('root'),
+    initialInView: true,
   });
 
   const { bucket } = useBucket();
