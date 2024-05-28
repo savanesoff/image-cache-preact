@@ -17,7 +17,7 @@ init({
   // options
   shouldFocusDOMNode: true,
   shouldUseNativeEvents: true,
-  // useGetBoundingClientRect: true,
+  useGetBoundingClientRect: true,
   throttle: 160,
 });
 
