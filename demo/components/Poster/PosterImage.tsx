@@ -65,6 +65,8 @@ export const PosterImage = ({
           backgroundImage: `url(${url})`,
           backgroundSize: `${width}px ${height}px`,
         }}
+        data-testid={'poster-image-'}
+        data-rendered={!!url}
       />
 
       <div
