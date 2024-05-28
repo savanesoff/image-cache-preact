@@ -46,6 +46,7 @@ export type VisibilityObserverProps = {
   onVisible?: () => void;
   /** Callback when the element becomes invisible */
   onInvisible?: () => void;
+  initialInView?: boolean;
 };
 
 export type VisibilityObserverReturn = {
@@ -62,6 +63,7 @@ export const useVisibilityObserver = ({
   root,
   rootMargin,
   threshold = 0,
+  initialInView,
   onVisible,
   onInvisible,
 }: VisibilityObserverProps) => {
@@ -74,6 +76,7 @@ export const useVisibilityObserver = ({
     threshold,
     root,
     rootMargin,
+    initialInView,
   });
 
   useEffect(() => {
