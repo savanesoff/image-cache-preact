@@ -30,7 +30,7 @@ export type RenderRequestEvent<T extends RenderRequestEventTypes> = {
   target: RenderRequest;
 } & (T extends 'error' ? Omit<ImgEvent<'error'>, 'target'> : unknown) &
   (T extends 'progress' ? Omit<ImgEvent<'progress'>, 'target'> : unknown) &
-  (T extends 'render' | 'rendering' ? RendererProps : unknown) &
+  (T extends 'render' | 'rendering' ? { renderTime: number } : unknown) &
   (T extends 'loadstart' ? Omit<ImgEvent<'loadstart'>, 'target'> : unknown) &
   (T extends 'rendered' ? { url: string | null } : unknown);
 
@@ -110,7 +110,6 @@ export class RenderRequest extends Logger {
     this.image.off('loadstart', this.#onloadStart);
     this.image.off('progress', this.#onProgress);
     this.image.off('error', this.#onImageError);
-    this.emit('rendered', { url: null });
     this.emit('clear');
     if (this.#renderTimeout) {
       clearTimeout(this.#renderTimeout);
@@ -142,9 +141,9 @@ export class RenderRequest extends Logger {
     const isRendered = renderTime === 0;
     // if renderer provided, call it
     if (!isRendered && this.bucket.controller.renderer) {
-      this.bucket.controller.renderer({ request: this, renderTime });
+      this.bucket.controller.renderer({ target: this, renderTime });
     } else if (!isRendered && this.emit('render', { renderTime }) !== true) {
-      renderer({ request: this, renderTime });
+      renderer({ target: this, renderTime });
     }
 
     this.#renderTimeout = setTimeout(this.#onRendered, renderTime);
