@@ -73,6 +73,12 @@ export const useBucket = ({
       images: context.bucket.getImages().size,
     });
 
+    onProgress?.({
+      type: 'progress',
+      target: context.bucket,
+      progress: context.bucket.loadProgress,
+    });
+
     return () => {
       onProgress && context.bucket.off('progress', onProgress);
       onError && context.bucket.off('error', onError);

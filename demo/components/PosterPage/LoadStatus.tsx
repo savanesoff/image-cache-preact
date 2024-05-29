@@ -8,6 +8,7 @@ export const PageLoadStatus = () => {
     setProgress(Math.round(event.progress * 100));
   }, []);
   useBucket({ onProgress });
+
   return (
     <StatusBadge
       status={progress !== 100 ? 'off' : 'on'}
