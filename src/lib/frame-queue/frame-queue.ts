@@ -82,6 +82,7 @@ export class FrameQueue extends Logger {
       logLevel,
     });
     this.hwRank = hwRank;
+    this.log.info([`hwRank: ${this.hwRank}`]);
   }
 
   /**
