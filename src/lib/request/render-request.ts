@@ -75,6 +75,8 @@ export class RenderRequest extends Logger {
     if (!this.image.loaded) {
       this.image.on('size', this.request);
     } else {
+      this.emit('progress');
+      this.emit('loadend');
       this.request();
     }
   }
