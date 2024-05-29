@@ -1,10 +1,17 @@
+// detect if
+const host = location.hostname || 'localhost';
+const images = {
+  big: 'test-4k.jpg',
+  small: 'test-small.png',
+  tiny: 'movie-poster-155x210.jpg',
+};
 export const config = {
   image: {
-    baseUrl: 'http://localhost:8080/test-small.png',
+    baseUrl: `http://${host}:8080/${images.big}`,
     mimeType: 'image/png',
     colorType: 'RGBA',
-    renderWidth: 100,
-    renderHeight: 160,
+    renderWidth: 155,
+    renderHeight: 210,
   },
 
   topics: 2,
