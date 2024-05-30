@@ -70,7 +70,7 @@ export class FrameQueue extends Logger {
    * Where bytes refers to the uncompressed image size.
    * and can be adjusted based on the platform's performance.
    */
-  static readonly bytesPerFrameRatio = 50000;
+  static readonly bytesPerFrameRatio = 500;
 
   constructor({
     name = 'Frame queue',
@@ -126,8 +126,12 @@ export class FrameQueue extends Logger {
       return;
     }
 
-    this.log.info([`processing: ${this.queue.size}`]);
     const renderTime = this.#getRenderTime(request);
+
+    this.log.info([
+      `processing: ${this.queue.size}`,
+      `renderTime: ${renderTime}`,
+    ]);
     this.queue.delete(request);
     request.render({ renderTime });
 
