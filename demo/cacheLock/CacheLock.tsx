@@ -57,6 +57,7 @@ const LockerImage = ({ asset, ...props }: LockerImageProps) => {
       headers={headers}
       width={config.image.renderWidth}
       height={config.image.renderHeight}
+      trackVisibility={false}
     >
       <LockerImageEvents {...props} />
     </ImageProvider>

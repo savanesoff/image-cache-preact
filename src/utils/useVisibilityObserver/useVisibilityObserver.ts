@@ -1,83 +1,168 @@
-import { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
+/**
+ * useVisibilityObserver.ts
+ *
+ * A custom hook to track the visibility of an element within the viewport, including support for margins similar to the IntersectionObserver API.
+ * The hook continuously checks the element's visibility at a specified interval, calling the provided callbacks when the element becomes visible or invisible.
+ */
 
-export type VisibilityObserverProps = {
+import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+
+// Type definitions for the hook's props
+export type VisibilityTrackerProps = {
   /**
-   * The root element to use for intersection. Ex: parent Scrollable.
-   * If not provided, the viewport is used.
+   * The delay in milliseconds between visibility checks. Default is 100ms.
    */
-  root?: HTMLElement | null;
+  delay?: number;
+
   /**
-   * The margin around the root.
-   *
-   * Acts like the CSS margin property, but in the opposite direction,
-   * meaning, you can push the intersection further away or pull it closer.
-   *
-   * If margin is set to 10px, the intersection will happen 10px before the element is visible.
-   * If margin is set to -10px, the intersection will happen 10px after the element is visible.
-   *
-   * Can have values similar to the CSS margin property,
-   * e.g.
-   * ```ts
-   * "10px 20px 30px 40px"; // (top, right, bottom, left)
-   * ```
+   * A CSS-like margin to expand or contract the area used to determine visibility. Default is '0px'.
    */
   rootMargin?: string;
+
   /**
-   * Either a single number or an array of numbers,
-   * which indicate at what percentage of the target's visibility the observer's callback should be executed.
-   *
-   * If you only want to detect when visibility passes the 50% mark,
-   * you can use a value of `0.5`.
-   *
-   * If you want the callback to run every time visibility passes another 25%,
-   * you would specify the array
-   *
-   * ```ts
-   * [0, 0.25, 0.5, 0.75, 1]
-   * ```
-   * in which case the callback will run at the `0%` mark, the `25%` mark,
-   * the `50%` mark, the `75%` mark, and the `100%` mark.
-   *
-   * The default is 0 (meaning as soon as even one pixel is visible, the callback will be run).
+   * Callback function to be called when the element becomes visible.
    */
-  threshold?: number | number[];
-  /** Callback when the element becomes visible */
   onVisible?: () => void;
-  /** Callback when the element becomes invisible */
+
+  /**
+   * Callback function to be called when the element becomes invisible.
+   */
   onInvisible?: () => void;
+
+  /**
+   * Initial visibility state. Default is false.
+   */
   initialInView?: boolean;
+  /**
+   * Whether to track visibility of the element. Default is true.
+   * If set to false, the element will be considered visible at all times, regardless of its actual visibility of initialInView value.
+   */
+  trackVisibility?: boolean;
 };
 
-export type VisibilityObserverReturn = {
-  /** Whether the element is visible */
+// Type definitions for the hook's return value
+export type VisibilityTrackerReturn = {
+  /**
+   * Whether the element is currently visible.
+   */
   visible: boolean;
-  /** The ref to attach to the element */
-  ref: (node?: HTMLElement | null) => void; // The type for the ref callback
+
+  /**
+   * A ref callback to attach to the element to be observed.
+   */
+  ref: (node?: HTMLElement | null) => void;
 };
 
 /**
- * A hook that observes the visibility of an element.
+ * Parses a CSS-like margin string into an object with top, right, bottom, and left properties.
+ *
+ * @param margin - A CSS-like margin string (e.g., '10px', '10px 20px', '10px 20px 30px', '10px 20px 30px 40px').
+ * @returns An object with top, right, bottom, and left properties.
+ */
+const parseRootMargin = (margin: string) => {
+  const values = margin.split(' ').map(value => parseInt(value, 10));
+
+  switch (values.length) {
+    case 1:
+      return {
+        top: values[0],
+        right: values[0],
+        bottom: values[0],
+        left: values[0],
+      };
+    case 2:
+      return {
+        top: values[0],
+        right: values[1],
+        bottom: values[0],
+        left: values[1],
+      };
+    case 3:
+      return {
+        top: values[0],
+        right: values[1],
+        bottom: values[2],
+        left: values[1],
+      };
+    case 4:
+      return {
+        top: values[0],
+        right: values[1],
+        bottom: values[2],
+        left: values[3],
+      };
+    default:
+      return {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+      };
+  }
+};
+
+/**
+ * A custom hook that tracks the visibility of an element within the viewport.
+ *
+ * @param delay - The delay in milliseconds between visibility checks.
+ * @param rootMargin - A CSS-like margin string to expand or contract the area used to determine visibility.
+ * @param onVisible - Callback function to be called when the element becomes visible.
+ * @param onInvisible - Callback function to be called when the element becomes invisible.
+ * @param initialInView - Initial visibility state.
+ * @returns An object containing the visibility state and a ref callback to attach to the element.
  */
 export const useVisibilityObserver = ({
-  root,
-  rootMargin,
-  threshold = 0,
-  initialInView,
+  delay = 100,
+  rootMargin = '0px',
   onVisible,
   onInvisible,
-}: VisibilityObserverProps) => {
-  const {
-    ref,
-    inView: visible,
-    // entry,
-  } = useInView({
-    /* Optional options */
-    threshold,
-    root,
-    rootMargin,
-    initialInView,
-  });
+  initialInView = false,
+  trackVisibility = true,
+}: VisibilityTrackerProps): VisibilityTrackerReturn => {
+  const [visible, setVisible] = useState(initialInView || !trackVisibility);
+  const targetRef = useRef<HTMLElement | null>(null);
+  const intervalRef = useRef<number | null>(null);
+  const { top, right, bottom, left } = parseRootMargin(rootMargin);
+
+  // Callback to check the visibility of the target element
+  const checkVisibility = useCallback(() => {
+    if (!targetRef.current) return;
+    const rect = targetRef.current.getBoundingClientRect();
+    const inView =
+      rect.bottom > -top &&
+      rect.right > -left &&
+      rect.top < window.innerHeight + bottom &&
+      rect.left < window.innerWidth + right;
+
+    if (inView) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+    }
+  }, [top, right, bottom, left]);
+
+  useEffect(() => {
+    if (!trackVisibility) {
+      setVisible(true);
+      return;
+    }
+    // Start the interval to check visibility
+    const startChecking = () => {
+      if (intervalRef.current) return;
+      intervalRef.current = window.setInterval(checkVisibility, delay);
+    };
+
+    // Stop the interval to check visibility
+    const stopChecking = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+
+    startChecking();
+    return () => stopChecking(); // Clean up interval on unmount
+  }, [checkVisibility, delay, trackVisibility]);
 
   useEffect(() => {
     if (visible) {
@@ -85,7 +170,12 @@ export const useVisibilityObserver = ({
     } else {
       onInvisible?.();
     }
-  }, [onVisible, onInvisible, visible]);
+  }, [visible, onVisible, onInvisible]);
+
+  // Ref callback to attach to the target element
+  const ref = useCallback((node?: HTMLElement | null) => {
+    if (node) targetRef.current = node;
+  }, []);
 
   return { visible, ref };
 };

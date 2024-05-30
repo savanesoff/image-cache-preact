@@ -53,14 +53,15 @@ export const PosterPage = ({
     }
   }, [topic, pageNumber]);
 
-  const onVisible = useCallback(() => {
-    if (fetchStatus === 'idle') fetchData();
-  }, [fetchData, fetchStatus]);
-
-  const { ref } = useVisibilityObserver({
+  const { visible, ref } = useVisibilityObserver({
     rootMargin: config.visibilityMargin,
-    onVisible,
   });
+
+  useEffect(() => {
+    if (visible && fetchStatus === 'idle') {
+      fetchData();
+    }
+  }, [fetchStatus, fetchData, visible]);
 
   useEffect(() => {
     if (immediateFetch) {
@@ -77,7 +78,11 @@ export const PosterPage = ({
       )}
       {...props}
     >
-      {!pageData && <div>{fetchStatus}</div>}
+      {!pageData && (
+        <div className="flex h-full w-full items-center justify-center bg-slate-900">
+          {fetchStatus}
+        </div>
+      )}
       {pageData?.assets.map((asset, index) => (
         <ImageContent
           key={asset.title}

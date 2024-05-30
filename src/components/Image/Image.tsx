@@ -50,11 +50,24 @@ export type ImageProviderProps = ImgProps &
      * meaning at the edge of the viewport
      */
     visibilityMargin?: string;
+    /**
+     * Whether to track the visibility of the image
+     */
+    trackVisibility?: boolean;
   };
 
 /**
  * Provides an image to its children.
- * @param props - The properties for the provider.
+ * @param children - The children to render.
+ * @param height - The height of the image.
+ * @param width - The width of the image.
+ * @param url - The URL of the image.
+ * @param gpuDataFull - The GPU handling mode for the image.
+ * @param headers - The headers for the image.
+ * @param retry - The number of times to retry loading the image.
+ * @param type - The type of the image.
+ * @param visibilityMargin - The margin for the visibility.
+ * @param trackVisibility - Whether to track the visibility of the image. Default is true.
  * @returns The image provider.
  */
 export const ImageProvider = ({
@@ -67,14 +80,15 @@ export const ImageProvider = ({
   retry,
   type,
   visibilityMargin,
+  trackVisibility = true,
 }: ImageProviderProps) => {
   const [request, setRequest] = useState<RenderRequest | null>(null);
   const [cleared, setCleared] = useState(false);
   const [renderUrl, setRenderUrl] = useState<string | null>(null);
-
   const { visible, ref } = useVisibilityObserver({
     rootMargin: visibilityMargin,
     initialInView: true,
+    trackVisibility,
   });
 
   const { bucket } = useBucket();
