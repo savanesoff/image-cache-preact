@@ -118,6 +118,7 @@
     "swc-loader": "^0.2.6",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "ttypescript": "^1.5.15",
