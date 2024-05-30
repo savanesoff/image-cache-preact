@@ -10,7 +10,7 @@
  * while the "rendered" event is emitted by the `RenderRequest`.
  *
  */
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'preact/hooks';
 import { ImageContext, ImageContextType } from './Image';
 import { RenderRequestEvent } from '@lib/request';
 import { ImgEvent } from '@lib/image';

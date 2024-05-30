@@ -7,16 +7,14 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
+    "moduleResolution": "bundler",
     "noEmit": false,
     "outDir": "./dist/types",
     "baseUrl": "./",
     "paths": {
       "@components/*": ["src/components/*"],
       "@lib/*": ["src/lib/*"],
-      "@utils": ["src/utils"],
-      "react": ["node_modules/preact/compat"],
-      "react-dom": ["node_modules/preact/compat"],
-      "react/jsx-runtime": ["node_modules/preact/jsx-runtime"]
+      "@utils": ["src/utils"]
     },
     "plugins": [
       {
