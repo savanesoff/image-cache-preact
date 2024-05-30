@@ -5,7 +5,7 @@
  * The hook continuously checks the element's visibility at a specified interval, calling the provided callbacks when the element becomes visible or invisible.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 // Type definitions for the hook's props
 export type VisibilityTrackerProps = {
