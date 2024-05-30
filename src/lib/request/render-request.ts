@@ -143,9 +143,13 @@ export class RenderRequest extends Logger {
     const isRendered = renderTime === 0;
     // if renderer provided, call it
     if (!isRendered && this.bucket.controller.renderer) {
-      this.bucket.controller.renderer({ target: this, renderTime });
+      this.bucket.controller.renderer({
+        target: this,
+        renderTime,
+        type: 'render',
+      });
     } else if (!isRendered && this.emit('render', { renderTime }) !== true) {
-      renderer({ target: this, renderTime });
+      renderer({ target: this, renderTime, type: 'render' });
     }
 
     this.#renderTimeout = setTimeout(this.#onRendered, renderTime);

@@ -1,12 +1,9 @@
-import { RenderRequest } from '@lib/request/index.js';
+import { RenderRequestEvent } from '@lib/request/index.js';
 
 export const renderer = ({
   target,
   renderTime,
-}: {
-  target: RenderRequest;
-  renderTime: number;
-}) => {
+}: RenderRequestEvent<'render'>) => {
   // create div of w/h set opacity to 0.1 append to body, ren remove on next frame
   const div = document.createElement('div');
   const style = {

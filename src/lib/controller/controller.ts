@@ -120,13 +120,13 @@ export class Controller extends Logger {
     this.network = new Network({ loaders });
     this.ram = new Memory({
       size: ram,
-      units: units,
+      units,
       logLevel,
       name: 'RAM',
     });
     this.video = new Memory({
       size: video,
-      units: units,
+      units,
       logLevel,
       name: 'VIDEO',
     });
