@@ -1,6 +1,7 @@
 import devtoolsFPS from 'devtools-fps';
 import { cn } from './utils';
 import { ControllerProvider } from '@cache';
+import 'preact/debug';
 import { View } from '@demo/components';
 import {
   FocusContext,
@@ -8,7 +9,7 @@ import {
   useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { CacheLock } from './cacheLock';
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback, useState } from 'react';
 import { CacheStats } from './components/View/CacheStats';
 import { Button } from './components/Button';
 
@@ -79,7 +80,7 @@ function App() {
           video={30000}
           units="MB"
           hwRank={0.8} // 0-1
-          gpuDataFull
+          gpuDataFull={true}
         >
           <CacheStats />
 

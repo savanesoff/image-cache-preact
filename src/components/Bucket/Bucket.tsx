@@ -11,21 +11,18 @@
  */
 import { useController } from '@components/Controller';
 import { Bucket, BucketProps } from '@lib/bucket';
-import { createContext, VNode } from 'preact';
-import { useEffect, useMemo } from 'preact/hooks';
+import { createContext, ReactNode, useEffect, useMemo } from 'react';
 
 export type BucketContextType = {
   /** The bucket instance. */
   bucket: Bucket;
 };
-export const BucketContext = createContext<BucketContextType>(
-  {} as BucketContextType,
-);
+export const BucketContext = createContext<BucketContextType | null>(null);
 
 export type BucketProviderProps = Partial<
   Pick<BucketProps, 'name' | 'lock'>
 > & {
-  children?: VNode | VNode[];
+  children?: ReactNode;
 };
 
 /**

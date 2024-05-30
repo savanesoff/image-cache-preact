@@ -18,11 +18,17 @@
  */
 import { useBucket } from '@components/Bucket';
 import { ImgProps } from '@lib/image';
-import { Size, useVisibilityObserver } from '@utils';
-import { createContext, VNode } from 'preact';
+import { Size } from '@utils';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 
+import { useVisibilityObserver } from '@utils';
 import { RenderRequest } from '@lib/request';
-import { useCallback, useEffect, useState } from 'preact/hooks';
 
 export type ImageContextType = {
   request: RenderRequest;
@@ -38,7 +44,7 @@ export const ImageContext = createContext<ImageContextType>(
 
 export type ImageProviderProps = ImgProps &
   Size & {
-    children?: VNode | VNode[];
+    children?: ReactNode;
     /**
      * How far off the screen to trigger rendering, default 0,
      * meaning at the edge of the viewport

@@ -2,10 +2,8 @@
  * The `ControllerProvider` component is a React context provider for a `Controller` instance.
  * It provides a `ControllerContext` that contains a `Controller` instance.
  */
-
+import { createContext, ReactNode, useEffect, useMemo } from 'react';
 import { ControllerProps, Controller } from '@lib/controller';
-import { createContext, VNode } from 'preact';
-import { useEffect, useMemo } from 'preact/hooks';
 
 export type ControllerContextType = {
   controller: Controller;
@@ -15,7 +13,7 @@ export const ControllerContext = createContext<ControllerContextType | null>(
 );
 
 export type ControllerProviderProps = ControllerProps & {
-  children?: VNode | VNode[];
+  children: ReactNode;
 };
 
 /**
