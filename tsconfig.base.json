@@ -37,7 +37,8 @@
     "plugins": [
       {
         "transform": "typescript-transform-paths",
-        "afterDeclarations": true
+        "afterDeclarations": true,
+        "exclude": ["**/node_modules/**"]
       }
     ]
   },
