@@ -61,7 +61,7 @@ export class RenderRequest extends Logger {
    * @param props - Additional properties for the request.
    */
   constructor({ size, bucket, ...props }: RenderRequestProps) {
-    super({ name: 'RenderRequest', logLevel: 'warn' });
+    super({ name: 'RenderRequest', logLevel: 'error' });
     this.size = size;
     this.bucket = bucket;
     this.frameQueue = this.bucket.controller.frameQueue;
@@ -74,9 +74,13 @@ export class RenderRequest extends Logger {
 
     if (!this.image.loaded) {
       this.image.on('size', this.request);
+    } else if (this.image.isDecoded(size)) {
+      this.log.verbose(['Image already decoded', this.image.url]);
+      this.bytesVideo = this.image.getBytesVideo(this.size);
+      this.rendered = true;
+      setTimeout(() => this.#onRendered(), 0);
     } else {
       this.emit('progress');
-      this.emit('loadend');
       this.request();
     }
   }
