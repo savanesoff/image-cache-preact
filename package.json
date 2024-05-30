@@ -63,7 +63,7 @@
     "prepack": "pnpm run build",
     "clear:demo": "rm -rf dist-demo; mkdir dist-demo",
     "clean:package": "rm -rf ./dist",
-    "build:types": "tsc --project tsconfig.package.json",
+    "build:types": "tspc --project tsconfig.package.json",
     "build:package": "pnpm run clean:package && vite build && pnpm run build:types",
     "build:demo": "pnpm clear:demo; bash ./demo-build.sh --path tsconfig.build.demo.json",
     "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo"
@@ -118,6 +118,7 @@
     "swc-loader": "^0.2.6",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
+    "ts-patch": "^3.1.2",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
