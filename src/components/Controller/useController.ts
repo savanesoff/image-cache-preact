@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { ControllerContext, ControllerContextType } from './Controller';
-import { ControllerEvent } from '@lib/controller';
+import { ControllerEvent } from 'image-cache-pro';
 
 type UseControllerProps = {
   /** Event handler for RAM overflow */

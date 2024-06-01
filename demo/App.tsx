@@ -79,7 +79,7 @@ function App() {
           ram={50000}
           video={30000}
           units="MB"
-          hwRank={0.8} // 0-1
+          hwRank={0.999} // 0-1
           gpuDataFull={true}
         >
           <CacheStats />

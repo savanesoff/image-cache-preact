@@ -10,7 +10,7 @@
  * The `BucketProvider` component also uses the `useEffect` hook to clear the `Bucket` when the component is unmounted.
  */
 import { useController } from '@components/Controller';
-import { Bucket, BucketProps } from '@lib/bucket';
+import { Bucket, BucketProps } from 'image-cache-pro';
 import { createContext, ReactNode, useEffect, useMemo } from 'react';
 
 export type BucketContextType = {

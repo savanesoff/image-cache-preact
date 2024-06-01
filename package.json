@@ -28,7 +28,7 @@
     "type": "git",
     "url": "git+https://github.com/savanesoff/image-cache-react"
   },
-  "packageManager": "^pnpm@8.6.6",
+  "packageManager": "pnpm@9.1.4",
   "keywords": [
     "cache",
     "image",
@@ -71,6 +71,7 @@
   "dependencies": {
     "clsx": "^2.1.0",
     "events": "^3.3.0",
+    "image-cache-pro": "^0.4.2",
     "lorem-ipsum": "^2.0.8",
     "preact": "^10.22.0",
     "react-intersection-observer": "^9.10.2",
@@ -121,8 +122,6 @@
     "ts-patch": "^3.1.2",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
-    "tsconfig-paths-webpack-plugin": "^4.1.0",
-    "ttypescript": "^1.5.15",
     "typescript": "^5.4.5",
     "typescript-transform-paths": "^3.4.7",
     "vite": "^5.2.11",

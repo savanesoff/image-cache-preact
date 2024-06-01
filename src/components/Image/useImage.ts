@@ -12,8 +12,7 @@
  */
 import { useContext, useEffect } from 'react';
 import { ImageContext, ImageContextType } from './Image';
-import { RenderRequestEvent } from '@lib/request';
-import { ImgEvent } from '@lib/image';
+import { RenderRequestEvent, ImgEvent } from 'image-cache-pro';
 
 export type UseImageEventTypes =
   | 'progress'

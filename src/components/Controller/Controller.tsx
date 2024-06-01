@@ -3,7 +3,7 @@
  * It provides a `ControllerContext` that contains a `Controller` instance.
  */
 import { createContext, ReactNode, useEffect, useMemo } from 'react';
-import { ControllerProps, Controller } from '@lib/controller';
+import { ControllerProps, Controller } from 'image-cache-pro';
 
 export type ControllerContextType = {
   controller: Controller;

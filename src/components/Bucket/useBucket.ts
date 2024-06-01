@@ -11,7 +11,7 @@
  */
 import { BucketContext, BucketContextType } from './Bucket';
 import { useContext, useEffect } from 'react';
-import { BucketEvent } from '@lib/bucket';
+import { BucketEvent } from 'image-cache-pro';
 
 export type UseBucketProps = {
   /** The progress event handler. */

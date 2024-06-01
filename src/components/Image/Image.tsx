@@ -17,8 +17,7 @@
  * which contains the `Img` instance and the `RenderRequest` for the image.
  */
 import { useBucket } from '@components/Bucket';
-import { ImgProps } from '@lib/image';
-import { Size } from '@utils';
+import { ImgProps, Size, RenderRequest } from 'image-cache-pro';
 import {
   createContext,
   ReactNode,
@@ -28,7 +27,6 @@ import {
 } from 'react';
 
 import { useVisibilityObserver } from '@utils';
-import { RenderRequest } from '@lib/request';
 
 export type ImageContextType = {
   request: RenderRequest;
