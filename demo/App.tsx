@@ -1,8 +1,7 @@
 import devtoolsFPS from 'devtools-fps';
 import { cn } from './utils';
 import { ControllerProvider } from '@cache';
-import 'preact/debug';
-import { View } from '@demo/components';
+// import 'preact/debug';
 import {
   FocusContext,
   init,
@@ -12,12 +11,13 @@ import { CacheLock } from './cacheLock';
 import { useCallback, useState } from 'react';
 import { CacheStats } from './components/View/CacheStats';
 import { Button } from './components/Button';
+import { RailsView } from './components/View/RailsView';
 
 init({
   // options
   shouldFocusDOMNode: true,
   shouldUseNativeEvents: true,
-  useGetBoundingClientRect: true,
+  // useGetBoundingClientRect: true,
   throttle: 160,
 });
 
@@ -27,7 +27,7 @@ devtoolsFPS.config({
   height: 50,
   style: {
     // position: "fixed",
-    bottom: '0',
+    top: '0',
     right: '0',
     zIndex: '9999',
   },
@@ -58,33 +58,48 @@ function App() {
             'p-2',
             'w-full',
             'text-xl',
+            'flex flex-row items-center gap-2',
           )}
         >
-          React Image Cache Demo
+          <div>
+            Demo:{' '}
+            <a
+              href={'https://github.com/savanesoff/image-cache-preact'}
+              className={'text-orange-300 underline hover:text-orange-500'}
+            >
+              preact-image-cache
+            </a>
+          </div>
           <Button
             disabled={!lockReady}
             title={
               !lockReady
                 ? 'loading...'
                 : !showView
-                  ? 'Launch View'
+                  ? 'Launch Loaded View'
                   : 'Close View'
             }
             onClick={onToggleView}
             className="text-sm"
           />
+          <div className="text-sm text-orange-300">
+            Use your keys to navigate
+          </div>
+          <div className="text-4xl font-extrabold text-slate-500">
+            {'\u2191\u2193\u2190\u2192 '}
+          </div>
         </div>
         <ControllerProvider
           loaders={6}
-          ram={50000}
-          video={30000}
+          ram={2000}
+          video={20}
           units="MB"
           hwRank={0.999} // 0-1
-          gpuDataFull={true}
+          gpuDataFull={false}
         >
           <CacheStats />
 
-          {showView && <View />}
+          {showView && <RailsView />}
           <CacheLock onRendered={onCacheLockReady} />
         </ControllerProvider>
       </div>

@@ -14,9 +14,6 @@ importers:
       events:
         specifier: ^3.3.0
         version: 3.3.0
-      image-cache-pro:
-        specifier: ^0.4.2
-        version: 0.4.2
       lorem-ipsum:
         specifier: ^2.0.8
         version: 2.0.8
@@ -1847,9 +1844,6 @@ packages:
   ignore@5.3.1:
     resolution: {integrity: sha512-5Fytz/IraMjqpwfd34ke28PTVMjZjJG2MPn5t7OE4eUCUNf8BAa7b5WUS9/Qvr6mwOQS7Mk6vdsMno5he+T8Xw==}
     engines: {node: '>= 4'}
-
-  image-cache-pro@0.4.2:
-    resolution: {integrity: sha512-e0e9bQiou2e+S8Y+9I9cZvrkC69MvzGFZ9Rgknn3i1YCaRwc2Qb9zOO/HXcSFZGYOxHGtq19ThA0nDvzcbd4zw==}
 
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
@@ -5099,11 +5093,6 @@ snapshots:
       safer-buffer: 2.1.2
 
   ignore@5.3.1: {}
-
-  image-cache-pro@0.4.2:
-    dependencies:
-      events: 3.3.0
-      tslib: 2.6.2
 
   import-fresh@3.3.0:
     dependencies:

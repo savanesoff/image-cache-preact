@@ -71,7 +71,6 @@
   "dependencies": {
     "clsx": "^2.1.0",
     "events": "^3.3.0",
-    "image-cache-pro": "^0.4.2",
     "lorem-ipsum": "^2.0.8",
     "preact": "^10.22.0",
     "react-intersection-observer": "^9.10.2",

@@ -4,10 +4,7 @@ import { RenderRequestEvent } from '@cache';
  * A custom event handler for the render request.
  * Depending on the platform and the browser, its implementation will vary
  */
-export const onRenderRequest = ({
-  target,
-  renderTime,
-}: RenderRequestEvent<'render'>) => {
+export const onRenderRequest = ({ target }: RenderRequestEvent<'render'>) => {
   // create div of w/h set opacity to 0.1 append to body, ren remove on next frame
   const div = document.createElement('div');
   const style = {
@@ -29,8 +26,8 @@ export const onRenderRequest = ({
   Object.assign(div.style, style);
   document.body.appendChild(div);
 
-  setTimeout(() => {
-    // document.body.removeChild(div);
-  }, renderTime);
+  target.on('clear', () => {
+    document.body.removeChild(div);
+  });
   return true;
 };
