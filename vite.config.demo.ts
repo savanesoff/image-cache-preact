@@ -3,6 +3,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import preact from '@preact/preset-vite';
 
 export default defineConfig({
+  base: './',
   build: {
     sourcemap: false, // Enable source maps
     outDir: 'dist-demo',
