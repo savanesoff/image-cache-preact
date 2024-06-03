@@ -77,6 +77,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx-development": "^7.24.6",
+    "@changesets/cli": "^2.27.5",
     "@eslint/js": "^9.3.0",
     "@noriginmedia/norigin-spatial-navigation": "^2.1.0",
     "@preact/preset-vite": "^2.8.2",
@@ -97,7 +98,6 @@
     "@vitejs/plugin-react-swc": "^3.0.0",
     "autoprefixer": "^10.4.19",
     "babel-plugin-transform-hook-names": "^1.0.2",
-    "changeset": "^0.2.6",
     "clsx": "^2.1.0",
     "declaration-bundler-webpack-plugin": "^1.0.3",
     "devtools-fps": "^2.0.2",
