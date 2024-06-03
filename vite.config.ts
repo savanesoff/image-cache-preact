@@ -12,11 +12,11 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
-      name: 'ImageCacheReact',
+      name: 'ImageCachePreact',
     },
     sourcemap: true, // Enable source maps
     rollupOptions: {
-      external: ['react', 'react-dom', 'tslib'],
+      external: ['preact', 'tslib'],
       output: [
         {
           format: 'es',

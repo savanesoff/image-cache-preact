@@ -1,9 +1,9 @@
 {
-  "name": "image-cache-react",
+  "name": "image-cache-preact",
   "private": false,
   "version": "0.4.3",
   "type": "module",
-  "description": "React component for image caching. Provides a way to handle load and cache of images in memory and manage their lifecycle in both GPU and RAM.",
+  "description": "Preact component for image caching and rendering performance boost. Provides ways to manage image loading, caching and memory usage (RAM & GPU).",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
@@ -39,13 +39,13 @@
     "ram",
     "video-memory",
     "memory-management",
-    "react",
-    "react-component",
-    "react-image-memory",
-    "react-resizable",
+    "preact",
+    "preact-component",
+    "preact-image-memory",
+    "preact-resizable",
     "typescript",
     "typescript-component",
-    "typescript-react"
+    "typescript-preact"
   ],
   "release": {
     "branches": [
@@ -65,17 +65,11 @@
     "clean:package": "rm -rf ./dist",
     "build:types": "tspc --project tsconfig.package.json",
     "build:package": "pnpm run clean:package && vite build && pnpm run build:types",
-    "build:demo": "pnpm clear:demo; bash ./demo-build.sh --path tsconfig.build.demo.json",
+    "build:demo": "pnpm clear:demo; bash ./ts-cmd.sh --path tsconfig.build.demo.json --cmd vite build --config vite.config.demo.ts",
     "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo"
   },
   "dependencies": {
-    "clsx": "^2.1.0",
-    "events": "^3.3.0",
-    "lorem-ipsum": "^2.0.8",
     "preact": "^10.22.0",
-    "react-intersection-observer": "^9.10.2",
-    "tailwind-merge": "^2.2.2",
-    "tailwindcss": "^3.4.3",
     "tslib": "^2.6.2"
   },
   "devDependencies": {
@@ -86,7 +80,6 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@types/events": "^3.0.0",
     "@types/json-schema": "^7.0.11",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
@@ -94,6 +87,7 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react-swc": "^3.0.0",
     "autoprefixer": "^10.4.19",
+    "clsx": "^2.1.0",
     "declaration-bundler-webpack-plugin": "^1.0.3",
     "devtools-fps": "^2.0.2",
     "eslint": "^8.57.0",
@@ -112,21 +106,18 @@
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.13",
-    "react-intersection-observer": "^9.10.2",
     "rollup": "^4.17.2",
     "rollup-plugin-typescript2": "^0.36.0",
-    "swc-loader": "^0.2.6",
+    "tailwind-merge": "^2.2.2",
+    "tailwindcss": "^3.4.3",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
-    "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5",
     "typescript-transform-paths": "^3.4.7",
     "vite": "^5.2.11",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^1.4.0",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
+    "vitest": "^1.4.0"
   }
 }
