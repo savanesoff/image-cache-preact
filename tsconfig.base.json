@@ -4,7 +4,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "importHelpers": true,
@@ -18,7 +18,12 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    "types": ["vite/client", "vitest/globals", "vitest/jsdom"],
+    "types": [
+      "vite/client",
+      "vitest/globals",
+      "vitest/jsdom",
+      "@testing-library/jest-dom"
+    ],
     "baseUrl": "./",
     "paths": {
       "@components/*": ["src/components/*"],
@@ -43,7 +48,13 @@
       }
     ]
   },
-  "include": ["src", "demo"],
+  "include": [
+    "src",
+    "demo",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vite.config.demo.ts"
+  ],
   "exclude": ["node_modules", "dist", "dist-demo"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
