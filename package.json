@@ -66,13 +66,17 @@
     "build:types": "tspc --project tsconfig.package.json",
     "build:package": "pnpm run clean:package && vite build && pnpm run build:types",
     "build:demo": "pnpm clear:demo; bash ./ts-cmd.sh --path tsconfig.build.demo.json --cmd vite build --config vite.config.demo.ts",
-    "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo"
+    "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo",
+    "build": "pnpm run build:package",
+    "release": "pnpm run test && pnpm run build:package && pnpm changeset publish"
   },
   "dependencies": {
+    "image-cache-pro": "^0.5.1",
     "preact": "^10.22.0",
     "tslib": "^2.6.2"
   },
   "devDependencies": {
+    "@babel/plugin-transform-react-jsx-development": "^7.24.6",
     "@eslint/js": "^9.3.0",
     "@noriginmedia/norigin-spatial-navigation": "^2.1.0",
     "@preact/preset-vite": "^2.8.2",
@@ -80,6 +84,11 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/preact": "^3.2.4",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/react-hooks": "^8.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/json-schema": "^7.0.11",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
@@ -87,6 +96,7 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react-swc": "^3.0.0",
     "autoprefixer": "^10.4.19",
+    "babel-plugin-transform-hook-names": "^1.0.2",
     "clsx": "^2.1.0",
     "declaration-bundler-webpack-plugin": "^1.0.3",
     "devtools-fps": "^2.0.2",
