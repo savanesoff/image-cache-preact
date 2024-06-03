@@ -10,7 +10,8 @@
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
     },
     "./package.json": "./package.json"
   },
@@ -60,15 +61,15 @@
     "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
     "preview": "vite preview --root dist-demo",
     "test": "vitest --run",
-    "prepack": "pnpm run build",
+    "prepack": "pnpm build",
     "clear:demo": "rm -rf dist-demo; mkdir dist-demo",
     "clean:package": "rm -rf ./dist",
     "build:types": "tspc --project tsconfig.package.json",
-    "build:package": "pnpm run clean:package && vite build && pnpm run build:types",
+    "build:package": "pnpm clean:package && vite build && pnpm build:types",
     "build:demo": "pnpm clear:demo; bash ./ts-cmd.sh --path tsconfig.build.demo.json --cmd vite build --config vite.config.demo.ts",
-    "deploy:demo": "pnpm run build:demo && gh-pages -d dist-demo",
-    "build": "pnpm run build:package",
-    "release": "pnpm run test && pnpm run build:package && pnpm changeset publish"
+    "deploy:demo": "pnpm build:demo && pnpm gh-pages -d dist-demo",
+    "build": "pnpm build:package",
+    "release": "pnpm test && pnpm build:package && pnpm changeset publish"
   },
   "dependencies": {
     "image-cache-pro": "^0.5.1",
