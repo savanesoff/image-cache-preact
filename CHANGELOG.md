@@ -1,5 +1,11 @@
 # image-cache-preact
 
+## 0.6.1
+
+### Patch Changes
+
+- 16a1477: Sync readme
+
 ## 0.6.0
 
 ### Minor Changes
