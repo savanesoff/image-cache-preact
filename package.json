@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/savanesoff/image-cache-react"
+    "url": "git+https://github.com/savanesoff/image-cache-preact"
   },
   "packageManager": "pnpm@9.1.4",
   "keywords": [
