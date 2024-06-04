@@ -1,5 +1,11 @@
 # image-cache-preact
 
+## 0.6.0
+
+### Minor Changes
+
+- 25d479e: build preact fix
+
 ## 0.5.1
 
 ### Patch Changes
