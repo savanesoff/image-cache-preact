@@ -30,21 +30,25 @@ You can find a demo of the library [here](https://savanesoff.github.io/image-cac
 
 ## Table of Contents
 
+- [image-cache-preact](#image-cache-preact)
+- [React Library](#react-library)
+- [VanillaJS Library](#vanillajs-library)
+- [Origin](#origin)
 - [Use Case](#use-case)
   - [Memory Management](#memory-management)
   - [Performance (FPS)](#performance-fps)
-- [Origin](#origin)
 - [Features](#features)
-- [RAM Usage Monitoring](#ram-usage-monitoring)
-- [GPU Memory Usage Monitoring](#gpu-memory-usage-monitoring)
-  - [Example](#example)
+  - [RAM Usage Monitoring](#ram-usage-monitoring)
+  - [GPU Memory Usage Monitoring](#gpu-memory-usage-monitoring)
 - [Installation](#installation)
-- [Usage](#usage)
-  - [Controller](#controller)
-  - [Bucket](#bucket)
-  - [RenderRequest](#renderrequest)
-- [License](#license)
+- [Basic Usage](#basic-usage)
+  - [ControllerProvider](#controllerprovider)
+  - [useController](#usecontroller)
+  - [BucketProvider](#bucketprovider)
+- [Advanced Usage](#advanced-usage)
+- [LICENSE](#license)
 - [Acknowledgments](#acknowledgments)
+- [PS](#ps)
 
 ## Origin
 
