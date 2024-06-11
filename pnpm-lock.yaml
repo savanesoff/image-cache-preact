@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       image-cache-pro:
-        specifier: ^0.5.1
-        version: 0.5.1
+        specifier: ^0.6.0
+        version: 0.6.0
       preact:
         specifier: ^10.22.0
         version: 10.22.0
@@ -2133,8 +2133,9 @@ packages:
     resolution: {integrity: sha512-5Fytz/IraMjqpwfd34ke28PTVMjZjJG2MPn5t7OE4eUCUNf8BAa7b5WUS9/Qvr6mwOQS7Mk6vdsMno5he+T8Xw==}
     engines: {node: '>= 4'}
 
-  image-cache-pro@0.5.1:
-    resolution: {integrity: sha512-TQcxoPp/nJWmZIJ42Wo3y/nz6nu5GRfPx1GS46KpptourW5Kie47AKvQ/1MjqfqFKh6hs7w9i7ruAZVmsk7oQA==}
+  image-cache-pro@0.6.0:
+    resolution: {integrity: sha512-7Y7hty/zoySxaD63YvbRU0GcsxRuxg+hAbK5Cy09DZalB3KBJH7INfC2vzPETN03EW+rWp2djcAirRF7osw6ow==}
+    engines: {node: '>=18.19.1', pnpm: '>=9.1.4'}
 
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
@@ -6010,7 +6011,7 @@ snapshots:
 
   ignore@5.3.1: {}
 
-  image-cache-pro@0.5.1:
+  image-cache-pro@0.6.0:
     dependencies:
       events: 3.3.0
       tslib: 2.6.2
