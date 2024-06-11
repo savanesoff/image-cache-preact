@@ -4,7 +4,6 @@ import {
   ImageProvider,
   useBucket,
   UseBucketProps,
-  useImage,
   UseImageProps,
 } from '@cache';
 import { useLockerAssets } from './useLockerAssets';
@@ -43,7 +42,7 @@ const AssetLocker = ({ assetPages, ...props }: AssetLockerProps) => {
 type LockerImageProps = UseImageProps & {
   asset: Asset;
 };
-const LockerImage = ({ asset, ...props }: LockerImageProps) => {
+const LockerImage = ({ asset }: LockerImageProps) => {
   const headers = useMemo(() => {
     return {
       'Content-Type': asset.mimeType,
@@ -58,13 +57,7 @@ const LockerImage = ({ asset, ...props }: LockerImageProps) => {
       width={config.image.renderWidth}
       height={config.image.renderHeight}
       trackVisibility={false}
-    >
-      <LockerImageEvents {...props} />
-    </ImageProvider>
+      onRender={onRenderRequest}
+    />
   );
-};
-
-const LockerImageEvents = (props: UseImageProps) => {
-  useImage({ onRender: onRenderRequest, ...props });
-  return null;
 };
