@@ -1,5 +1,11 @@
 # image-cache-preact
 
+## 0.6.2
+
+### Patch Changes
+
+- 2bd794a: Event handling fixes
+
 ## 0.6.1
 
 ### Patch Changes
