@@ -72,7 +72,7 @@
     "release": "pnpm test && pnpm build:package && pnpm changeset publish"
   },
   "dependencies": {
-    "image-cache-pro": "^0.5.1",
+    "image-cache-pro": "^0.6.0",
     "preact": "^10.22.0",
     "tslib": "^2.6.2"
   },

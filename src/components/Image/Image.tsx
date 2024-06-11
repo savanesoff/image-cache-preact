@@ -17,7 +17,12 @@
  * which contains the `Img` instance and the `RenderRequest` for the image.
  */
 import { useBucket } from '@components/Bucket';
-import { ImgProps, Size, RenderRequest } from 'image-cache-pro';
+import {
+  ImgProps,
+  Size,
+  RenderRequest,
+  RenderRequestEvent,
+} from 'image-cache-pro';
 import {
   createContext,
   ReactNode,
@@ -27,6 +32,7 @@ import {
 } from 'react';
 
 import { useVisibilityObserver } from '@utils';
+import { UseImageProps } from './useImage';
 
 export type ImageContextType = {
   request: RenderRequest;
@@ -41,6 +47,7 @@ export const ImageContext = createContext<ImageContextType>(
 );
 
 export type ImageProviderProps = ImgProps &
+  UseImageProps &
   Size & {
     children?: ReactNode;
     /**
@@ -79,6 +86,11 @@ export const ImageProvider = ({
   type,
   visibilityMargin,
   trackVisibility = true,
+  onProgress,
+  onError,
+  onLoadend,
+  onRendered: onRenderedH,
+  onRender,
 }: ImageProviderProps) => {
   const [request, setRequest] = useState<RenderRequest | null>(null);
   const [cleared, setCleared] = useState(false);
@@ -98,9 +110,13 @@ export const ImageProvider = ({
   }, []);
 
   // provide url to children when rendered
-  const onRendered = useCallback(() => {
-    setRenderUrl(url);
-  }, [url]);
+  const onRendered = useCallback(
+    (event: RenderRequestEvent<'rendered'>) => {
+      setRenderUrl(url);
+      onRenderedH?.(event);
+    },
+    [url, onRenderedH],
+  );
 
   useEffect(() => {
     if (cleared && visible) {
@@ -131,6 +147,10 @@ export const ImageProvider = ({
     setRequest(newRequest);
     newRequest.on('clear', onCleared);
     newRequest.on('rendered', onRendered);
+    onRender && newRequest.on('render', onRender);
+    onProgress && newRequest.on('progress', onProgress);
+    onError && newRequest.on('error', onError);
+    onLoadend && newRequest.on('loadend', onLoadend);
     return () => {
       newRequest.clear(true);
     };
@@ -146,6 +166,10 @@ export const ImageProvider = ({
     cleared,
     onCleared,
     onRendered,
+    onRender,
+    onProgress,
+    onError,
+    onLoadend,
   ]);
 
   return (
